@@ -1,0 +1,78 @@
+name: "SCSE Web"
+
+variables:
+  CI: true
+
+pool:
+  vmImage: "ubuntu-latest"
+
+trigger:
+  batch: "true"
+  branches:
+    include:
+      - main
+  tags:
+    include:
+      - "*"
+
+pr:
+  - main
+
+stages:
+  - stage: "DeployToStaging"
+    displayName: "Deploy to Staging"
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+    jobs:
+      - job: PushToACR
+        displayName: "Push to ACR"
+        steps:
+          # Build and push Docker image
+          # Needs separate step because build arguments are not supported in Docker@2 buildAndPush
+          - task: Docker@2
+            displayName: "Build docker image"
+            inputs:
+              containerRegistry: $(container_registry)
+              command: "build"
+              Dockerfile: "./Dockerfile"
+              repository: "scse/search-ui-web"
+              arguments: $(staging_build_arguments)
+              tags: |
+                $(Build.BuildId)-rc
+                test
+          - task: Docker@2
+            displayName: "Push docker image"
+            inputs:
+              containerRegistry: $(container_registry)
+              command: "push"
+              repository: "scse/search-ui-web"
+              tags: |
+                $(Build.BuildId)-rc
+                test
+
+  - stage: "DeployToProduction"
+    displayName: "Deploy to Production"
+    condition: eq(variables['Build.SourceBranch'], 'refs/tags/*')
+    jobs:
+      - job: PushToACR
+        displayName: "Push to ACR"
+        steps:
+          # Build and push Docker image
+          # Needs separate step because build arguments are not supported in Docker@2 buildAndPush
+          - task: Docker@2
+            displayName: "Build docker image"
+            inputs:
+              containerRegistry: $(container_registry)
+              command: "build"
+              Dockerfile: "./Dockerfile"
+              repository: "scse/search-ui-web"
+              arguments: $(production_build_arguments)
+              tags: |
+                $(Build.SourceBranchName)
+          - task: Docker@2
+            displayName: "Push docker image"
+            inputs:
+              containerRegistry: $(container_registry)
+              command: "push"
+              repository: "scse/search-ui-web"
+              tags: |
+                $(Build.SourceBranchName)
