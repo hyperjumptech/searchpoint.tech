@@ -49,30 +49,19 @@ stages:
                 $(Build.BuildId)-rc
                 test
 
-  - stage: "DeployToProduction"
-    displayName: "Deploy to Production"
-    condition: eq(variables['Build.SourceBranch'], 'refs/tags/*')
+  - stage: "DeployToPoC"
+    displayName: "Deploy to PoC"
     jobs:
-      - job: PushToACR
-        displayName: "Push to ACR"
+      - job: DeployToPoC
+        displayName: "Deploy to PoC"
         steps:
-          # Build and push Docker image
-          # Needs separate step because build arguments are not supported in Docker@2 buildAndPush
-          - task: Docker@2
-            displayName: "Build docker image"
+          # Deploy step using SSH service connection
+          - task: SSH@0
+            displayName: 'Use SSH to connect to PoC server'
             inputs:
-              containerRegistry: $(container_registry)
-              command: "build"
-              Dockerfile: "./Dockerfile"
-              repository: "scse/search-ui-web"
-              arguments: $(production_build_arguments)
-              tags: |
-                $(Build.SourceBranchName)
-          - task: Docker@2
-            displayName: "Push docker image"
-            inputs:
-              containerRegistry: $(container_registry)
-              command: "push"
-              repository: "scse/search-ui-web"
-              tags: |
-                $(Build.SourceBranchName)
+              sshEndpoint: 'SSH to SCSE PoC'  # Name of the service connection
+              runOptions: inline
+              inline: |
+                export FRONTEND_TAG=$(Build.BuildId)-rc
+                export BACKEND_TAG=$(bash /home/ubuntu/scripts/get-running.sh hyperjump.azurecr.io/scse/poc-backend)
+                docker compose -f poc/compose.yaml up -d --remove-orphans 2>&1
