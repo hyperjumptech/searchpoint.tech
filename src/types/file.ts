@@ -1,5 +1,3 @@
-import { User } from "./user";
-
 export type FileSource = {
   owner_email: string;
   extension: string;
@@ -15,10 +13,4 @@ export type FileSource = {
 
 export type FileValue = {
   _source: FileSource;
-};
-
-export type ApiResponse = {
-  status: string;
-  user: User;
-  value: FileValue[];
 };

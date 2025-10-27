@@ -23,7 +23,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Map your NEXT_PUBLIC_ environment variables here. Here is an example:
 # ARG NEXT_PUBLIC_SOMETHING=something
+ARG BACKEND_BASE_URL=http://localhost:8080
+
 # ENV NEXT_PUBLIC_SOMETHING=$NEXT_PUBLIC_SOMETHING
+ENV BACKEND_BASE_URL=$BACKEND_BASE_URL
 
 RUN bun run build
 

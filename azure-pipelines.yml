@@ -57,9 +57,9 @@ stages:
         steps:
           # Deploy step using SSH service connection
           - task: SSH@0
-            displayName: 'Use SSH to connect to PoC server'
+            displayName: "Use SSH to connect to PoC server"
             inputs:
-              sshEndpoint: 'SSH to SCSE PoC'  # Name of the service connection
+              sshEndpoint: "SSH to SCSE PoC" # Name of the service connection
               runOptions: inline
               inline: |
                 export FRONTEND_TAG=$(Build.BuildId)-rc

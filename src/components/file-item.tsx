@@ -1,26 +1,12 @@
-import { Badge } from "./ui/badge";
 import Link from "next/link";
-import { FileSource } from "@/types/search";
+import { FileSource } from "@/types/file";
 import Image from "next/image";
+import { formatTime } from "@/lib/format-time";
+import { formatFileSize } from "@/lib/format-file";
 
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) return "0 bytes";
-  const sizes = ["bytes", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  const value = bytes / Math.pow(1024, i);
-  return `${value.toFixed(value < 10 && i > 0 ? 1 : 0)} ${sizes[i]}`;
-}
-
-export default function FileItem({
-  name,
-  path,
-  owner_email,
-  updated_at,
-  size,
-  keywords,
-}: FileSource) {
-  const ext = name.split(".").pop()?.toLowerCase();
-  const visibility = keywords?.includes("private") ? "private" : "public";
+export default function FileItem({ _source }: { _source: FileSource }) {
+  const { path, owner_email, updated_at, size } = _source;
+  const ext = _source?.name.split(".").pop()?.toLowerCase();
 
   const icon = (() => {
     let src = "/images/microsoft-office-icons/file.svg"; // default icon
@@ -29,14 +15,14 @@ export default function FileItem({
     switch (ext) {
       case "doc":
       case "docx":
-      case "docm": // macro-enabled Word
+      case "docm":
       case "word":
         src = "/images/microsoft-office-icons/word.svg";
         alt = "Word file";
         break;
       case "xls":
       case "xlsx":
-      case "xlsm": // macro-enabled Excel
+      case "xlsm":
         src = "/images/microsoft-office-icons/excel.svg";
         alt = "Excel file";
         break;
@@ -46,7 +32,7 @@ export default function FileItem({
         break;
       case "ppt":
       case "pptx":
-      case "pptm": // macro-enabled PowerPoint
+      case "pptm":
         src = "/images/microsoft-office-icons/ppt.svg";
         alt = "PowerPoint file";
         break;
@@ -79,7 +65,6 @@ export default function FileItem({
         <div>
           <div className="flex items-center space-x-2 mb-1">
             <span className="text-xs text-[#30302F]">{owner_email}</span>
-            <Badge variant="secondary">{visibility}</Badge>
           </div>
           <div className="text-xs text-[#ACACAC] mt-1">{path}</div>
         </div>
@@ -90,12 +75,10 @@ export default function FileItem({
           href="#"
           className="text-[#005FB7] cursor-pointer hover:text-blue-800 font-bold text-xl"
         >
-          {name}
+          {_source?.name}
         </Link>
         <div className="text-[#747474] mt-1">
-          <span className="font-bold">
-            updated {new Date(updated_at).toLocaleString()} —{" "}
-          </span>{" "}
+          <span className="font-bold">{formatTime(updated_at)} </span>-{" "}
           {formatFileSize(size)}
         </div>
       </div>
