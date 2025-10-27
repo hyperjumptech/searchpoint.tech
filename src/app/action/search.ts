@@ -3,10 +3,17 @@
 import { config } from "@/config/env";
 import { FileSource, FileValue } from "@/types/file";
 
-export async function handleSearch(query: string): Promise<FileSource[]> {
-  const endpoint = `${config.backendBaseUrl}/v1/files?search=${encodeURIComponent(
-    query,
-  )}`;
+export async function handleSearch(
+  query: string,
+  email?: string
+): Promise<FileSource[]> {
+  const params = new URLSearchParams();
+  params.set("search", query);
+  if (email) {
+    params.set("filter", `owner_email eq '${email}'`);
+  }
+
+  const endpoint = `${config.backendBaseUrl}/v1/files?${params.toString()}`;
 
   try {
     const res = await fetch(endpoint, {

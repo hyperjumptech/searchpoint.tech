@@ -11,11 +11,14 @@ export const metadata: Metadata = {
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }> | { q?: string };
+  searchParams:
+    | Promise<{ q?: string; email?: string }>
+    | { q?: string; email?: string };
 }) {
   const params = await searchParams;
   const query = params?.q?.trim() ?? "";
-  const initialData = await handleSearch(query);
+  const email = params?.email?.trim() ?? "";
+  const initialData = await handleSearch(query, email);
 
   return (
     <Suspense

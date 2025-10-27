@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { FileSource } from "@/types/file";
 import FileItem from "@/components/file-item";
 import localData from "../../../public/data.json";
+import { useUserStore } from "@/stores/user";
 
 type FilterName = "All" | "Microsoft Office" | "PDF";
 
@@ -25,7 +26,7 @@ type FilterTypeMap = Record<FilterName, string | string[] | null>;
 interface SearchClientProps {
   initialQuery: string;
   initialData: FileSource[];
-  handleSearch: (query: string) => Promise<FileSource[]>;
+  handleSearch: (query: string, email?: string) => Promise<FileSource[]>;
 }
 
 export default function SearchClient({
@@ -36,6 +37,7 @@ export default function SearchClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = localData;
+  const { user: userFromStore, fetchUser } = useUserStore();
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<FileSource[]>(initialData);
   const [filteredResults, setFilteredResults] =
@@ -45,7 +47,7 @@ export default function SearchClient({
 
   const filters = useMemo<{ name: FilterName }[]>(
     () => [{ name: "All" }, { name: "Microsoft Office" }, { name: "PDF" }],
-    [],
+    []
   );
 
   const filterTypeMap: FilterTypeMap = useMemo(
@@ -64,8 +66,12 @@ export default function SearchClient({
       ],
       PDF: "pdf",
     }),
-    [],
+    []
   );
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
   const fetchResults = useCallback(
     async (keyword: string) => {
@@ -73,13 +79,44 @@ export default function SearchClient({
       if (!trimmed) return;
 
       startTransition(async () => {
-        const newResults = await handleSearch(trimmed);
+        const email = userFromStore?.upn;
+        const newResults = await handleSearch(trimmed, email);
         setResults(newResults);
         setFilteredResults(newResults);
       });
     },
-    [handleSearch],
+    [handleSearch, userFromStore?.upn]
   );
+
+  useEffect(() => {
+    const q = searchParams.get("q") ?? "";
+    const emailParam = searchParams.get("email");
+    const email = userFromStore?.upn;
+
+    setQuery(q);
+    if (q.trim()) fetchResults(q);
+
+    // Add email to URL if it's not provided but exists in userFromStore
+    if (email && !emailParam) {
+      const queryParams = new URLSearchParams(searchParams.toString());
+      queryParams.set("email", email);
+      router.replace(`/search?${queryParams.toString()}`, { scroll: false });
+    }
+  }, [searchParams, fetchResults, userFromStore?.upn, router]);
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const trimmed = query.trim();
+    if (!trimmed) return;
+
+    const email = userFromStore?.upn;
+    const queryParams = new URLSearchParams({
+      q: trimmed,
+      ...(email && { email }),
+    });
+
+    router.push(`/search?${queryParams.toString()}`);
+  };
 
   useEffect(() => {
     const q = searchParams.get("q") ?? "";
@@ -99,20 +136,13 @@ export default function SearchClient({
         if (!typeToMatch) return true;
         if (Array.isArray(typeToMatch)) {
           return typeToMatch.some((ext) =>
-            r.extension?.toLowerCase().includes(ext),
+            r.extension?.toLowerCase().includes(ext)
           );
         }
         return r.extension?.toLowerCase() === typeToMatch;
-      }),
+      })
     );
   }, [activeFilter, results, filterTypeMap]);
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    const trimmed = query.trim();
-    if (!trimmed) return;
-    router.push(`/search?q=${encodeURIComponent(trimmed)}`);
-  };
 
   const clearSearch = () => {
     setQuery("");
@@ -138,7 +168,9 @@ export default function SearchClient({
             </Link>
             <div className="xl:hidden flex items-center space-x-3">
               <div className="text-right">
-                <div className="font-bold text-[#30302F]">{user.name}</div>
+                <div className="font-bold text-[#30302F]">
+                  {userFromStore?.name}
+                </div>
                 <div className="text-xs text-[#909090]">{user.role}</div>
               </div>
               <Image
@@ -192,7 +224,9 @@ export default function SearchClient({
 
           <div className="hidden xl:flex items-center space-x-3 justify-end">
             <div className="text-right">
-              <div className="font-bold text-[#30302F]">{user.name}</div>
+              <div className="font-bold text-[#30302F]">
+                {userFromStore?.name}
+              </div>
               <div className="text-xs text-[#909090]">{user.role}</div>
             </div>
             <Image
