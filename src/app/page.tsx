@@ -1,7 +1,6 @@
 import Navbar from "@/components/nav";
 import Footer from "@/components/footer";
 import SearchBar from "@/components/search/searchbar";
-import localData from "../../public/data.json";
 import { config } from "@/config/env";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +25,6 @@ export async function getFiles() {
 
 export default async function HomePage() {
   const data = await getFiles();
-  const { user } = localData;
 
   if (!data) {
     return (
@@ -38,12 +36,10 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      <Navbar user={user} />
+      <Navbar />
       <main className="flex-1 flex flex-col items-center px-6 pt-28 pb-12">
         <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-[#30302F] mb-5">
-            Welcome, {user.name}!
-          </h1>
+          <h1 className="text-3xl font-bold text-[#30302F] mb-5">Welcome!</h1>
           <p className="text-[#909090] font-normal max-w-xl leading-relaxed">
             Search across both public resources and your organization&apos;s
             private files with enterprise-grade security and role-based access

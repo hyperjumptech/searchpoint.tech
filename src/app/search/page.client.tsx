@@ -16,7 +16,6 @@ import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { FileSource } from "@/types/file";
 import FileItem from "@/components/file-item";
-import localData from "../../../public/data.json";
 import { useUserStore } from "@/stores/user";
 
 type FilterName = "All" | "Microsoft Office" | "PDF";
@@ -36,7 +35,6 @@ export default function SearchClient({
 }: SearchClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = localData;
   const { user: userFromStore, fetchUser } = useUserStore();
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<FileSource[]>(initialData);
@@ -47,7 +45,7 @@ export default function SearchClient({
 
   const filters = useMemo<{ name: FilterName }[]>(
     () => [{ name: "All" }, { name: "Microsoft Office" }, { name: "PDF" }],
-    []
+    [],
   );
 
   const filterTypeMap: FilterTypeMap = useMemo(
@@ -66,7 +64,7 @@ export default function SearchClient({
       ],
       PDF: "pdf",
     }),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -85,8 +83,12 @@ export default function SearchClient({
         setFilteredResults(newResults);
       });
     },
-    [handleSearch, userFromStore?.upn]
+    [handleSearch, userFromStore?.upn],
   );
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
   useEffect(() => {
     const q = searchParams.get("q") ?? "";
@@ -136,11 +138,11 @@ export default function SearchClient({
         if (!typeToMatch) return true;
         if (Array.isArray(typeToMatch)) {
           return typeToMatch.some((ext) =>
-            r.extension?.toLowerCase().includes(ext)
+            r.extension?.toLowerCase().includes(ext),
           );
         }
         return r.extension?.toLowerCase() === typeToMatch;
-      })
+      }),
     );
   }, [activeFilter, results, filterTypeMap]);
 
@@ -171,15 +173,17 @@ export default function SearchClient({
                 <div className="font-bold text-[#30302F]">
                   {userFromStore?.name}
                 </div>
-                <div className="text-xs text-[#909090]">{user.role}</div>
+                <div className="text-xs text-[#909090]">
+                  {userFromStore?.upn}
+                </div>
               </div>
-              <Image
-                src={user.avatar}
-                alt={user.name}
+              {/* <Image
+                src={user?.avatar}
+                alt={user?.name}
                 width={40}
                 height={40}
                 className="w-10 h-10 rounded-full object-cover"
-              />
+              /> */}
             </div>
           </div>
 
@@ -227,15 +231,15 @@ export default function SearchClient({
               <div className="font-bold text-[#30302F]">
                 {userFromStore?.name}
               </div>
-              <div className="text-xs text-[#909090]">{user.role}</div>
+              <div className="text-xs text-[#909090]">{userFromStore?.upn}</div>
             </div>
-            <Image
+            {/* <Image
               src={user.avatar}
               alt={user.name}
               width={40}
               height={40}
               className="w-10 h-10 rounded-full object-cover"
-            />
+            /> */}
           </div>
         </div>
       </header>

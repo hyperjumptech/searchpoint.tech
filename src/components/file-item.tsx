@@ -64,16 +64,18 @@ export default function FileItem({ _source }: { _source: FileSource }) {
         </div>
         <div>
           <div className="flex items-center space-x-2 mb-1">
-            <span className="text-xs text-[#30302F]">{owner_email}</span>
+            <span className="text-xs text-[#30302F] break-all">
+              {owner_email}
+            </span>
           </div>
-          <div className="text-xs text-[#ACACAC] mt-1">{path}</div>
+          <div className="text-xs text-[#ACACAC] break-all mt-1">{path}</div>
         </div>
       </div>
 
       <div className="flex-1">
         <Link
           href="#"
-          className="text-[#005FB7] cursor-pointer hover:text-blue-800 font-bold text-xl"
+          className="text-[#005FB7] break-all cursor-pointer hover:text-blue-800 font-bold text-xl"
         >
           {_source?.name}
         </Link>
