@@ -1,18 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import Link from "next/link";
+
+import { useUserStore } from "@/stores/user";
 import { User } from "@/types/user";
+
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 export interface NavbarProps {
   user: User;
 }
 
-export default function Navbar({ user }: NavbarProps) {
-  const { name, role, avatar } = user;
+export default function Navbar(props: NavbarProps) {
+  const { role, avatar } = props.user;
+  const { user } = useUserStore();
 
-  const initialName = name
+  const initialName = user?.name
     .split(" ")
     .filter((word) => word.length > 0)
     .map((word) => word[0].toUpperCase())
@@ -32,11 +36,11 @@ export default function Navbar({ user }: NavbarProps) {
 
       <div className="flex items-center space-x-3">
         <div className="text-right">
-          <div className="font-bold text-[#30302F]">{user.name}</div>
+          <div className="font-bold text-[#30302F]">{user?.name}</div>
           <div className="text-xs text-[#909090]">{role}</div>
         </div>
         <Avatar>
-          <AvatarImage src={avatar} alt={name} />
+          <AvatarImage src={avatar} alt={user?.name} />
           <AvatarFallback>{initialName}</AvatarFallback>
         </Avatar>
       </div>
