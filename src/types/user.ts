@@ -1,7 +1,8 @@
-import { FC } from "react";
-
 export interface User {
   name: string;
-  upn: string;
-  avatar?: FC | undefined | string;
+  email: string;
+  role: string;
+  avatar: string;
+  laptop_name: string;
+  base_path: string;
 }

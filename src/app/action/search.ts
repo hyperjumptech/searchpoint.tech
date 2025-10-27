@@ -5,7 +5,7 @@ import { FileSource, FileValue } from "@/types/file";
 
 export async function handleSearch(
   query: string,
-  email?: string,
+  email?: string
 ): Promise<FileSource[]> {
   const params = new URLSearchParams();
   params.set("search", query);
