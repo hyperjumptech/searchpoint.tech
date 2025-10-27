@@ -1,10 +1,10 @@
-"use server";
-
 import Navbar from "@/components/nav";
 import Footer from "@/components/footer";
 import SearchBar from "@/components/search/searchbar";
 import localData from "../../public/data.json";
 import { config } from "@/config/env";
+
+export const dynamic = "force-dynamic";
 
 export async function getFiles() {
   try {

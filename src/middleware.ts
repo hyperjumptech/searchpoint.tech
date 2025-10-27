@@ -23,6 +23,7 @@ export const config = {
   matcher: [
     "/",
     "/login",
+    "/logout",
     // Add other routes as needed
   ],
 };
