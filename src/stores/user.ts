@@ -8,27 +8,26 @@ interface User {
 
 interface UserStore {
   user: User | null;
+  fetchUser: () => Promise<void>;
   logout: () => void;
 }
 
-function getUserFromCookie() {
-  try {
-    const token = Cookies.get("SCSE_ID");
-    if (!token) return null;
-
-    return jwtDecode<User>(token);
-  } catch {
-    return null;
-  }
-}
-
 export const useUserStore = create<UserStore>((set) => ({
-  user: getUserFromCookie(),
+  user: null,
+  fetchUser: async () => {
+    const token = Cookies.get("SCSE_ID");
+
+    if (token) {
+      const user = jwtDecode<User>(token);
+
+      set({ user });
+    } else {
+      set({ user: null });
+    }
+  },
   logout: () => {
     Cookies.remove("SCSE_ID");
 
     set({ user: null });
-
-    window.location.href = "/login";
   },
 }));

@@ -7,6 +7,7 @@ import { useUserStore } from "@/stores/user";
 import { User } from "@/types/user";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useEffect } from "react";
 
 export interface NavbarProps {
   user: User;
@@ -14,13 +15,17 @@ export interface NavbarProps {
 
 export default function Navbar(props: NavbarProps) {
   const { role, avatar } = props.user;
-  const { user } = useUserStore();
+  const { user, fetchUser } = useUserStore();
 
   const initialName = user?.name
     .split(" ")
     .filter((word) => word.length > 0)
     .map((word) => word[0].toUpperCase())
     .join("");
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full h-[64px] border-b border-[#E3E3E3] p-4 bg-white">
