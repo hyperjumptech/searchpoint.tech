@@ -2,14 +2,17 @@
 
 import { useState, FormEvent } from "react";
 import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function SearchBar() {
   const [query, setQuery] = useState("");
+  const router = useRouter();
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
+
     if (query.trim()) {
-      window.location.href = `/search?q=${encodeURIComponent(query)}`;
+      router.push(`/search?q=${encodeURIComponent(query)}`);
     }
   };
 
