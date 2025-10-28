@@ -15,12 +15,39 @@ trigger:
     include:
       - "*"
 
-pr:
-  - main
-
 stages:
-  - stage: "DeployToStaging"
-    displayName: "Deploy to Staging"
+  - stage: BuildTest
+    displayName: Build and test
+    jobs:
+      - job: build_and_test
+        displayName: Build and Test
+        condition: always()
+        timeoutInMinutes: "30"
+
+        steps:
+          - task: Npm@1
+            displayName: Install Bun
+            inputs:
+              command: "custom"
+              customCommand: "install -g bun"
+              verbose: true
+
+          - script: bun install
+            displayName: "Install dependencies"
+
+          # TODO: bun run format:check when formatter is set up
+          - script: bun run lint
+            displayName: "Run Static Code Analysis"
+
+          # TODO: Enable tests when they are available
+          # - script: bun test
+          #   displayName: "Test the application"
+
+          - script: bun run build
+            displayName: "Build the application"
+
+  - stage: "PushToACR"
+    displayName: "Push to ACR"
     condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
     jobs:
       - job: PushToACR
