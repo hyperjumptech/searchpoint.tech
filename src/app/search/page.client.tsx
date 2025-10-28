@@ -4,7 +4,6 @@ import {
   useState,
   useEffect,
   FormEvent,
-  useCallback,
   useMemo,
   Fragment,
   useTransition,
@@ -24,18 +23,14 @@ type FilterName = "All" | "Microsoft Office" | "PDF";
 type FilterTypeMap = Record<FilterName, string | string[] | null>;
 
 interface SearchClientProps {
-  initialQuery: string;
   handleSearch: (query: string, email?: string) => Promise<FileSource[]>;
 }
 
-export default function SearchClient({
-  initialQuery,
-  handleSearch,
-}: SearchClientProps) {
+export default function SearchClient({ handleSearch }: SearchClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user: userFromStore } = useUserStore();
-  const [query, setQuery] = useState(initialQuery);
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState<FileSource[] | null>(null);
   const [filteredResults, setFilteredResults] = useState<FileSource[]>([]);
   const [activeFilter, setActiveFilter] = useState<FilterName>("All");
@@ -45,7 +40,7 @@ export default function SearchClient({
 
   const filters = useMemo<{ name: FilterName }[]>(
     () => [{ name: "All" }, { name: "Microsoft Office" }, { name: "PDF" }],
-    [],
+    []
   );
 
   const filterTypeMap: FilterTypeMap = useMemo(
@@ -64,47 +59,40 @@ export default function SearchClient({
       ],
       PDF: "pdf",
     }),
-    [],
-  );
-
-  const fetchResults = useCallback(
-    async (keyword: string) => {
-      const trimmed = keyword.trim();
-      if (!trimmed) {
-        setResults(null);
-        setFilteredResults([]);
-        setHasSearched(false);
-        return;
-      }
-
-      setIsLoading(true);
-      setHasSearched(true);
-      startTransition(async () => {
-        const email = userFromStore?.upn;
-        try {
-          const newResults = await handleSearch(trimmed, email);
-          setResults(newResults);
-          setFilteredResults(newResults);
-        } finally {
-          setIsLoading(false);
-        }
-      });
-    },
-    [handleSearch, userFromStore?.upn],
+    []
   );
 
   useEffect(() => {
     const q = searchParams.get("q") ?? "";
-
     setQuery(q);
-    if (q.trim()) {
-      fetchResults(q);
-    } else {
+
+    const trimmed = q.trim();
+    const email = userFromStore?.upn;
+
+    if (!trimmed) {
       setResults(null);
       setFilteredResults([]);
       setHasSearched(false);
+      return;
     }
-  }, [searchParams, fetchResults]);
+
+    if (!email) {
+      return; // Wait for user data to load
+    }
+
+    setIsLoading(true);
+    setHasSearched(true);
+
+    startTransition(async () => {
+      try {
+        const newResults = await handleSearch(trimmed, email);
+        setResults(newResults);
+        setFilteredResults(newResults);
+      } finally {
+        setIsLoading(false);
+      }
+    });
+  }, [searchParams, userFromStore?.upn, handleSearch]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -132,7 +120,7 @@ export default function SearchClient({
       if (!typeToMatch) return true;
       if (Array.isArray(typeToMatch)) {
         return typeToMatch.some((ext) =>
-          r.extension?.toLowerCase().includes(ext),
+          r.extension?.toLowerCase().includes(ext)
         );
       }
       return r.extension?.toLowerCase() === typeToMatch;
