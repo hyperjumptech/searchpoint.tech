@@ -2,7 +2,6 @@
 
 import { jwtDecode } from "jwt-decode";
 import { create } from "zustand";
-import Cookies from "js-cookie";
 
 interface User {
   name?: string;
@@ -35,7 +34,6 @@ export const useUserStore = create<UserStore>((set) => ({
   user: null,
   setUser: (user) => set({ user }),
   logout: () => {
-    Cookies.remove("SCSE_ID");
     set({ user: null });
   },
   initializeUser: (token) => {
