@@ -24,6 +24,7 @@ export const config = {
     "/",
     "/login",
     "/logout",
+    "/search",
     // Add other routes as needed
   ],
 };

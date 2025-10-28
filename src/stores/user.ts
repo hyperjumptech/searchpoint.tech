@@ -2,10 +2,12 @@
 
 import { jwtDecode } from "jwt-decode";
 import { create } from "zustand";
+import Cookies from "js-cookie";
 
 interface User {
   name?: string;
   upn?: string;
+  avatar?: string;
 }
 
 interface UserStore {
@@ -22,6 +24,7 @@ const parseToken = (token: string): User | null => {
     return {
       name: decoded.name,
       upn: decoded.upn,
+      avatar: decoded.avatar,
     };
   } catch {
     return null;
@@ -31,7 +34,10 @@ const parseToken = (token: string): User | null => {
 export const useUserStore = create<UserStore>((set) => ({
   user: null,
   setUser: (user) => set({ user }),
-  logout: () => set({ user: null }),
+  logout: () => {
+    Cookies.remove("SCSE_ID");
+    set({ user: null });
+  },
   initializeUser: (token) => {
     const user = parseToken(token);
 

@@ -15,14 +15,10 @@ export const metadata: Metadata = {
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams:
-    | Promise<{ q?: string; email?: string }>
-    | { q?: string; email?: string };
+  searchParams: Promise<{ q?: string }> | { q?: string };
 }) {
   const params = await searchParams;
   const query = params?.q?.trim() ?? "";
-  const email = params?.email?.trim() ?? "";
-  const initialData = await handleSearch(query, email);
 
   const cookieStore = await cookies();
   const scseId = cookieStore.get("SCSE_ID")?.value;
@@ -32,11 +28,7 @@ export default async function SearchPage({
       fallback={<div className="p-6 text-gray-500">Loading search...</div>}
     >
       <UserStoreInitializer scseId={scseId} />
-      <SearchClient
-        initialQuery={query}
-        initialData={initialData}
-        handleSearch={handleSearch}
-      />
+      <SearchClient initialQuery={query} handleSearch={handleSearch} />
     </Suspense>
   );
 }

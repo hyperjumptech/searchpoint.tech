@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useUserStore } from "@/stores/user";
+import { UserMenu } from "./user-menu";
+import { User } from "@/types/user";
 
 export default function Navbar() {
   const { user } = useUserStore();
@@ -20,16 +22,7 @@ export default function Navbar() {
         />
       </Link>
 
-      <div className="flex items-center space-x-3">
-        <div className="text-right">
-          <div className="font-bold text-[#30302F]">{user?.name}</div>
-          <div className="text-xs text-[#909090]">{user?.upn}</div>
-        </div>
-        {/* <Avatar>
-          <AvatarImage src={avatar} alt={user?.name} />
-          <AvatarFallback>{initialName}</AvatarFallback>
-        </Avatar> */}
-      </div>
+      <UserMenu user={user as User} />
     </nav>
   );
 }

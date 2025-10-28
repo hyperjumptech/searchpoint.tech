@@ -17,36 +17,35 @@ import { Separator } from "@/components/ui/separator";
 import { FileSource } from "@/types/file";
 import FileItem from "@/components/file-item";
 import { useUserStore } from "@/stores/user";
+import { UserMenu } from "@/components/user-menu";
+import { User } from "@/types/user";
 
 type FilterName = "All" | "Microsoft Office" | "PDF";
-
 type FilterTypeMap = Record<FilterName, string | string[] | null>;
 
 interface SearchClientProps {
   initialQuery: string;
-  initialData: FileSource[];
   handleSearch: (query: string, email?: string) => Promise<FileSource[]>;
 }
 
 export default function SearchClient({
   initialQuery,
-  initialData,
   handleSearch,
 }: SearchClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user: userFromStore } = useUserStore();
-  console.log("userFromStore", userFromStore);
   const [query, setQuery] = useState(initialQuery);
-  const [results, setResults] = useState<FileSource[]>(initialData);
-  const [filteredResults, setFilteredResults] =
-    useState<FileSource[]>(initialData);
+  const [results, setResults] = useState<FileSource[] | null>(null);
+  const [filteredResults, setFilteredResults] = useState<FileSource[]>([]);
   const [activeFilter, setActiveFilter] = useState<FilterName>("All");
   const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const filters = useMemo<{ name: FilterName }[]>(
     () => [{ name: "All" }, { name: "Microsoft Office" }, { name: "PDF" }],
-    []
+    [],
   );
 
   const filterTypeMap: FilterTypeMap = useMemo(
@@ -65,86 +64,89 @@ export default function SearchClient({
       ],
       PDF: "pdf",
     }),
-    []
+    [],
   );
 
   const fetchResults = useCallback(
     async (keyword: string) => {
       const trimmed = keyword.trim();
-      if (!trimmed) return;
+      if (!trimmed) {
+        setResults(null);
+        setFilteredResults([]);
+        setHasSearched(false);
+        return;
+      }
 
+      setIsLoading(true);
+      setHasSearched(true);
       startTransition(async () => {
         const email = userFromStore?.upn;
-        const newResults = await handleSearch(trimmed, email);
-        setResults(newResults);
-        setFilteredResults(newResults);
+        try {
+          const newResults = await handleSearch(trimmed, email);
+          setResults(newResults);
+          setFilteredResults(newResults);
+        } finally {
+          setIsLoading(false);
+        }
       });
     },
-    [handleSearch, userFromStore?.upn]
+    [handleSearch, userFromStore?.upn],
   );
 
   useEffect(() => {
     const q = searchParams.get("q") ?? "";
-    const emailParam = searchParams.get("email");
-    const email = userFromStore?.upn;
 
     setQuery(q);
-    if (q.trim()) fetchResults(q);
-
-    // Add email to URL if it's not provided but exists in userFromStore
-    if (email && !emailParam) {
-      const queryParams = new URLSearchParams(searchParams.toString());
-      queryParams.set("email", email);
-      router.replace(`/search?${queryParams.toString()}`, { scroll: false });
+    if (q.trim()) {
+      fetchResults(q);
+    } else {
+      setResults(null);
+      setFilteredResults([]);
+      setHasSearched(false);
     }
-  }, [searchParams, fetchResults, userFromStore?.upn, router]);
+  }, [searchParams, fetchResults]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const trimmed = query.trim();
     if (!trimmed) return;
-
-    const email = userFromStore?.upn;
     const queryParams = new URLSearchParams({
       q: trimmed,
-      ...(email && { email }),
     });
-
     router.push(`/search?${queryParams.toString()}`);
   };
 
   useEffect(() => {
-    const q = searchParams.get("q") ?? "";
-    setQuery(q);
-    if (q.trim()) fetchResults(q);
-  }, [searchParams, fetchResults]);
+    if (!results) {
+      setFilteredResults([]);
+      return;
+    }
 
-  useEffect(() => {
     if (activeFilter === "All") {
-      setFilteredResults(results);
+      setFilteredResults([...results]);
       return;
     }
 
     const typeToMatch = filterTypeMap[activeFilter];
-    setFilteredResults(
-      results.filter((r) => {
-        if (!typeToMatch) return true;
-        if (Array.isArray(typeToMatch)) {
-          return typeToMatch.some((ext) =>
-            r.extension?.toLowerCase().includes(ext)
-          );
-        }
-        return r.extension?.toLowerCase() === typeToMatch;
-      })
-    );
+    const filtered = results.filter((r) => {
+      if (!typeToMatch) return true;
+      if (Array.isArray(typeToMatch)) {
+        return typeToMatch.some((ext) =>
+          r.extension?.toLowerCase().includes(ext),
+        );
+      }
+      return r.extension?.toLowerCase() === typeToMatch;
+    });
+    setFilteredResults(filtered);
   }, [activeFilter, results, filterTypeMap]);
 
   const clearSearch = () => {
     setQuery("");
     setActiveFilter("All");
-    setResults([]);
+    setResults(null);
     setFilteredResults([]);
-    router.push("/search");
+    setHasSearched(false);
+    router.push("/search", { scroll: false });
   };
 
   return (
@@ -162,21 +164,7 @@ export default function SearchClient({
               />
             </Link>
             <div className="xl:hidden flex items-center space-x-3">
-              <div className="text-right">
-                <div className="font-bold text-[#30302F]">
-                  {userFromStore?.name}
-                </div>
-                <div className="text-xs text-[#909090]">
-                  {userFromStore?.upn}
-                </div>
-              </div>
-              {/* <Image
-                src={user.avatar}
-                alt={user.name}
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-full object-cover"
-              /> */}
+              <UserMenu user={userFromStore as User} />
             </div>
           </div>
 
@@ -190,16 +178,14 @@ export default function SearchClient({
                 placeholder="Search documents..."
                 className="w-full pl-10 pr-10 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               />
-              {query && (
-                <button
-                  type="button"
-                  onClick={clearSearch}
-                  className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
-                  aria-label="Clear search"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={clearSearch}
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </form>
 
             <div className="flex gap-2 overflow-x-auto pb-1">
@@ -220,25 +206,19 @@ export default function SearchClient({
           </div>
 
           <div className="hidden xl:flex items-center space-x-3 justify-end">
-            <div className="text-right">
-              <div className="font-bold text-[#30302F]">
-                {userFromStore?.name}
-              </div>
-              <div className="text-xs text-[#909090]">{userFromStore?.upn}</div>
-            </div>
-            {/* <Image
-              src={user.avatar}
-              alt={user.name}
-              width={40}
-              height={40}
-              className="w-10 h-10 rounded-full object-cover"
-            /> */}
+            <UserMenu user={userFromStore as User} />
           </div>
         </div>
       </header>
 
       <section className="grid grid-rows-1 xl:grid-rows-[auto_1fr_auto] items-start px-6 py-4 xl:max-w-6xl mx-auto gap-3">
-        {filteredResults.length > 0 ? (
+        {isLoading ? (
+          <p className="text-sm text-gray-500 mt-6 text-center">Searching...</p>
+        ) : !hasSearched ? (
+          <p className="text-sm text-gray-500 mt-6 text-center">
+            Please perform a search first.
+          </p>
+        ) : filteredResults.length > 0 ? (
           filteredResults.map((file, idx) => (
             <Fragment key={idx}>
               <FileItem _source={file} />
@@ -247,7 +227,7 @@ export default function SearchClient({
           ))
         ) : (
           <p className="text-sm text-gray-500 mt-6 text-center">
-            {isPending ? "Searching..." : "No results found"}
+            No results found
           </p>
         )}
       </section>

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { FileSource } from "@/types/file";
 import Image from "next/image";
 import { formatTime } from "@/lib/format-time";
@@ -64,20 +63,19 @@ export default function FileItem({ _source }: { _source: FileSource }) {
         </div>
         <div>
           <div className="flex items-center space-x-2 mb-1">
-            <span className="text-xs text-[#30302F]">{owner_email}</span>
+            <span className="text-xs text-[#30302F] break-all">
+              {owner_email}
+            </span>
           </div>
-          <div className="text-xs text-[#ACACAC] mt-1">{path}</div>
+          <div className="text-xs text-[#ACACAC] mt-1 break-all ">{path}</div>
         </div>
       </div>
 
       <div className="flex-1">
-        <Link
-          href="#"
-          className="text-[#005FB7] cursor-pointer hover:text-blue-800 font-bold text-xl"
-        >
+        <div className="text-[#005FB7] break-all hover:text-blue-800 font-bold text-xl">
           {_source?.name}
-        </Link>
-        <div className="text-[#747474] mt-1">
+        </div>
+        <div className="text-[#747474] mt-1 break-all">
           <span className="font-bold">{formatTime(updated_at)} </span>-{" "}
           {formatFileSize(size)}
         </div>
