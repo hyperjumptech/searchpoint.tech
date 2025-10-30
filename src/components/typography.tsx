@@ -18,8 +18,19 @@ export function TypographyH1({ children, className }: Props) {
   );
 }
 
-export function TypographyP({ children, className }: Props) {
+export function TypographyH2({ children, className }: Props) {
   return (
-    <p className={clsx("leading-7 not-first:mt-6", className)}>{children}</p>
+    <h2
+      className={clsx(
+        "scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0",
+        className
+      )}
+    >
+      {children}
+    </h2>
   );
+}
+
+export function TypographyP({ children, className }: Props) {
+  return <p className={className}>{children}</p>;
 }

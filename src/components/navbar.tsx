@@ -24,11 +24,11 @@ export default function Navbar() {
   return (
     <header className="relative z-50 border-b border-border bg-background text-foreground">
       {/* ===== DESKTOP ===== */}
-      <nav className="mx-auto flex items-center justify-between py-3 px-4">
+      <nav className="mx-auto flex items-center justify-between px-4 py-3 md:h-16 md:py-0">
         <NavbarLogo />
 
         {showSearchBar && (
-          <div className="hidden md:flex flex-1 items-center md:justify-start justify-center px-4">
+          <div className="hidden md:flex h-full flex-1 items-center md:justify-start justify-center px-4">
             <SearchBar
               defaultValue={searchValue}
               className="w-full max-w-3xl"

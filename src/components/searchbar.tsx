@@ -2,6 +2,8 @@
 
 import clsx from "clsx";
 import { SearchIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { FormEvent } from "react";
 
 import { Input } from "@/components/ui/input";
 
@@ -16,8 +18,20 @@ export default function SearchBar({
   className,
   inputClassName,
 }: Props) {
+  const router = useRouter();
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const query = formData.get("q")?.toString().trim();
+
+    if (query) {
+      router.push(`/search?q=${encodeURIComponent(query)}`);
+    }
+  };
+
   return (
-    <form action="/search" className={clsx("w-full", className)}>
+    <form onSubmit={handleSubmit} className={clsx("w-full", className)}>
       <Input
         name="q"
         defaultValue={defaultValue}

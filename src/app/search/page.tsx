@@ -1,27 +1,25 @@
-import { Metadata } from "next";
-import { cookies } from "next/headers";
-import { Suspense } from "react";
+import { performSearch } from "@/actions/search";
+import SearchResultItem from "@/components/search-result-item";
 
-import { UserStoreInitializer } from "@/stores/UserStoreInitializer";
+import NotFound from "./not-found";
 
-import { handleSearch } from "../action/search";
-import SearchClient from "./page.client";
-
-export const metadata: Metadata = {
-  title: "Sinarmas - Secure Corporate Search Engine",
-  description: "Search securely across corporate documents and data.",
+type SearchPageProps = {
+  searchParams: { q?: string };
 };
 
-export default async function SearchPage() {
-  const cookieStore = await cookies();
-  const scseId = cookieStore.get("SCSE_ID")?.value;
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const query = (await searchParams).q ?? "";
+  const searchResults = await performSearch(query);
+
+  if (searchResults.length === 0) {
+    return <NotFound />;
+  }
 
   return (
-    <Suspense
-      fallback={<div className="p-6 text-gray-500">Loading search...</div>}
-    >
-      <UserStoreInitializer scseId={scseId} />
-      <SearchClient handleSearch={handleSearch} />
-    </Suspense>
+    <div className="mx-auto flex flex-col max-w-6xl space-y-8 py-8 px-4 md:px-0">
+      {searchResults.map((result) => (
+        <SearchResultItem key={result.fileHash} result={result} />
+      ))}
+    </div>
   );
 }

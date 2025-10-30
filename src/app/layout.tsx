@@ -1,10 +1,12 @@
-import Navbar from "@/components/navbar";
 import "./globals.css";
 
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { UserStoreInitializer } from "@/stores/UserStoreInitializer";
-import { cookies } from "next/headers";
+
+import { getUserFromToken } from "@/actions/token";
+import Navbar from "@/components/navbar";
+import { UserStoreInitializer } from "@/stores/user";
+
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Secure Corporate Search Engine",
@@ -14,7 +16,7 @@ export const metadata: Metadata = {
 const inter = Inter({
   subsets: ["latin"],
   style: ["normal"],
-  weight: ["400", "600"],
+  weight: ["400", "500"],
 });
 
 export default async function RootLayout({
@@ -22,13 +24,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const scseId = cookieStore.get("SCSE_ID")?.value;
+  const user = await getUserFromToken();
 
   return (
     <html lang="en" className={inter.className}>
       <body>
-        <UserStoreInitializer scseId={scseId} />
+        <UserStoreInitializer user={user} />
         <Navbar />
         {children}
       </body>

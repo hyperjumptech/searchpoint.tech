@@ -1,48 +1,44 @@
 "use client";
 
-import { jwtDecode } from "jwt-decode";
+import { useEffect } from "react";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-interface User {
+export type User = {
   name?: string;
-  upn?: string;
   email?: string;
-  avatar?: string;
-}
-
-interface UserStore {
-  user: User | null;
-  setUser: (user: User) => void;
-  logout: () => void;
-  initializeUser: (token: string) => void;
-}
-
-const parseToken = (token: string): User | null => {
-  try {
-    const decoded: Partial<User> = jwtDecode(token);
-
-    return {
-      name: decoded.name,
-      upn: decoded.upn,
-      email: decoded.upn,
-      avatar: decoded.avatar,
-    };
-  } catch {
-    return null;
-  }
 };
 
-export const useUserStore = create<UserStore>((set) => ({
-  user: null,
-  setUser: (user) => set({ user }),
-  logout: () => {
-    set({ user: null });
-  },
-  initializeUser: (token) => {
-    const user = parseToken(token);
+export interface State {
+  user: User | null;
+}
 
-    if (user) {
-      set({ user });
+interface Action {
+  setUser: (user: User | null) => void;
+}
+
+type Store = State & Action;
+
+export const useUserStore = create<Store>()(
+  persist(
+    (set) => ({
+      user: null,
+      setUser: (user) => set({ user }),
+    }),
+    {
+      name: "user-storage",
     }
-  },
-}));
+  )
+);
+
+export function UserStoreInitializer({ user }: State) {
+  const setUser = useUserStore((state) => state.setUser);
+
+  useEffect(() => {
+    if (user) {
+      setUser(user);
+    }
+  }, [user, setUser]);
+
+  return null;
+}
