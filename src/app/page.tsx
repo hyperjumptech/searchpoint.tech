@@ -1,52 +1,13 @@
-import { cookies } from "next/headers";
-
-import Navbar from "@/components/nav";
-import SearchBar from "@/components/search/searchbar";
-import { config } from "@/config/env";
-import { UserStoreInitializer } from "@/stores/UserStoreInitializer";
-import Hero from "./components/hero";
-
-export const dynamic = "force-dynamic";
-
-export async function getFiles() {
-  try {
-    const res = await fetch(`${config.backendBaseUrl}/v1/files`, {
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      return null;
-    }
-
-    const data = await res.json();
-    return data;
-  } catch {
-    return null;
-  }
-}
+import Hero from "@/components/hero";
+import SearchBar from "@/components/searchbar";
 
 export default async function HomePage() {
-  const data = await getFiles();
-
-  const cookieStore = await cookies();
-  const scseId = cookieStore.get("SCSE_ID")?.value;
-
-  if (!data) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-gray-500">
-        <p>Failed to load files data from server.</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      <UserStoreInitializer scseId={scseId} />
-      <Navbar />
-      <main className="flex-1 flex flex-col items-center px-6 pt-28 pb-12">
-        <Hero />
-        <SearchBar />
-      </main>
-    </div>
+    <main className="mx-auto flex flex-col max-w-7xl py-20 px-6">
+      <Hero />
+      <div className="mt-8 flex justify-center">
+        <SearchBar className="max-w-4xl" />
+      </div>
+    </main>
   );
 }

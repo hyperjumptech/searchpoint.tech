@@ -6,6 +6,7 @@ import { create } from "zustand";
 interface User {
   name?: string;
   upn?: string;
+  email?: string;
   avatar?: string;
 }
 
@@ -23,6 +24,7 @@ const parseToken = (token: string): User | null => {
     return {
       name: decoded.name,
       upn: decoded.upn,
+      email: decoded.upn,
       avatar: decoded.avatar,
     };
   } catch {
