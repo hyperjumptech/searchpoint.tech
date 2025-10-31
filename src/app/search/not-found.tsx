@@ -5,7 +5,7 @@ import { TypographyH2, TypographyP } from "@/components/typography";
 
 export default function NotFound() {
   return (
-    <div className="mx-auto flex flex-col items-center justify-center max-w-2xl py-20 px-4 text-center space-y-2">
+    <div className="flex flex-col items-center justify-center py-20 text-center space-y-2">
       <div className="w-12 h-12 flex items-center justify-center rounded-full bg-muted text-muted-foreground">
         <SearchX className="w-6 h-6" />
       </div>

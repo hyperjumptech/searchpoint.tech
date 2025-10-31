@@ -2,10 +2,10 @@
 
 import { useEffect } from "react";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 export type User = {
   name?: string;
+  initialName?: string;
   email?: string;
 };
 
@@ -19,17 +19,10 @@ interface Action {
 
 type Store = State & Action;
 
-export const useUserStore = create<Store>()(
-  persist(
-    (set) => ({
-      user: null,
-      setUser: (user) => set({ user }),
-    }),
-    {
-      name: "user-storage",
-    }
-  )
-);
+export const useUserStore = create<Store>()((set) => ({
+  user: null,
+  setUser: (user) => set({ user }),
+}));
 
 export function UserStoreInitializer({ user }: State) {
   const setUser = useUserStore((state) => state.setUser);

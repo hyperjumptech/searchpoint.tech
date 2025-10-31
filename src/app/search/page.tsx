@@ -16,7 +16,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   }
 
   return (
-    <div className="mx-auto flex flex-col max-w-6xl space-y-8 py-8 px-4 md:px-0">
+    <div className="flex flex-col space-y-8">
       {searchResults.map((result) => (
         <SearchResultItem key={result.fileHash} result={result} />
       ))}

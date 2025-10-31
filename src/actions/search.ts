@@ -1,5 +1,7 @@
 "use server";
 
+import { cookies } from "next/headers";
+
 import { env } from "@/lib/env";
 import { formatFileSize } from "@/lib/format-file-size";
 import { formatTimeAgo } from "@/lib/format-time-ago";
@@ -36,7 +38,14 @@ export async function performSearch(query: string): Promise<SearchResult[]> {
     const url = new URL("/v1/files", env.BACKEND_BASE_URL);
     url.searchParams.set("search", query);
 
-    const res = await fetch(url);
+    const cookieStore = await cookies();
+    const token = cookieStore.get("SCSE_ID")?.value;
+
+    const res = await fetch(url, {
+      headers: {
+        Cookie: `SCSE_ID=${token}`,
+      },
+    });
 
     if (!res.ok) {
       throw new Error(`Something went wrong.`);
