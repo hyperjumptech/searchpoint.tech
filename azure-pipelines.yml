@@ -46,6 +46,7 @@ stages:
           - script: bun run build
             displayName: "Build the application"
             env:
+              APP_BASE_URL: $(APP_BASE_URL)
               BACKEND_BASE_URL: $(BACKEND_BASE_URL)
 
   - stage: "PushToACR"
