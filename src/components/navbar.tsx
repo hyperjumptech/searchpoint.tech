@@ -25,6 +25,10 @@ export default function Navbar() {
 
   const { user } = useUserStore();
 
+  async function handleLogout() {
+    fetch("/logout").then(() => window.location.reload());
+  }
+
   return (
     <header className="relative z-50 border-b border-border bg-background text-foreground">
       <nav className="mx-auto px-4 py-3 md:h-16 md:py-0">
@@ -63,11 +67,9 @@ export default function Navbar() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <a href="/logout">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </a>
+                  <DropdownMenuItem asChild onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
