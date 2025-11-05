@@ -18,7 +18,7 @@ export async function GET(
     params,
   }: {
     params: Promise<{ target: string; arch: string; current_version: string }>;
-  }
+  },
 ) {
   try {
     const { current_version } = await params;
@@ -57,7 +57,7 @@ export async function GET(
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to check for updates" + (error as Error).message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

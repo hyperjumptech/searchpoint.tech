@@ -54,7 +54,7 @@ export async function performSearch(query: string): Promise<SearchResult[]> {
     const data = await res.json();
 
     const values = data.value.map(
-      (value: FileValue) => value._source
+      (value: FileValue) => value._source,
     ) as FileSource[];
 
     const results = values.map((value) => ({

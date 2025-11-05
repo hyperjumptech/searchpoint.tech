@@ -10,9 +10,8 @@ export function TypographyH1({ children, className }: Props) {
     <h1
       className={clsx(
         "scroll-m-20 text-center text-3xl font-extrabold tracking-tight text-balance",
-        className
-      )}
-    >
+        className,
+      )}>
       {children}
     </h1>
   );
@@ -23,9 +22,8 @@ export function TypographyH2({ children, className }: Props) {
     <h2
       className={clsx(
         "scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0",
-        className
-      )}
-    >
+        className,
+      )}>
       {children}
     </h2>
   );

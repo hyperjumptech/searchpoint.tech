@@ -35,7 +35,6 @@ stages:
           - script: bun install
             displayName: "Install dependencies"
 
-          # TODO: bun run format:check when formatter is set up
           - script: bun run lint
             displayName: "Run Static Code Analysis"
 

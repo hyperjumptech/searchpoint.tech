@@ -11,8 +11,7 @@ export default function Login() {
         <Link href="https://api.scse.hyperjump.tech/v1/auth" passHref>
           <Button
             className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
-            variant="outline"
-          >
+            variant="outline">
             <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
               <g>
                 <rect fill="#F35325" x="1" y="1" width="10" height="10" />

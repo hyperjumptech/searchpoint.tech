@@ -1,6 +1,6 @@
 export function formatTimeAgo(
   dateInput: string | number | Date,
-  locale = "en"
+  locale = "en",
 ) {
   const date = new Date(dateInput);
   const now = new Date();

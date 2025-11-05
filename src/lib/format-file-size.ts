@@ -6,7 +6,7 @@ export function formatFileSize(bytes: number) {
   const sizeInUnit = bytes / Math.pow(1024, unitIndex);
 
   const displayValue = sizeInUnit.toFixed(
-    sizeInUnit < 10 && unitIndex > 0 ? 1 : 0
+    sizeInUnit < 10 && unitIndex > 0 ? 1 : 0,
   );
 
   const unitLabel = units[unitIndex];
