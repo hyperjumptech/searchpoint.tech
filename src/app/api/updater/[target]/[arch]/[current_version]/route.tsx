@@ -38,7 +38,7 @@ export async function GET(
         ["darwin-aarch64"]: {
           signature:
             "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRbTVWc2hHZjB5UTVnaTVGUEJXOGNleURhK2ZyamMvUWxzTzU5MkVjOE5OMDZTb2JmVGJ5clNLVm9rUFN4WTZBV25xNTZ1YVdOelNjbm5KRlN1Vno0ajhNUEdpcXNRWGcwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYyMzM4NDcxCWZpbGU6c2NzZS1kZXNrdG9wLmFwcC50YXIuZ3oKWEhNVncxUDFaS1ZlVkUyeHkvL2FHY0MrMXcwNHUxRjU3SUhPUFl0U1RsM0lrelhOM1k0Y3ZFaDE0ZjladVo2YkxndWtKdk1CUHNRTmN5VnZYbE9YRHc9PQo=",
-          url: "https://storage.scse.hyperjump.tech/scse/releases/v0.1.2/macos-aarch64/scse-desktop_0.1.2_aarch64.dmg",
+          url: "https://storage.scse.hyperjump.tech/scse/releases/v0.1.2/macos-aarch64/scse-desktop.app.tar.gz",
         },
         ["windows-x86_64"]: {
           signature:
