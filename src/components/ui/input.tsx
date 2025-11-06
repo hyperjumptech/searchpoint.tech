@@ -12,7 +12,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <div
         className={cn(
           "relative flex items-center w-full rounded-md border border-input bg-transparent shadow-xs transition-[color,box-shadow]",
-          "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
+          "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-1",
           "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
           "disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed",
           className,

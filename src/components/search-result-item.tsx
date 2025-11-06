@@ -66,7 +66,7 @@ export function SearchResultItemSkeleton() {
 
       {/* fileName */}
       <h2 className="text-base font-semibold leading-snug">
-        <Skeleton className="h-5 w-96 max-w-screen rounded-md bg-blue-100" />
+        <Skeleton className="h-4 w-3xs max-w-screen rounded-md bg-blue-100" />
       </h2>
 
       {/* updatedTime */}
