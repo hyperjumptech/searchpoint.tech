@@ -42,7 +42,7 @@ export async function GET(
         },
         ["windows-x86_64"]: {
           signature:
-            "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRbTVWc2hHZjB5UTNjS1ZvYWl4T0hIUTgwa0ZaWC95RzE0MHlJbXNBd1VJUjFEalRUdGxETVQ3TlpzVWg1WGNnbUtqSmxHdllTOHk4NnV0TEhmTFFwRldrQkJwZVVjZHc0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYyMzM3MzEwCWZpbGU6c2NzZS1kZXNrdG9wXzAuMS4yX3g2NC1zZXR1cC5leGUKQW9WOXJ1U2FHbXVVM0JFWW9UbHZUZHNPQUlrOWlKT3JIM3htY1RyaCtUOEpnd1lqZFAyeSs4dnVyT1VDNDh0WC9sU1pQTW9PMG5WYjdzUnZSVmxWRFE9PQo=",
+            "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRbTVWc2hHZjB5UThtekViL0pWTy9lVVlCUW9oL2xsM2tsL0VDdDN5aVJlbmpNQ1FQbERiRiswWEFJMlhWTVRHMjJTWTA2cXhadmdzeENCbk5nOU94ZGhrTGhydHVpS3c4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYyNDA0MTQxCWZpbGU6c2NzZS1kZXNrdG9wXzAuMS4yX3g2NC1zZXR1cC5leGUKNkl6QStobjQvSjZoYjlETDY1QU9FMENBdTkyUS9tYjdaVWFiaHZSRVNEU2FwSzVXblMyQ054Y3g5azZrbGliYnZpUTljc3pCbGJMQ2RaVkZGdEpGQkE9PQo=",
           url: "https://storage.scse.hyperjump.tech/scse/releases/v0.1.2/windows/scse-desktop_0.1.2_x64-setup.exe",
         },
         ["linux-x86_64"]: {
