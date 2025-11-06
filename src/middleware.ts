@@ -16,6 +16,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  // Redirect empty search query to homepage
+  if (pathname === "/search") {
+    const q = request.nextUrl.searchParams.get("q") ?? "";
+    if (q.trim() === "") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
   return NextResponse.next();
 }
 
