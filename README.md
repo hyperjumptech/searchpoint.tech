@@ -74,3 +74,37 @@ The provided Dockerfile already includes commented instructions where these line
 ```
 
 Uncomment and duplicate these lines for each `NEXT_PUBLIC_` variable needed.
+
+## End to End test
+
+For now test run on local
+
+Install Playwright browsers (one-time)
+
+```
+bunx playwright install
+```
+
+Run all E2E tests (headless mode)
+
+```
+bun run test:e2e
+```
+
+Run tests with visible browser window (headed mode)
+
+```
+bun run test:e2e:headed
+```
+
+Open the Playwright test UI
+
+```
+bun run test:e2e:ui
+```
+
+View the latest test report
+
+```
+bun run test:e2e:report
+```
