@@ -1,7 +1,6 @@
 "use client";
 
 import clsx from "clsx";
-import { useRouter } from "next/navigation";
 import { SearchIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -19,18 +18,18 @@ export default function SearchBar({
   className,
   inputClassName,
 }: Props) {
-  const router = useRouter();
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const q = e.currentTarget.q.value.trim();
+
+    if (q) window.location.href = `/search?q=${encodeURIComponent(q)}`;
+  }
 
   return (
-    <form
-      className={clsx("w-full", className)}
-      onSubmit={(e) => {
-        e.preventDefault();
-        const q = e.currentTarget.q.value.trim();
-        if (q) router.push(`/search?q=${encodeURIComponent(q)}`);
-      }}>
+    <form className={clsx("w-full", className)} onSubmit={handleSubmit}>
       <Input
         name="q"
+        type="search"
         autoFocus={autoFocus}
         defaultValue={defaultValue}
         placeholder="Ask me anything about your business data..."
