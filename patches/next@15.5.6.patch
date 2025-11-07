@@ -1,0 +1,46 @@
+diff --git a/dist/server/lib/start-server.js b/dist/server/lib/start-server.js
+index 85fb16f89e93dc0ed81564e9ab2264715b931015..a0ac1b1da16cf9eedb994a53dee82bb6e6599aa4 100644
+--- a/dist/server/lib/start-server.js
++++ b/dist/server/lib/start-server.js
+@@ -42,6 +42,33 @@ const _constants = require("../../shared/lib/constants");
+ const _appinfolog = require("./app-info-log");
+ const _turbopackwarning = require("../../lib/turbopack-warning");
+ const _trace = require("../../trace");
++const _pino = require("pino")({
++    base: {
++        service: "web",
++        scope: "http"
++    },
++    formatters: {
++        level(label) {
++            return { level: label };
++        },
++    },
++});
++const _logger = require("pino-http")({
++    logger: _pino,
++    serializers: {
++        req(req) {
++            return {
++                method: req.method,
++                url: req.url
++            };
++        },
++        res(res) {
++            return {
++                statusCode: res.statusCode
++            };
++        }
++    }
++});
+ const _isipv6 = require("./is-ipv6");
+ const _asynccallbackset = require("./async-callback-set");
+ function _interop_require_default(obj) {
+@@ -218,6 +245,7 @@ async function startServer(serverOptions) {
+         });
+     }
+     async function requestListener(req, res) {
++        if (!/^(\/_next\/static|\/_next\/image|\/favicon.ico)/.test(req.url)) _logger(req, res);
+         try {
+             if (handlersPromise) {
+                 await handlersPromise;
