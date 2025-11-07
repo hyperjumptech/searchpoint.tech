@@ -7,7 +7,6 @@ pool:
   vmImage: "ubuntu-latest"
 
 trigger:
-  batch: "true"
   branches:
     include:
       - main
@@ -52,10 +51,10 @@ stages:
     displayName: "Deploy to Staging"
     condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
     jobs:
-      - job: PushToACR
-        displayName: "Push to ACR"
+      - job: DeployToStaging
+        displayName: "Deploy to Staging"
         steps:
-          # Build and push Docker image
+          # Build image
           # Needs separate step because build arguments are not supported in Docker@2 buildAndPush
           - task: Docker@2
             displayName: "Build docker image"
@@ -68,7 +67,7 @@ stages:
               tags: |
                 $(Build.BuildId)-rc
                 test
-
+          # Push to ACR
           - task: Docker@2
             displayName: "Push docker image"
             inputs:
@@ -78,9 +77,6 @@ stages:
               tags: |
                 $(Build.BuildId)-rc
                 test
-      - job: DeployToStaging
-        displayName: "Deploy to Staging"
-        steps:
           # Deploy step using SSH service connection
           - task: SSH@0
             displayName: "Use SSH to connect to PoC server"
@@ -96,8 +92,8 @@ stages:
     displayName: "Release to Production"
     condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
     jobs:
-      - job: RunPlaywrightTests
-        displayName: "Run Playwright Tests"
+      - job: DeployToProduction
+        displayName: "Deploy to Production"
         steps:
           - task: Npm@1
             displayName: Install Bun
@@ -129,16 +125,15 @@ stages:
             condition: succeededOrFailed()
 
           - task: PublishPipelineArtifact@1
+            displayName: "Publish Playwright report"
             inputs:
               targetPath: playwright-report
               artifact: playwright-report
               publishLocation: "pipeline"
             condition: succeededOrFailed()
 
-      - job: BuildProdImage
-        displayName: "Build Production Docker Image"
-        dependsOn: RunPlaywrightTests
-        steps:
+            # Strip the 'v' prefix from the tag e.g. v1.0.0 -> 1.0.0
+            # This is needed because the tag is prefixed with 'v' in the Azure Pipelines UI
           - bash: |
               TAG=$(Build.SourceBranchName)
               # Strip 'v' prefix if it exists
@@ -148,6 +143,7 @@ stages:
               echo "Version tag: $VERSION_TAG"
             displayName: "Prepare version tag"
 
+          # Build image
           - task: Docker@2
             displayName: "Build production docker image"
             inputs:
@@ -160,6 +156,7 @@ stages:
                 $(VERSION_TAG)
                 latest
 
+          # Push to ACR
           - task: Docker@2
             displayName: "Push production docker image"
             inputs:
@@ -169,20 +166,6 @@ stages:
               tags: |
                 $(VERSION_TAG)
                 latest
-
-      # TODO: Deploy to real prod
-      - job: DeployToProd
-        displayName: "Deploy to Production"
-        dependsOn: BuildProdImage
-        steps:
-          - bash: |
-              TAG=$(Build.SourceBranchName)
-              # Strip 'v' prefix if it exists
-              VERSION_TAG=${TAG#v}
-              echo "##vso[task.setvariable variable=VERSION_TAG]$VERSION_TAG"
-              echo "Original tag: $TAG"
-              echo "Version tag: $VERSION_TAG"
-            displayName: "Prepare version tag"
 
           # Deploy step using SSH service connection
           - task: SSH@0
