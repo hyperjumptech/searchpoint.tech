@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 
-import { logout } from "@/actions/token";
+import { env } from "@/lib/env";
+import { fetcher } from "@/lib/fetcher";
 
 export async function GET() {
-  await logout();
+  await fetcher("/v1/auth/logout", {
+    method: "POST",
+  });
 
-  return NextResponse.json(
-    { success: true, message: "Logged out successfully" },
-    { status: 200 },
-  );
+  return NextResponse.redirect(new URL("/login", env.APP_BASE_URL));
 }

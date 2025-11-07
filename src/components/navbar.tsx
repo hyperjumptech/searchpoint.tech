@@ -1,6 +1,7 @@
 "use client";
 
 import { LogOut } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import NavbarLogo from "@/components/navbar-logo";
@@ -24,10 +25,6 @@ export default function Navbar() {
   const searchValue = searchParams.get("q") ?? "";
 
   const { user } = useUserStore();
-
-  async function handleLogout() {
-    fetch("/logout").then(() => window.location.reload());
-  }
 
   return (
     <header className="relative z-50 border-b border-border bg-background text-foreground">
@@ -67,9 +64,11 @@ export default function Navbar() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                  <DropdownMenuItem asChild>
+                    <Link href="/logout">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

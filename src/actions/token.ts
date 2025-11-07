@@ -11,10 +11,3 @@ export async function getUserFromToken() {
 
   return user;
 }
-
-export async function logout() {
-  const cookieStore = await cookies();
-  cookieStore.delete("SCSE_ID");
-
-  return true;
-}
