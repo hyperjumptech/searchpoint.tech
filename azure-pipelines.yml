@@ -112,6 +112,8 @@ stages:
             displayName: "Run Playwright Tests"
             env:
               CI: "true"
+              APP_BASE_URL: $(APP_BASE_URL)
+              BACKEND_BASE_URL: $(BACKEND_BASE_URL)
 
           - task: PublishTestResults@2
             displayName: "Publish test results"
