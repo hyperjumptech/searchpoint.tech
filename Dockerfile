@@ -11,6 +11,7 @@ WORKDIR /app
 # Install dependencies with bun
 FROM base AS deps
 COPY package.json bun.lock* ./
+COPY patches ./patches
 RUN bun install --no-save --frozen-lockfile
 
 # Rebuild the source code only when needed
