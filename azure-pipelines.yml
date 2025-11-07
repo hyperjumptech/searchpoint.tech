@@ -48,8 +48,8 @@ stages:
               APP_BASE_URL: $(APP_BASE_URL)
               BACKEND_BASE_URL: $(BACKEND_BASE_URL)
 
-  - stage: "PushToACR"
-    displayName: "Push to ACR"
+  - stage: "DeployToStaging"
+    displayName: "Deploy to Staging"
     condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
     jobs:
       - job: PushToACR
@@ -78,12 +78,8 @@ stages:
               tags: |
                 $(Build.BuildId)-rc
                 test
-
-  - stage: "DeployToPoC"
-    displayName: "Deploy to PoC"
-    jobs:
-      - job: DeployToPoC
-        displayName: "Deploy to PoC"
+      - job: DeployToStaging
+        displayName: "Deploy to Staging"
         steps:
           # Deploy step using SSH service connection
           - task: SSH@0
@@ -93,5 +89,108 @@ stages:
               runOptions: inline
               inline: |
                 export FRONTEND_TAG=$(Build.BuildId)-rc
+                export BACKEND_TAG=$(bash /home/ubuntu/scripts/get-running.sh hyperjump.azurecr.io/scse/poc-backend)
+                docker compose -f poc/compose.yaml up -d --remove-orphans 2>&1
+
+  - stage: "ReleaseToProd"
+    displayName: "Release to Production"
+    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    jobs:
+      - job: RunPlaywrightTests
+        displayName: "Run Playwright Tests"
+        steps:
+          - task: Npm@1
+            displayName: Install Bun
+            inputs:
+              command: "custom"
+              customCommand: "install -g bun"
+              verbose: true
+
+          - script: bun install
+            displayName: "Install dependencies"
+
+          - script: bunx playwright install --with-deps
+            displayName: "Install Playwright browsers"
+
+          - script: bun run test:e2e
+            displayName: "Run Playwright Tests"
+            env:
+              CI: "true"
+
+          - task: PublishTestResults@2
+            displayName: "Publish test results"
+            inputs:
+              searchFolder: "test-results"
+              testResultsFormat: "JUnit"
+              testResultsFiles: "e2e-junit-results.xml"
+              mergeTestResults: true
+              failTaskOnFailedTests: true
+              testRunTitle: "SCSE Web E2E Tests"
+            condition: succeededOrFailed()
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: playwright-report
+              artifact: playwright-report
+              publishLocation: "pipeline"
+            condition: succeededOrFailed()
+
+      - job: BuildProdImage
+        displayName: "Build Production Docker Image"
+        dependsOn: RunPlaywrightTests
+        steps:
+          - bash: |
+              TAG=$(Build.SourceBranchName)
+              # Strip 'v' prefix if it exists
+              VERSION_TAG=${TAG#v}
+              echo "##vso[task.setvariable variable=VERSION_TAG]$VERSION_TAG"
+              echo "Original tag: $TAG"
+              echo "Version tag: $VERSION_TAG"
+            displayName: "Prepare version tag"
+
+          - task: Docker@2
+            displayName: "Build production docker image"
+            inputs:
+              containerRegistry: $(container_registry)
+              command: "build"
+              Dockerfile: "./Dockerfile"
+              repository: "scse/search-ui-web"
+              arguments: $(production_build_arguments)
+              tags: |
+                $(VERSION_TAG)
+                latest
+
+          - task: Docker@2
+            displayName: "Push production docker image"
+            inputs:
+              containerRegistry: $(container_registry)
+              command: "push"
+              repository: "scse/search-ui-web"
+              tags: |
+                $(VERSION_TAG)
+                latest
+
+      # TODO: Deploy to real prod
+      - job: DeployToProd
+        displayName: "Deploy to Production"
+        dependsOn: BuildProdImage
+        steps:
+          - bash: |
+              TAG=$(Build.SourceBranchName)
+              # Strip 'v' prefix if it exists
+              VERSION_TAG=${TAG#v}
+              echo "##vso[task.setvariable variable=VERSION_TAG]$VERSION_TAG"
+              echo "Original tag: $TAG"
+              echo "Version tag: $VERSION_TAG"
+            displayName: "Prepare version tag"
+
+          # Deploy step using SSH service connection
+          - task: SSH@0
+            displayName: "Use SSH to connect to PoC server"
+            inputs:
+              sshEndpoint: "SSH to SCSE PoC" # Name of the service connection
+              runOptions: inline
+              inline: |
+                export FRONTEND_TAG=$(VERSION_TAG)
                 export BACKEND_TAG=$(bash /home/ubuntu/scripts/get-running.sh hyperjump.azurecr.io/scse/poc-backend)
                 docker compose -f poc/compose.yaml up -d --remove-orphans 2>&1
