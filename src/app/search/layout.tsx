@@ -1,4 +1,4 @@
-export default function SearchLayout({
+export default async function SearchLayout({
   children,
 }: {
   children: React.ReactNode;

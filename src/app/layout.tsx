@@ -1,8 +1,9 @@
 import "./globals.css";
 
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
 
-import { getUserFromToken } from "@/actions/token";
+import { getMe } from "@/actions/me";
 import Navbar from "@/components/navbar";
 import { UserStoreInitializer } from "@/stores/user";
 
@@ -24,13 +25,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getUserFromToken();
+  const me = await getMe();
 
   return (
     <html lang="en" className={inter.className}>
       <body>
-        <UserStoreInitializer user={user} />
-        <Navbar />
+        <UserStoreInitializer user={me} />
+        <Suspense>
+          <Navbar />
+        </Suspense>
         {children}
       </body>
     </html>
