@@ -85,7 +85,7 @@ stages:
               runOptions: inline
               inline: |
                 export FRONTEND_TAG=$(Build.BuildId)-rc
-                docker compose -f services/frontend/docker-compose.yaml up -d --remove-orphans 2>&1
+                docker compose -f services/frontend/docker-compose.yml up -d --remove-orphans 2>&1
 
   - stage: "ReleaseToProd"
     displayName: "Release to Production"
@@ -176,4 +176,4 @@ stages:
               runOptions: inline
               inline: |
                 export FRONTEND_TAG=$(VERSION_TAG)
-                docker compose -f services/frontend/docker-compose.yaml up -d --remove-orphans 2>&1
+                docker compose -f services/frontend/docker-compose.yml up -d --remove-orphans 2>&1
