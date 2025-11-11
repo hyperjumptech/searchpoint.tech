@@ -1,8 +1,7 @@
 "use client";
 
 import { LogOut } from "lucide-react";
-import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import NavbarLogo from "@/components/navbar-logo";
 import SearchBar from "@/components/searchbar";
@@ -18,13 +17,14 @@ import {
 import { useUserStore } from "@/stores/user";
 
 export default function Navbar() {
+  const router = useRouter();
   const pathname = usePathname();
   const showSearchBar = pathname === "/search";
 
   const searchParams = useSearchParams();
   const searchValue = searchParams.get("q") ?? "";
 
-  const { user } = useUserStore();
+  const { user, logOut } = useUserStore();
 
   return (
     <header className="relative z-50 border-b border-border bg-background text-foreground">
@@ -64,11 +64,13 @@ export default function Navbar() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/logout">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </Link>
+                  <DropdownMenuItem
+                    onClick={async () => {
+                      await logOut();
+                      router.push("/login");
+                    }}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

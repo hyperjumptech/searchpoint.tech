@@ -15,6 +15,7 @@ export interface State {
 
 interface Action {
   setUser: (user: User | null) => void;
+  logOut: () => Promise<void>;
 }
 
 type Store = State & Action;
@@ -22,6 +23,10 @@ type Store = State & Action;
 export const useUserStore = create<Store>()((set) => ({
   user: null,
   setUser: (user) => set({ user }),
+  logOut: async () => {
+    await fetch("/logout");
+    set({ user: null });
+  },
 }));
 
 export function UserStoreInitializer({ user }: State) {
