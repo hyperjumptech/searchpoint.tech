@@ -34,18 +34,22 @@ export type SearchResult = {
 export async function performSearch(query: string): Promise<SearchResult[]> {
   try {
     const path = "/v1/files?search=" + query;
-    const data = await fetcher<{ value: FileValue[] }>(path);
-    const values = data.value.map((value) => value._source) as FileSource[];
+    const response = await fetcher(path);
+    const data = await response.json();
+    const fileValues = data.value as FileValue[];
+    const fileSources = fileValues.map(
+      (fileValue: FileValue) => fileValue._source,
+    ) as FileSource[];
 
-    const results = values.map((value) => ({
-      fileHash: value.hash,
-      fileName: value.name,
-      filePath: value.path,
-      fileSize: formatFileSize(value.size),
-      fileIcon: getFileIconPath(value.extension),
-      ownerEmail: value.owner_email,
-      createdTime: formatTimeAgo(value.created_at),
-      updatedTime: formatTimeAgo(value.updated_at),
+    const results = fileSources.map((fileSource) => ({
+      fileHash: fileSource.hash,
+      fileName: fileSource.name,
+      filePath: fileSource.path,
+      fileSize: formatFileSize(fileSource.size),
+      fileIcon: getFileIconPath(fileSource.extension),
+      ownerEmail: fileSource.owner_email,
+      createdTime: formatTimeAgo(fileSource.created_at),
+      updatedTime: formatTimeAgo(fileSource.updated_at),
     }));
 
     return results;

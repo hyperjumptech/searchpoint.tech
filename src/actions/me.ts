@@ -14,12 +14,14 @@ type Result = {
 export async function getMe(): Promise<Result | null> {
   try {
     const path = "/v1/auth/me";
-    const data = await fetcher<{ value?: Value }>(path);
+    const response = await fetcher(path);
+    const data = await response.json();
+    const user = data.value as Value | undefined;
 
     return {
-      email: data.value?.email,
-      name: data.value?.name,
-      initialName: generateInitialName(data.value?.name),
+      email: user?.email,
+      name: user?.name,
+      initialName: generateInitialName(user?.name),
     };
   } catch {
     return null;

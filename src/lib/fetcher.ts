@@ -4,12 +4,15 @@ import { cookies } from "next/headers";
 
 import { env } from "@/lib/env";
 
-export async function fetcher<T>(path: string, init?: RequestInit): Promise<T> {
+export async function fetcher(
+  path: string,
+  init?: RequestInit,
+): Promise<Response> {
   const cookieStore = await cookies();
   const token = cookieStore.get("SCSE_ID")?.value;
   const url = new URL(path, env.BACKEND_BASE_URL);
 
-  const res = await fetch(url, {
+  const response = await fetch(url, {
     ...init,
     headers: {
       ...init?.headers,
@@ -18,9 +21,9 @@ export async function fetcher<T>(path: string, init?: RequestInit): Promise<T> {
     },
   });
 
-  if (!res.ok) {
-    throw new Error(res.statusText);
+  if (!response.ok) {
+    throw new Error(response.statusText);
   }
 
-  return res.json();
+  return response;
 }
