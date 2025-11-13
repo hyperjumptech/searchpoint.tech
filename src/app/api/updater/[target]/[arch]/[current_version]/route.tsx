@@ -24,7 +24,7 @@ export async function GET(
     const { current_version } = await params;
 
     // Check if there's a newer version available
-    const latestVersion = "0.1.8";
+    const latestVersion = "0.1.7";
 
     if (current_version === latestVersion) {
       return new NextResponse(null, { status: 204 });
