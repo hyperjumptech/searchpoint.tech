@@ -37,18 +37,18 @@ export async function GET(
       platforms: {
         ["darwin-aarch64"]: {
           signature:
-            "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRbTVWc2hHZjB5UTVnaTVGUEJXOGNleURhK2ZyamMvUWxzTzU5MkVjOE5OMDZTb2JmVGJ5clNLVm9rUFN4WTZBV25xNTZ1YVdOelNjbm5KRlN1Vno0ajhNUEdpcXNRWGcwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYyMzM4NDcxCWZpbGU6c2NzZS1kZXNrdG9wLmFwcC50YXIuZ3oKWEhNVncxUDFaS1ZlVkUyeHkvL2FHY0MrMXcwNHUxRjU3SUhPUFl0U1RsM0lrelhOM1k0Y3ZFaDE0ZjladVo2YkxndWtKdk1CUHNRTmN5VnZYbE9YRHc9PQo=",
-          url: "https://storage.scse.hyperjump.tech/scse/releases/v0.1.2/macos-aarch64/scse-desktop.app.tar.gz",
+            "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRbTVWc2hHZjB5US9NR1pPSlFUcEpjM2lRMFN6SGROeEFGdzN0ZmgxWTZtNWpNL3I3SkNCdWdXNW1yYi9xYld2aUttN0p4NHVCcEREVmpiSHJuSFZpNFA4RldWeGVmSWdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYyODU5Mjg4CWZpbGU6c2NzZS1kZXNrdG9wLmFwcC50YXIuZ3oKOUNNTk5OMXBKZEd3dmF2dXAzNzI4Q0VxWm94c1V5WWRlWStjMXNJbUJrVE5EdEZUREI2V0hsQ3lyc0xzTHhmaFZrcWZFSE04NW9xOUhDeHQ0ekxsQlE9PQo=",
+          url: "https://storage.scse.hyperjump.tech/scse/releases/v0.1.5/macos/scse-desktop.app.tar.gz",
         },
         ["windows-x86_64"]: {
           signature:
-            "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRbTVWc2hHZjB5UThtekViL0pWTy9lVVlCUW9oL2xsM2tsL0VDdDN5aVJlbmpNQ1FQbERiRiswWEFJMlhWTVRHMjJTWTA2cXhadmdzeENCbk5nOU94ZGhrTGhydHVpS3c4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYyNDA0MTQxCWZpbGU6c2NzZS1kZXNrdG9wXzAuMS4yX3g2NC1zZXR1cC5leGUKNkl6QStobjQvSjZoYjlETDY1QU9FMENBdTkyUS9tYjdaVWFiaHZSRVNEU2FwSzVXblMyQ054Y3g5azZrbGliYnZpUTljc3pCbGJMQ2RaVkZGdEpGQkE9PQo=",
-          url: "https://storage.scse.hyperjump.tech/scse/releases/v0.1.2/windows/scse-desktop_0.1.2_x64-setup.exe",
+            "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRbTVWc2hHZjB5UTljMFMzWno2WWVJaGYzNTZ0cDRYLzBZTEJVYjdGN0dtKzFtNkFwa1RyN0hVb0VXb2FnVXh0bDJrMlA5alo2RW9yNFNJSWo5eU92K1c2Sml0ZlJieGdrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYyODU3MzgxCWZpbGU6c2NzZS1kZXNrdG9wXzAuMS4yX3g2NF9lbi1VUy5tc2kKWFFPdzcxc1VkR2hzcFZIWEJxWkZRdmZtLzkzRXA4dVFaL3d6Vy9pMzcyZ25OTkhuL28xV000cFNjR3hyZVV4d3h3QlRiRWNSSzg0cW1oK3lpZ0JkRGc9PQo=",
+          url: "https://storage.scse.hyperjump.tech/scse/releases/v0.1.5/windows/scse-desktop_0.1.2_x64_en-US.msi",
         },
         ["linux-x86_64"]: {
           signature:
-            "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRbTVWc2hHZjB5UTRYSjhlL3NBQXVyZnBJRHFwYUZwNks3cHcra0VJNnZFZVBvdU51VzdWcXdGZUFGejloNndUcXRuM0I0YXIwZklxeG1OMjJ5VkZ6ZXQ3azBjVG84Q0FZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYyMzM3MjM4CWZpbGU6c2NzZS1kZXNrdG9wXzAuMS4yX2FtZDY0LkFwcEltYWdlCmFoWGVkLzd0MklpdVNEdWpOU0lzTkRVV1N6bWxlU1A3VE9HYjNmWElzMkRFRzFuOTZUcFR5ekhuWllLNCtqMXFPN2RobHAxNjd5MFUwOE1JSmNmdUNRPT0K",
-          url: "https://storage.scse.hyperjump.tech/scse/releases/v0.1.2/linux/scse-desktop_0.1.2_amd64.AppImage",
+            "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRbTVWc2hHZjB5UTNxWUdZUXowalBZY2ROMU5IZ1d6c0FudVN4dzIrVVA2ank5KzFFRkxzOW5POG1hWU9pWkt1UFBKVGJvUzhaM2hlTCtWc0ZtTWkrU0pSdWhQWHlKNVE4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYyODU3MTg1CWZpbGU6c2NzZS1kZXNrdG9wXzAuMS4yX2FtZDY0LkFwcEltYWdlCkp6d3UyVEpXL0F6Q3l2a1gxZTJ2YWNaYWZMRnhMZ0VhSDBTL2J5Z2ZaWkszY0NkVUZKWVM2MlZQdDk1a0N5SlFYOEZGK1orbjVPYXlNa0wvUGEyS0N3PT0K",
+          url: "https://storage.scse.hyperjump.tech/scse/releases/v0.1.5/linux/scse-desktop_0.1.2_amd64.AppImage",
         },
       },
     };
