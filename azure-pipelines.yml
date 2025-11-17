@@ -176,4 +176,4 @@ stages:
               runOptions: inline
               inline: |
                 export FRONTEND_TAG=$(VERSION_TAG)
-                docker compose -f services/frontend/docker-compose.yml up -d --remove-orphans 2>&1
+                cd services/frontend && docker compose up -d --remove-orphans 2>&1
