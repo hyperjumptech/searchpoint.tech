@@ -84,8 +84,8 @@ stages:
               sshEndpoint: "SSH to SCSE PoC" # Name of the service connection
               runOptions: inline
               inline: |
-                export FRONTEND_TAG=$(Build.BuildId)-rc
-                docker compose -f services/frontend/docker-compose.yml up -d --remove-orphans 2>&1
+                sed -i "s/^FRONTEND_TAG=.*/FRONTEND_TAG=$(Build.BuildId)-rc/" services/frontend/.env
+                cd services/frontend && docker compose up -d --remove-orphans 2>&1
 
   - stage: "ReleaseToProd"
     displayName: "Release to Production"
@@ -175,5 +175,5 @@ stages:
               sshEndpoint: "SSH to SCSE PoC" # Name of the service connection
               runOptions: inline
               inline: |
-                export FRONTEND_TAG=$(VERSION_TAG)
+                sed -i "s/^FRONTEND_TAG=.*/FRONTEND_TAG=$(VERSION_TAG)/" services/frontend/.env
                 cd services/frontend && docker compose up -d --remove-orphans 2>&1
