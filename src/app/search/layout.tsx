@@ -10,7 +10,7 @@ export default async function SearchLayout({
         <div className="hidden md:block" />
 
         {/* Content column - aligned with search bar */}
-        <div className="w-full max-w-3xl">{children}</div>
+        <div className="w-full">{children}</div>
 
         {/* Empty column for avatar space */}
         <div className="hidden md:block" />

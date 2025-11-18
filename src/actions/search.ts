@@ -31,29 +31,31 @@ export type SearchResult = {
   updatedTime: string;
 };
 
-export async function performSearch(query: string): Promise<SearchResult[]> {
+export type FileDetail = SearchResult;
+
+export async function performSearch(query: string): Promise<FileDetail[]> {
   try {
-    const path = "/v1/files?search=" + query;
+    const path = `/v1/files?search=${query}`;
     const response = await fetcher(path);
     const data = await response.json();
-    const fileValues = data.value as FileValue[];
-    const fileSources = fileValues.map(
-      (fileValue: FileValue) => fileValue._source,
-    ) as FileSource[];
 
-    const results = fileSources.map((fileSource) => ({
-      fileHash: fileSource.hash,
-      fileName: fileSource.name,
-      filePath: fileSource.path,
-      fileSize: formatFileSize(fileSource.size),
-      fileIcon: getFileIconPath(fileSource.extension),
-      ownerEmail: fileSource.owner_email,
-      createdTime: formatTimeAgo(fileSource.created_at),
-      updatedTime: formatTimeAgo(fileSource.updated_at),
+    const fileValues = data.value as FileValue[];
+    if (!fileValues?.length) return [];
+
+    const results: FileDetail[] = fileValues.map(({ _source }) => ({
+      fileHash: _source.hash,
+      fileName: _source.name,
+      filePath: _source.path,
+      fileSize: formatFileSize(_source.size),
+      fileIcon: getFileIconPath(_source.extension),
+      ownerEmail: _source.owner_email,
+      createdTime: formatTimeAgo(_source.created_at),
+      updatedTime: formatTimeAgo(_source.updated_at),
     }));
 
     return results;
   } catch (error) {
+    console.error("performSearch error:", error);
     throw error;
   }
 }
