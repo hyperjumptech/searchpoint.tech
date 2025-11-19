@@ -52,7 +52,6 @@ export default function DocumentDetailPage({
       <div className="flex flex-col lg:flex-row justify-between gap-6 mb-10">
         <div className="flex-1 min-w-0">
           <FileHeader file={file} />
-          <FileActions />
         </div>
         <PreviewPlaceholder />
       </div>
@@ -179,7 +178,9 @@ function ButtonTabsSection({
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               <div className="flex flex-col">
                 <span className="text-sm text-gray-500">File Type</span>
-                <span className="font-medium">PowerPoint</span>
+                <span className="font-medium">
+                  {file.fileName?.split(".").pop()?.toUpperCase()}
+                </span>
               </div>
               <div className="flex flex-col">
                 <span className="text-sm text-gray-500">Size</span>
@@ -187,7 +188,7 @@ function ButtonTabsSection({
               </div>
               <div className="flex flex-col">
                 <span className="text-sm text-gray-500">Location</span>
-                <span className="font-medium">OneDrive</span>
+                <span className="font-medium">Local</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-sm text-gray-500">Version</span>
