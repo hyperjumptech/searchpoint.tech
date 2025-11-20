@@ -8,7 +8,7 @@ export default function BackButton() {
   return (
     <button
       onClick={() => router.back()}
-      className="text-blue-600 hover:underline mb-6 flex items-center gap-2">
+      className="text-blue-600 hover:underline mb-6 flex items-center gap-2 cursor-pointer">
       <ArrowLeft /> Back
     </button>
   );

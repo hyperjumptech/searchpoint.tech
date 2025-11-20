@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUserStore } from "@/stores/user";
+import CategoryTabs from "./category-tabs";
 
 export default function Navbar() {
   const router = useRouter();
@@ -26,20 +27,25 @@ export default function Navbar() {
 
   const { user, logOut } = useUserStore();
 
+  const navbarHeightClass = showSearchBar ? "md:h-32" : "md:h-16";
+
   return (
     <header className="relative z-50 border-b border-border bg-background text-foreground">
-      <nav className="mx-auto px-4 py-3 md:h-16 md:py-0">
-        <div className="flex items-center justify-between md:grid md:grid-cols-[160px_1fr_80px] md:gap-4 md:h-full">
+      <nav className={`mx-auto px-4 py-3 ${navbarHeightClass} md:py-0`}>
+        <div className="flex items-start py-4 justify-between md:grid md:grid-cols-[160px_1fr_80px] md:gap-4 md:h-full">
           <NavbarLogo />
 
           {/* Middle Column - Always rendered */}
           <div className="hidden md:flex h-full items-center">
             {showSearchBar && (
-              <SearchBar
-                defaultValue={searchValue}
-                className="w-full max-w-3xl"
-                inputClassName="py-0.5 px-2"
-              />
+              <div className="flex flex-col gap-3">
+                <SearchBar
+                  defaultValue={searchValue}
+                  className="w-full max-w-3xl"
+                  inputClassName="py-0.5 px-2"
+                />
+                <CategoryTabs />
+              </div>
             )}
           </div>
 
@@ -77,7 +83,6 @@ export default function Navbar() {
             </div>
           )}
         </div>
-
         {/* Search Bar - Mobile only */}
         {showSearchBar && (
           <div className="md:hidden pt-3">
@@ -86,6 +91,14 @@ export default function Navbar() {
               className="w-full"
               inputClassName="py-0.5 px-2"
             />
+          </div>
+        )}
+
+        {showSearchBar && (
+          <div className="md:hidden mt-3 overflow-x-auto scrollbar-hide relative z-50">
+            <div className="flex gap-2 whitespace-nowrap">
+              <CategoryTabs />
+            </div>
           </div>
         )}
       </nav>

@@ -121,7 +121,7 @@ function FileActions() {
 
 function PreviewPlaceholder() {
   return (
-    <div className="flex justify-center items-center w-full lg:w-[400px] h-[200px] lg:h-[300px] bg-muted border rounded-lg shrink-0 mb-10 lg:mb-0">
+    <div className="flex justify-center items-center lg:w-1/3 w-full min-h-56 bg-muted border rounded-lg shrink-0 mb-10 lg:mb-0">
       <div className="text-center text-sm text-muted-foreground">
         <Eye className="mx-auto mb-2 h-6 w-6 opacity-50" />
         <p>Preview Unavailable</p>
