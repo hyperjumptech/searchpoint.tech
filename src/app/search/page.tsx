@@ -7,12 +7,12 @@ const officeExt = ["doc", "docx", "xls", "xlsx", "ppt", "pptx"];
 const pdfExt = ["pdf"];
 
 type SearchPageProps = {
-  searchParams: { q?: string; type?: string };
+  searchParams: Promise<{ q?: string; type?: string }>;
 };
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const query = searchParams?.q?.trim() ?? "";
-  const type = searchParams?.type ?? "all";
+  const query = (await searchParams)?.q?.trim() ?? "";
+  const type = (await searchParams)?.type ?? "all";
 
   if (!query) {
     return <NotFound />;
