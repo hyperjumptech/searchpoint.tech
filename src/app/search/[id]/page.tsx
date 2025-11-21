@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { performSearch, FileDetail } from "@/actions/search";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -29,17 +29,18 @@ type AccessLogItem = {
 export default function DocumentDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const [file, setFile] = useState<FileDetail | null>(null);
 
   useEffect(() => {
     async function load() {
-      const results = await performSearch(params.id);
+      const results = await performSearch(id);
       setFile(results[0] ?? null);
     }
     load();
-  }, [params.id]);
+  }, [id]);
 
   if (!file) return <Loading />;
 

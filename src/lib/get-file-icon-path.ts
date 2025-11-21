@@ -1,5 +1,10 @@
 export function getFileIconPath(extension: string) {
-  switch (extension) {
+  // Normalize extension by removing dot prefix if present
+  const normalizedExt = extension.startsWith(".")
+    ? extension.slice(1).toLowerCase()
+    : extension.toLowerCase();
+
+  switch (normalizedExt) {
     case "doc":
     case "docx":
     case "docm":
