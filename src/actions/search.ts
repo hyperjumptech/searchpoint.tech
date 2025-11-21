@@ -20,6 +20,12 @@ type FileValue = {
   _source: FileSource;
 };
 
+export type SearchPagination = {
+  limit: number;
+  offset: number;
+  total: number;
+};
+
 export type SearchResult = {
   fileHash: string;
   fileName: string;
@@ -31,18 +37,31 @@ export type SearchResult = {
   updatedTime: string;
 };
 
-export type FileDetail = SearchResult;
+export type Result = {
+  pagination: SearchPagination;
+  results: SearchResult[];
+};
 
-export async function performSearch(query: string): Promise<FileDetail[]> {
+export async function performSearch(
+  query: string,
+  page: number = 1,
+  limit: number = 10,
+): Promise<Result> {
   try {
-    const path = `/v1/files?search=${query}`;
+    const offset = (page - 1) * limit;
+    const path = `/v1/files?search=${query}&limit=${limit}&offset=${offset}`;
     const response = await fetcher(path);
     const data = await response.json();
 
-    const fileValues = data.value as FileValue[];
-    if (!fileValues?.length) return [];
+    const pagination = (data.meta?.pagination as SearchPagination) ?? {
+      limit: 0,
+      offset: 0,
+      total: 0,
+    };
 
-    const results: FileDetail[] = fileValues.map(({ _source }) => ({
+    const fileValues = (data.value ?? []) as FileValue[];
+
+    const results: SearchResult[] = fileValues.map(({ _source }) => ({
       fileHash: _source.hash,
       fileName: _source.name,
       filePath: _source.path,
@@ -53,9 +72,11 @@ export async function performSearch(query: string): Promise<FileDetail[]> {
       updatedTime: formatTimeAgo(_source.updated_at),
     }));
 
-    return results;
+    return {
+      pagination,
+      results,
+    };
   } catch (error) {
-    console.error("performSearch error:", error);
     throw error;
   }
 }

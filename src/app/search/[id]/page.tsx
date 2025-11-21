@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { use, useEffect, useState } from "react";
-import { performSearch, FileDetail } from "@/actions/search";
+import { performSearch, SearchResult } from "@/actions/search";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -32,13 +32,14 @@ export default function DocumentDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const [file, setFile] = useState<FileDetail | null>(null);
+  const [file, setFile] = useState<SearchResult | null>(null);
 
   useEffect(() => {
     async function load() {
-      const results = await performSearch(id);
-      setFile(results[0] ?? null);
+      const data = await performSearch(id);
+      setFile(data.results[0] ?? null);
     }
+
     load();
   }, [id]);
 
@@ -66,7 +67,7 @@ export default function DocumentDetailPage({
   );
 }
 
-function FileHeader({ file }: { file: FileDetail }) {
+function FileHeader({ file }: { file: SearchResult }) {
   return (
     <>
       <div className="flex items-center gap-3 mb-4">
@@ -136,7 +137,7 @@ function ButtonTabsSection({
   versionHistory,
   accessLog,
 }: {
-  file: FileDetail;
+  file: SearchResult;
   versionHistory: VersionHistoryItem[];
   accessLog: AccessLogItem[];
 }) {
