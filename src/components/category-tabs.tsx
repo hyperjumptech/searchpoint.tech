@@ -23,7 +23,7 @@ export default function CategoryTabs() {
   };
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
       {types.map((t) => (
         <button
           key={t.key}

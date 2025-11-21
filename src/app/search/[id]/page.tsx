@@ -49,13 +49,15 @@ export default function DocumentDetailPage({
   const accessLog: AccessLogItem[] = dataJson.accessLog || [];
 
   return (
-    <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <main className="mx-auto">
       <BackButton />
-      <div className="flex flex-col lg:flex-row justify-between gap-6 mb-10">
-        <div className="flex-1 min-w-0">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="md:col-span-3">
           <FileHeader file={file} />
         </div>
-        <PreviewPlaceholder />
+        <div className="md:col-span-1">
+          <PreviewPlaceholder />
+        </div>
       </div>
 
       <ButtonTabsSection
@@ -91,11 +93,11 @@ function FileHeader({ file }: { file: SearchResult }) {
         </div>
       </div>
 
-      <h1 className="text-2xl md:text-3xl font-bold mb-3 text-[#005FB7] break-words">
+      <h1 className="text-xl md:text-2xl font-bold mb-3 text-[#005FB7] wrap-break-word">
         {file.fileName}
       </h1>
 
-      <TypographyP className="text-base md:text-xl text-muted-foreground mb-10 leading-relaxed">
+      <TypographyP className="text-base md:text-lg text-muted-foreground mb-10 leading-relaxed truncate">
         <span className="font-bold">Updated {file.updatedTime}</span> -{" "}
         {file.filePath}
       </TypographyP>
@@ -123,7 +125,7 @@ function FileActions() {
 
 function PreviewPlaceholder() {
   return (
-    <div className="flex justify-center items-center lg:w-1/3 w-full min-h-56 bg-muted border rounded-lg shrink-0 mb-10 lg:mb-0">
+    <div className="flex justify-center items-center w-full min-h-56 bg-muted border rounded-lg shrink-0 mb-10 lg:mb-0">
       <div className="text-center text-sm text-muted-foreground">
         <Eye className="mx-auto mb-2 h-6 w-6 opacity-50" />
         <p>Preview Unavailable</p>
@@ -163,7 +165,7 @@ function ButtonTabsSection({
             className={
               activeTab === tab.id
                 ? "bg-[#30302F] hover:bg-gray-600"
-                : "text-[#747474]"
+                : "text-[#747474] cursor-pointer"
             }
             onClick={() => setActiveTab(tab.id)}>
             {tab.label}
