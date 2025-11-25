@@ -38,10 +38,10 @@ export default function Navbar() {
           {/* Middle Column - Always rendered */}
           <div className="hidden md:flex h-full items-center">
             {showSearchBar && (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col w-full gap-4">
                 <SearchBar
                   defaultValue={searchValue}
-                  className="w-full max-w-3xl"
+                  className="max-w-4xl"
                   inputClassName="py-0.5 px-2"
                 />
                 <CategoryTabs />
