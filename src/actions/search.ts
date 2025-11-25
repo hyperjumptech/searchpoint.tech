@@ -42,14 +42,55 @@ export type Result = {
   results: SearchResult[];
 };
 
+function buildFilterQuery(type: string): string {
+  const googleExt = ["gdoc", "gsheet", "gslide"];
+  const officeExt = ["doc", "docx", "xls", "xlsx", "ppt", "pptx"];
+  const pdfExt = ["pdf"];
+
+  let extensions: string[] = [];
+
+  switch (type) {
+    case "pdf":
+      extensions = pdfExt;
+      break;
+    case "google":
+      extensions = googleExt;
+      break;
+    case "office":
+      extensions = officeExt;
+      break;
+    default:
+      return "";
+  }
+
+  const conditions = extensions
+    .map((ext) => `extension eq '${ext}'`)
+    .join(" or ");
+  return conditions;
+}
+
 export async function performSearch(
   query: string,
   page: number = 1,
   limit: number = 10,
+  type: string = "all",
 ): Promise<Result> {
   try {
     const offset = (page - 1) * limit;
-    const path = `/v1/files?search=${query}&limit=${limit}&offset=${offset}`;
+
+    const params = new URLSearchParams({
+      search: query,
+      limit: limit.toString(),
+      offset: offset.toString(),
+    });
+
+    const filterQuery = buildFilterQuery(type);
+
+    if (filterQuery) {
+      params.set("filter", filterQuery);
+    }
+
+    const path = `/v1/files?${params.toString()}`;
     const response = await fetcher(path);
     const data = await response.json();
 
