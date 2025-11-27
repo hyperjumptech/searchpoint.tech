@@ -54,6 +54,9 @@ export default function DocumentDetailPage({
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="md:col-span-3">
           <FileHeader file={file} />
+          {file.filePath?.startsWith("https") && (
+            <FileActions url={file.filePath} />
+          )}
         </div>
         <div className="md:col-span-1">
           <PreviewPlaceholder />
@@ -105,19 +108,22 @@ function FileHeader({ file }: { file: SearchResult }) {
   );
 }
 
-function FileActions() {
+function FileActions({ url }: { url?: string }) {
   return (
     <div className="flex flex-col gap-4 mb-6">
       <Button
         size="lg"
         variant="outline"
-        className="rounded-full font-bold w-fit">
-        <SquareArrowOutUpRight /> Open in Google
+        className="rounded-full font-bold w-fit"
+        onClick={() => {
+          window.open(url, "_blank");
+        }}>
+        <SquareArrowOutUpRight /> Open in Share Point
       </Button>
-      <TypographyP className="text-muted-foreground max-w-md flex items-center gap-2">
+      <TypographyP className="text-muted-foreground flex items-center gap-2">
         <CircleAlert className="w-4 h-4 shrink-0" /> For privacy and security
-        reasons, we can’t open this file for you. Please access it directly in
-        OneDrive.
+        reasons, we can’t open this file for you. Please click link above to
+        access it directly in SharePoint.
       </TypographyP>
     </div>
   );
