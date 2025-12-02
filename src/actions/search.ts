@@ -43,29 +43,64 @@ export type Result = {
 };
 
 function buildFilterQuery(type: string): string {
-  const googleExt = ["gdoc", "gsheet", "gslide"];
-  const officeExt = ["doc", "docx", "xls", "xlsx", "ppt", "pptx"];
-  const pdfExt = ["pdf"];
+  const imageExtensions = [
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "webp",
+    "avif",
+    "heic",
+    "bmp",
+    "tiff",
+    "tif",
+    "svg",
+    "ico",
+    "psd",
+    "raw",
+    "cr2",
+    "nef",
+    "arw",
+    "eps",
+  ];
+
+  const officeExtensions = [
+    "doc",
+    "docx",
+    "docm",
+    "xls",
+    "xlsx",
+    "xlsm",
+    "csv",
+    "ppt",
+    "pptx",
+    "pptm",
+    "rtf",
+    "odt",
+    "ods",
+    "odp",
+  ];
+
+  const pdfExtensions = ["pdf"];
 
   let extensions: string[] = [];
 
   switch (type) {
-    case "pdf":
-      extensions = pdfExt;
+    case "images":
+      extensions = imageExtensions;
       break;
-    case "google":
-      extensions = googleExt;
+    case "pdf":
+      extensions = pdfExtensions;
       break;
     case "office":
-      extensions = officeExt;
+      extensions = officeExtensions;
       break;
-    default:
-      return "";
   }
 
   const conditions = extensions
     .map((ext) => `extension eq '${ext}'`)
     .join(" or ");
+
   return conditions;
 }
 

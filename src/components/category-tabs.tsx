@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 
 const types = [
   { key: "all", label: "All" },
-  { key: "google", label: "Google Workspace" },
-  { key: "office", label: "Microsoft Office" },
   { key: "pdf", label: "PDF" },
+  { key: "office", label: "Microsoft Office" },
+  { key: "images", label: "Images" },
 ];
 
 export default function CategoryTabs() {
@@ -19,6 +19,7 @@ export default function CategoryTabs() {
   const onClick = (key: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("type", key);
+
     router.push(`?${params.toString()}`);
   };
 
