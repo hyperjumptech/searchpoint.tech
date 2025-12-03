@@ -20,8 +20,8 @@ export default function BackButton() {
   return (
     <button
       onClick={handleBack}
-      className="text-blue-600 hover:underline mb-6 flex items-center gap-2 cursor-pointer">
-      <ArrowLeft /> Back
+      className="text-gray-500 hover:underline mb-6 flex items-center gap-2 cursor-pointer">
+      <ArrowLeft /> Back to Search Results
     </button>
   );
 }

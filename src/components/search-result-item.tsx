@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { SearchResult } from "@/actions/search";
 import { TypographyP } from "@/components/typography";
 import { Skeleton } from "@/components/ui/skeleton";
+import AccessBadge from "./access-badge";
+import { TFile } from "../types";
 
 type Props = {
-  result: SearchResult;
+  result: TFile;
 };
 
 export default function SearchResultItem({ result }: Props) {
@@ -23,8 +24,9 @@ export default function SearchResultItem({ result }: Props) {
           />
         </div>
         <div className="flex flex-col min-w-0">
-          <TypographyP className="text-sm truncate">
+          <TypographyP className="text-sm truncate gap-2 flex flex-row">
             {result.ownerEmail}
+            <AccessBadge file={result} />
           </TypographyP>
           <TypographyP className="text-xs text-muted-foreground truncate">
             {result.filePath}
@@ -34,7 +36,7 @@ export default function SearchResultItem({ result }: Props) {
 
       <h2 className="text-base font-semibold leading-snug truncate">
         <Link
-          href={`/search/${encodeURIComponent(result.fileName)}`}
+          href={`/search/${encodeURIComponent(result.id)}`}
           className="text-blue-600 hover:underline wrap-break-word sm:truncate max-w-[calc(100vw-24px)] overflow-hidden">
           {result.fileName}
         </Link>

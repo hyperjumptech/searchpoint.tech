@@ -21,7 +21,7 @@ export default function Login() {
   const handleLogin = () => {
     setIsLoading(true);
     setTimeout(() => {
-      window.location.href = "https://api.scse.hyperjump.tech/v1/auth";
+      window.location.href = "http://localhost:3000/v1/auth";
     }, 2000);
   };
 

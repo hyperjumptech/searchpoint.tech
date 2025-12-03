@@ -1,11 +1,17 @@
 "use server";
 
+import { TFile } from "@/types";
 import { fetcher } from "@/lib/fetcher";
 import { formatFileSize } from "@/lib/format-file-size";
 import { formatTimeAgo } from "@/lib/format-time-ago";
 import { getFileIconPath } from "@/lib/get-file-icon-path";
 
 type FileSource = {
+  id: string;
+  keywords: string[];
+  mime_type: string;
+  source: string;
+  allow_list?: string[] | null;
   hash: string;
   name: string;
   path: string;
@@ -17,6 +23,7 @@ type FileSource = {
 };
 
 type FileValue = {
+  version: string;
   _source: FileSource;
 };
 
@@ -26,20 +33,9 @@ export type SearchPagination = {
   total: number;
 };
 
-export type SearchResult = {
-  fileHash: string;
-  fileName: string;
-  filePath: string;
-  fileSize: string;
-  fileIcon: string;
-  ownerEmail: string;
-  createdTime: string;
-  updatedTime: string;
-};
-
 export type Result = {
   pagination: SearchPagination;
-  results: SearchResult[];
+  results: TFile[];
 };
 
 function buildFilterQuery(type: string): string {
@@ -141,10 +137,17 @@ export async function performSearch(
 
     const fileValues = (data.value ?? []) as FileValue[];
 
-    const results: SearchResult[] = fileValues.map(({ _source }) => ({
+    const results: TFile[] = fileValues.map(({ version, _source }) => ({
+      id: _source.id,
       fileHash: _source.hash,
       fileName: _source.name,
       filePath: _source.path,
+      fileExtension: _source.extension,
+      fileSource: _source.source,
+      versionHistory: [],
+      accessLog: [],
+      allowList: _source.allow_list || [],
+      version,
       fileSize: formatFileSize(_source.size),
       fileIcon: getFileIconPath(_source.extension),
       ownerEmail: _source.owner_email,

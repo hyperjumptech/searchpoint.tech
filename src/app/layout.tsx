@@ -6,6 +6,8 @@ import { getMe } from "@/actions/me";
 import { UserStoreInitializer } from "@/stores/user";
 
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import Navbar from "@/components/navbar";
 
 export const metadata: Metadata = {
   title: "Secure Corporate Search Engine",
@@ -29,6 +31,9 @@ export default async function RootLayout({
     <html lang="en" className={inter.className}>
       <body>
         <UserStoreInitializer user={me} />
+        <Suspense>
+          <Navbar />
+        </Suspense>
         {children}
       </body>
     </html>
