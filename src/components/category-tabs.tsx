@@ -19,6 +19,7 @@ export default function CategoryTabs() {
   const onClick = (key: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("type", key);
+    params.set("page", "1");
 
     router.push(`?${params.toString()}`);
   };

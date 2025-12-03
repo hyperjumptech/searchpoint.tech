@@ -97,11 +97,15 @@ function buildFilterQuery(type: string): string {
       break;
   }
 
-  const conditions = extensions
-    .map((ext) => `extension eq '${ext}'`)
-    .join(" or ");
+  if (extensions.length === 0) {
+    return "";
+  }
 
-  return conditions;
+  if (extensions.length === 1) {
+    return `extension eq '${extensions[0]}'`;
+  }
+
+  return `extension in (${extensions.map((ext) => `'${ext}'`).join(",")})`;
 }
 
 export async function performSearch(
