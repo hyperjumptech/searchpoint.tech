@@ -32,7 +32,7 @@ export default function SearchBar({
         type="search"
         autoFocus={autoFocus}
         defaultValue={defaultValue}
-        placeholder="Ask me anything about your business data..."
+        placeholder="Search from Sharepoint and Shared Folders..."
         leftIcon={<SearchIcon className="w-5 h-5 mr-1" />}
         className={clsx("w-full py-2 px-4 rounded-full", inputClassName)}
       />
