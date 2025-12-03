@@ -1,10 +1,8 @@
 import "./globals.css";
 
 import { Inter } from "next/font/google";
-import { Suspense } from "react";
 
 import { getMe } from "@/actions/me";
-import Navbar from "@/components/navbar";
 import { UserStoreInitializer } from "@/stores/user";
 
 import type { Metadata } from "next";
@@ -17,7 +15,7 @@ export const metadata: Metadata = {
 const inter = Inter({
   subsets: ["latin"],
   style: ["normal"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "700"],
 });
 
 export default async function RootLayout({
@@ -31,9 +29,6 @@ export default async function RootLayout({
     <html lang="en" className={inter.className}>
       <body>
         <UserStoreInitializer user={me} />
-        <Suspense>
-          <Navbar />
-        </Suspense>
         {children}
       </body>
     </html>
