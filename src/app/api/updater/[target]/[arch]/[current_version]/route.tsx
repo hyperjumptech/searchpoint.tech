@@ -50,6 +50,11 @@ export async function GET(
             "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRbTVWc2hHZjB5UTZLUmZyQ0Y2K1ZIZ05hbnF5U3NlU0ZqbjNOR283SXBXRWptb1ZsQjAyRDJyWjRlMUcraW5aeXFWa3Q0RjgrSjlHa25jR3RvTzNleXM2N3FvVEo5dGdNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzY0Njg4MjUyCWZpbGU6c2NzZS1kZXNrdG9wXzAuMi4wX2FtZDY0LkFwcEltYWdlCi95cU1qM1AzeTZ0WGgySS94K3c3d2pyV2tvZ0ZwdDVGRDExbzh1THBITjhPWmlBUExGWW9SZDlxekVKTC9uVE1YY0V2Zzg5VHRQM0FCc2xMOGxiSURnPT0K",
           url: `https://storage.scse.hyperjump.tech/scse/releases/v${latestVersion}/linux/scse-desktop_${latestVersion}_amd64.AppImage`,
         },
+        ["macOS-download"]: {
+          // this is a workaround to get the .dmg file instead of the .tar.gz
+          signature: "",
+          url: `https://storage.scse.hyperjump.tech/scse/releases/v${latestVersion}/macos/scse-desktop_${latestVersion}_universal.dmg`,
+        },
       },
     };
 
