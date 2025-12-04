@@ -19,8 +19,8 @@ export function FileActions({ url }: { url?: string }) {
       </Button>
       <TypographyP className="text-muted-foreground flex items-center gap-2">
         <CircleAlert className="w-4 h-4 shrink-0" /> For privacy and security
-        reasons, we can’t open this file for you. Please click link above to
-        access it directly in SharePoint.
+        reasons, we don&apos;t keep the file in our system. You can click button
+        above to access it directly in SharePoint.
       </TypographyP>
     </div>
   );

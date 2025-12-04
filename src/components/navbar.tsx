@@ -151,7 +151,7 @@ export default function Navbar() {
             <div className="flex justify-end">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Avatar className="cursor-pointer w-10 h-10 mt-1">
+                  <Avatar className="cursor-pointer w-10 h-10 mt-1 shadow-xs border">
                     <AvatarFallback>{user.initialName}</AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>

@@ -23,7 +23,7 @@ export default async function ResultDetailPage({
   const accessLog: AccessLogItem[] = file.accessLog || [];
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8">
+    <main className="mx-auto w-full max-w-7xl px-6 md:px-16 py-8 md:py-16">
       <BackButton />
       <div className="w-full flex flex-col lg:flex-row gap-8 xl:gap-32">
         <div className="w-full lg:max-w-1/2">

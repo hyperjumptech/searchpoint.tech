@@ -1,4 +1,4 @@
-export default async function SearchLayout({
+export default async function PageLayout({
   children,
   summary,
 }: {

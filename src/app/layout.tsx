@@ -27,7 +27,7 @@ export default async function RootLayout({
 }>) {
   const me = await getMe();
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || "/";
+  const pathname = headersList.get("x-pathname") || "";
 
   return (
     <html lang="en" className={inter.className}>

@@ -29,15 +29,17 @@ export function FilePreview({ file }: { file: TFile }) {
   const isImage = imageExtensions.includes(fileExt);
   const isVideo = videoExtensions.includes(fileExt);
 
+  if (!isImage && !isVideo) {
+    return null;
+  }
+
   return (
     <div className="block w-full h-max bg-muted border rounded-lg p-4 mb-10 lg:mb-0">
       {isImage ? (
         <ImagePreview file={file} />
       ) : isVideo ? (
         <VideoPreview file={file} />
-      ) : (
-        <PreviewUnavailable />
-      )}
+      ) : null}
     </div>
   );
 }
