@@ -70,27 +70,27 @@ export default function PaginationButtons({
   const pageNumbers = getPageNumbers();
 
   return (
-    <div className="flex items-center space-x-4">
+    <div className="flex items-center space-x-2 md:space-x-4">
       <Button
         variant="secondary"
         onClick={handleFirstPage}
         disabled={isFirstPage}
-        className="cursor-pointer">
-        <ChevronsLeft />
+        className="cursor-pointer h-8 w-8 p-0 md:h-10 md:w-10">
+        <ChevronsLeft className="h-4 w-4" />
       </Button>
       <Button
         variant="secondary"
         onClick={handlePreviousPage}
         disabled={isFirstPage}
-        className="cursor-pointer">
-        <ChevronLeft />
+        className="cursor-pointer h-8 w-8 p-0 md:h-10 md:w-10">
+        <ChevronLeft className="h-4 w-4" />
       </Button>
       {pageNumbers.map((pageNum) => (
         <Button
           key={`page-${pageNum}`}
           variant={pageNum === currentPage ? "default" : "secondary"}
           onClick={() => handlePageChange(pageNum)}
-          className="cursor-pointer">
+          className="cursor-pointer h-8 min-w-8 px-2 md:h-10 md:min-w-10 md:px-4">
           {pageNum}
         </Button>
       ))}
@@ -98,15 +98,15 @@ export default function PaginationButtons({
         variant="secondary"
         onClick={handleNextPage}
         disabled={isLastPage}
-        className="cursor-pointer">
-        <ChevronRight />
+        className="cursor-pointer h-8 w-8 p-0 md:h-10 md:w-10">
+        <ChevronRight className="h-4 w-4" />
       </Button>
       <Button
         variant="secondary"
         onClick={handleLastPage}
         disabled={isLastPage}
-        className="cursor-pointer">
-        <ChevronsRight />
+        className="cursor-pointer h-8 w-8 p-0 md:h-10 md:w-10">
+        <ChevronsRight className="h-4 w-4" />
       </Button>
     </div>
   );
