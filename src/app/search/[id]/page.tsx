@@ -33,7 +33,11 @@ export default async function ResultDetailPage({
           )}
         </div>
         <div className="w-full hidden lg:flex lg:max-w-1/2">
-          <FilePreview file={file} />
+          {file.fileSource !== "shared folder" && (
+            <div className="w-full h-full">
+              <FilePreview file={file} />
+            </div>
+          )}
         </div>
       </div>
 
