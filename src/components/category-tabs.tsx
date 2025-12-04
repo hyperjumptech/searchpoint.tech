@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
 
 const types = [
   { key: "all", label: "All" },
@@ -27,9 +28,11 @@ export default function CategoryTabs() {
   return (
     <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
       {types.map((t) => (
-        <button
+        <Button
           key={t.key}
+          type="button"
           onClick={() => onClick(t.key)}
+          variant={"outline"}
           className={cn(
             "px-3 py-1 rounded-md border text-sm cursor-pointer",
             currentType === t.key
@@ -37,7 +40,7 @@ export default function CategoryTabs() {
               : "bg-white",
           )}>
           {t.label}
-        </button>
+        </Button>
       ))}
     </div>
   );

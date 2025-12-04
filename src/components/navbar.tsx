@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Key, LogOut } from "lucide-react";
+import { Download, FilterIcon, Key, LogOut } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -19,6 +19,7 @@ import {
 import { detectOS, osToUpdaterFormat } from "@/lib/detect-os";
 import { useUserStore } from "@/stores/user";
 import CategoryTabs from "./category-tabs";
+import { cn } from "@/lib/utils";
 
 export default function Navbar() {
   const router = useRouter();
@@ -40,8 +41,13 @@ export default function Navbar() {
     }
     return false;
   });
+  const navbarHeightClass = showSearchBar ? "lg:h-32" : "lg:h-16";
 
-  const navbarHeightClass = showSearchBar ? "md:h-32" : "md:h-16";
+  const handleOpenSummary = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("summary", "true");
+    router.push(`/search?${params.toString()}`);
+  };
 
   const generateLicenseKey = async () => {
     if (!user?.email) return;
@@ -113,20 +119,29 @@ export default function Navbar() {
 
   return (
     <header className="relative z-50 border-b border-border/20 bg-transparent text-foreground">
-      <nav className={`mx-auto px-4 py-3 ${navbarHeightClass} md:py-0`}>
-        <div className="flex items-start py-4 justify-between md:grid md:grid-cols-[160px_1fr_80px] md:gap-4 md:h-full">
+      <nav className={cn("mx-auto px-4 py-4", navbarHeightClass, "lg:py-0")}>
+        <div className="flex items-start lg:py-4 justify-between lg:flex lg:flex-row lg:justify-between lg:gap-8 lg:h-full">
           <NavbarLogo />
 
           {/* Middle Column - Always rendered */}
-          <div className="hidden md:flex h-full items-center">
+          <div className="hidden w-full lg:flex h-full items-center">
             {showSearchBar && (
-              <div className="flex flex-col w-full gap-4">
+              <div className="flex flex-col w-full gap-4 max-w-3xl">
                 <SearchBar
                   defaultValue={searchValue}
-                  className="max-w-4xl"
+                  className="max-w-4xl w-full"
                   inputClassName="py-0.5 px-2"
                 />
-                <CategoryTabs />
+                <div className="flex gap-2 items-center justify-between">
+                  <CategoryTabs />
+                  {/* Summary */}
+                  <Button
+                    className="cursor-pointer xl:hidden"
+                    onClick={handleOpenSummary}
+                    variant={"outline"}>
+                    <FilterIcon />
+                  </Button>
+                </div>
               </div>
             )}
           </div>
@@ -136,7 +151,7 @@ export default function Navbar() {
             <div className="flex justify-end">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Avatar className="cursor-pointer">
+                  <Avatar className="cursor-pointer w-10 h-10 mt-1">
                     <AvatarFallback>{user.initialName}</AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
@@ -187,7 +202,7 @@ export default function Navbar() {
         </div>
         {/* Search Bar - Mobile only */}
         {showSearchBar && (
-          <div className="md:hidden pt-3">
+          <div className="lg:hidden pt-3">
             <SearchBar
               defaultValue={searchValue}
               className="w-full"
@@ -197,9 +212,19 @@ export default function Navbar() {
         )}
 
         {showSearchBar && (
-          <div className="md:hidden mt-3 overflow-x-auto scrollbar-hide relative z-50">
-            <div className="flex gap-2 whitespace-nowrap">
-              <CategoryTabs />
+          <div className="lg:hidden mt-3 overflow-x-auto scrollbar-hide relative z-50">
+            <div className="flex w-full items-center gap-4">
+              {/* Category Tabs */}
+              <div className="flex-1 overflow-x-auto scrollbar-hide">
+                <CategoryTabs />
+              </div>
+              {/* Summary */}
+              <Button
+                className="cursor-pointer xl:hidden shrink-0"
+                onClick={handleOpenSummary}
+                variant={"outline"}>
+                <FilterIcon />
+              </Button>
             </div>
           </div>
         )}
