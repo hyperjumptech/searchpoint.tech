@@ -26,7 +26,9 @@ export default function SearchBar({
   }
 
   return (
-    <form className={clsx("w-full", className)} onSubmit={handleSubmit}>
+    <form
+      className={clsx("w-full bg-white rounded-full", className)}
+      onSubmit={handleSubmit}>
       <Input
         name="q"
         type="search"

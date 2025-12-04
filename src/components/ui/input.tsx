@@ -27,7 +27,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           type={type}
           data-slot="input"
           className={cn(
-            "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30",
+            "file:text-foreground placeholder:text-xs md:placeholder:text-sm placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30",
             "h-9 w-full min-w-0 rounded-md bg-transparent px-3 py-1 text-base md:text-sm outline-none border-none",
             leftIcon && "pl-2",
           )}

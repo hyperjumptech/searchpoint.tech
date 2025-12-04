@@ -1,7 +1,3 @@
-import { Fragment, Suspense } from "react";
-
-import Navbar from "@/components/navbar";
-
 export default async function SearchLayout({
   children,
 }: {

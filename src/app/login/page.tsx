@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Spinner } from "@/components/ui/spinner";
+import { UnlockingAnimation } from "@/components/ui/unlocking-animation";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export default function Login() {
@@ -27,7 +27,7 @@ export default function Login() {
 
   return (
     <main className="h-screen flex">
-      <aside className="hidden md:flex md:flex-1 w-full relative">
+      <aside className="hidden md:flex md:flex-2 w-full relative">
         <Image
           fill={true}
           priority={true}
@@ -37,15 +37,17 @@ export default function Login() {
           sizes="(max-width: 768px) 0vw, 50vw"
         />
       </aside>
-      <section className="flex-1 w-full flex-col flex items-center justify-between py-6">
+      <section className="flex-1 w-full flex-col flex items-center justify-between py-16">
         <header>
           <Image src="/icons/logo.svg" alt="Sinarmas" width={143} height={32} />
         </header>
-        <article className="flex flex-col items-center justify-center space-y-4">
-          <h1 className="text-2xl font-bold">Secure Corporate Search Engine</h1>
+        <article className="flex flex-col items-center justify-center space-y-4 p-8 text-center">
+          <h1 className="text-lg md:text-xl font-bold px-4">
+            Secure Corporate Search Engine
+          </h1>
           <Button
             onClick={handleLogin}
-            className="rounded-full space-x-2 w-full">
+            className="rounded-full space-x-2 w-full py-6">
             <Image
               src="/images/microsoft-logo.svg"
               alt="Microsoft"
@@ -82,19 +84,14 @@ export default function Login() {
             />
           </DialogHeader>
           <div className="flex flex-col items-center justify-center space-y-4 my-8">
-            <Spinner className="h-16 w-16 text-primary" />
+            <UnlockingAnimation className="h-16 w-16 text-primary" />
             <p className="text-xl font-bold">
               Setting up your secure session...
             </p>
             <p className="text-xs text-muted-foreground">
-              {"We're validating your identity and loading your file access."}
+              {"We're validating your identity and loading your access."}
             </p>
           </div>
-          <DialogFooter>
-            <p className="text-xs text-secondary-foreground">
-              Copyright © 2025 Sinar Mas. All Right Reserved.
-            </p>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </main>

@@ -112,7 +112,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="relative z-50 border-b border-border bg-background text-foreground">
+    <header className="relative z-50 border-b border-border/20 bg-transparent text-foreground">
       <nav className={`mx-auto px-4 py-3 ${navbarHeightClass} md:py-0`}>
         <div className="flex items-start py-4 justify-between md:grid md:grid-cols-[160px_1fr_80px] md:gap-4 md:h-full">
           <NavbarLogo />
