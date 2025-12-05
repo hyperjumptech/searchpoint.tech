@@ -6,7 +6,7 @@ export default async function PageLayout({
   summary?: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto px-4 py-4">
+    <div className="mx-auto px-4 pt-6 pb-12">
       <div className="lg:flex lg:flex-row lg:justify-between lg:gap-8">
         {/* Empty column for logo space */}
         <div className="hidden lg:flex lg:w-32 lg:min-w-32" />

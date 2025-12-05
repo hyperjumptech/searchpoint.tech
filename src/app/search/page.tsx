@@ -64,7 +64,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             </Card>
           </div>
         }>
-        <div className="flex flex-col gap-4 w-full">
+        <div className="flex flex-col space-y-8 w-full">
           <ResultInfoBar total={data.pagination.total} type={type} />
 
           {data.results.map((result, idx) => (

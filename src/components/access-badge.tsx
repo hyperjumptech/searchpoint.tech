@@ -1,43 +1,59 @@
-import Image from "next/image";
-
 import { getMe } from "@/actions/me";
 import { Badge } from "@/components/ui/badge";
-
 import { TFile } from "../types";
+import {
+  BanIcon,
+  GlobeIcon,
+  ShieldAlertIcon,
+  ShieldCheckIcon,
+  UserRoundCheckIcon,
+  UserRoundXIcon,
+} from "lucide-react";
 
 type Props = {
   file: TFile;
+};
+
+export type TAccessFilter = {
+  access:
+    | "public"
+    | "private-full-access"
+    | "private-restricted"
+    | "private-forbidden"
+    | "personal-restricted"
+    | "personal-forbidden";
+  count: number;
+};
+
+export const accessLabels: Record<TAccessFilter["access"], string> = {
+  public: "Public",
+  "private-full-access": "Private: Full Access",
+  "private-restricted": "Private: Restricted",
+  "private-forbidden": "Private: Forbidden",
+  "personal-restricted": "Personal: Restricted",
+  "personal-forbidden": "Personal: Forbidden",
 };
 
 export default async function AccessBadge({ file }: Props) {
   const user = await getMe();
   const { allowList, ownerEmail, fileSource } = file;
 
-  const determineAccess = () => {
+  const determineAccess = (): TAccessFilter["access"] => {
     if (fileSource === "onedrive") {
-      if (allowList.includes(user?.email ?? "") || user?.email === ownerEmail) {
-        return {
-          title: "Private: Full Access",
-          iconPath: "/images/private-full-access.svg",
-          svgColor:
-            "invert(48%) sepia(79%) saturate(1800%) hue-rotate(86deg) brightness(90%) contrast(119%)",
-        };
+      if (user?.email === ownerEmail) {
+        return "private-full-access";
+      } else if (allowList.includes(user?.email || "")) {
+        return "private-restricted";
+      } else {
+        return "private-forbidden";
       }
-
-      return {
-        title: "Private: Forbidden",
-        iconPath: "/images/forbidden-access.svg",
-        svgColor:
-          "invert(27%) sepia(51%) saturate(2200%) hue-rotate(346deg) brightness(85%) contrast(97%)",
-      };
+    } else {
+      if (user?.email === ownerEmail) {
+        return "personal-restricted";
+      } else {
+        return "personal-forbidden";
+      }
     }
-
-    return {
-      title: "Private: Restricted",
-      iconPath: "/images/restricted-access.svg",
-      svgColor:
-        "invert(69%) sepia(54%) saturate(280%) hue-rotate(8deg) brightness(88%) contrast(101%)",
-    };
   };
 
   const access = determineAccess();
@@ -45,15 +61,26 @@ export default async function AccessBadge({ file }: Props) {
   return (
     <Badge
       variant="outline"
-      className="text-[10px] shrink-0 text-muted-foreground">
-      <Image
-        width={14}
-        height={14}
-        alt={access.title}
-        src={access.iconPath}
-        style={{ filter: access.svgColor }}
-      />
-      {access.title}
+      className="text-[11px] shrink-0 text-muted-foreground gap-1">
+      <RenderIcon access={access} />
+      {accessLabels[access]}
     </Badge>
   );
 }
+
+export const RenderIcon = ({ access }: { access: TAccessFilter["access"] }) => {
+  switch (access) {
+    case "public":
+      return <GlobeIcon className="text-green-400" />;
+    case "private-full-access":
+      return <ShieldCheckIcon className="text-green-400" />;
+    case "private-restricted":
+      return <ShieldAlertIcon className="text-yellow-400" />;
+    case "private-forbidden":
+      return <BanIcon className="text-red-400" />;
+    case "personal-restricted":
+      return <UserRoundCheckIcon className="text-yellow-400" />;
+    case "personal-forbidden":
+      return <UserRoundXIcon className="text-red-400" />;
+  }
+};

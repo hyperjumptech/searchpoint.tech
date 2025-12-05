@@ -15,11 +15,6 @@ export default function ResultInfoBar({ total, type }: ResultInfoBarProps) {
             {total.toLocaleString("id-ID")} documents
           </b>
         </p>
-        <div className="rounded-full w-2 h-2 bg-[#3593EA]" />
-        <p>
-          Showing:{" "}
-          <b className="text-[#2e7bc3] font-extrabold">{capitalize(type)}</b>
-        </p>
       </div>
       <p>
         <i>

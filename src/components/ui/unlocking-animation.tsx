@@ -13,7 +13,7 @@ export function UnlockingAnimation({ className }: UnlockingAnimationProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsComplete(true);
-    }, 2000);
+    }, 1200);
 
     return () => clearTimeout(timer);
   }, []);
@@ -50,7 +50,7 @@ export function UnlockingAnimation({ className }: UnlockingAnimationProps) {
           initial={{ strokeDashoffset: 176 }}
           animate={{ strokeDashoffset: isComplete ? 0 : 0 }}
           transition={{
-            duration: 2,
+            duration: 1.2,
             ease: "linear",
           }}
           style={{

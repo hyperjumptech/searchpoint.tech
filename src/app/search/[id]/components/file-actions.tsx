@@ -17,10 +17,10 @@ export function FileActions({ url }: { url?: string }) {
         }}>
         <SquareArrowOutUpRight /> Open in SharePoint
       </Button>
-      <TypographyP className="text-muted-foreground flex items-center gap-2">
-        <CircleAlert className="w-4 h-4 shrink-0" /> For privacy and security
-        reasons, we don&apos;t keep the file in our system. You can click button
-        above to access it directly in SharePoint.
+      <TypographyP className="text-muted-foreground flex flex-row items-start gap-2">
+        <CircleAlert className="w-4 h-4 shrink-0 mt-1" /> For privacy and
+        security reasons, we don&apos;t keep the file in our system. You can
+        click button above to access it directly in SharePoint.
       </TypographyP>
     </div>
   );

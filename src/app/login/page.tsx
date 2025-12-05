@@ -21,7 +21,7 @@ export default function Login() {
     setIsLoading(true);
     setTimeout(() => {
       window.location.href = "https://api.scse.hyperjump.tech/v1/auth";
-    }, 2000);
+    }, 1200);
   };
 
   return (
