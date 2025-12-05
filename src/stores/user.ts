@@ -20,11 +20,20 @@ interface Action {
 
 type Store = State & Action;
 
+function clearCookies() {
+  document.cookie.split(";").forEach((c) => {
+    document.cookie = c
+      .replace(/^ +/, "")
+      .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+  });
+}
+
 export const useUserStore = create<Store>()((set) => ({
   user: null,
   setUser: (user) => set({ user }),
   logOut: async () => {
     await fetch("/logout");
+    clearCookies();
     set({ user: null });
   },
 }));

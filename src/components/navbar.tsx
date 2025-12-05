@@ -190,7 +190,7 @@ export default function Navbar() {
                   <DropdownMenuItem
                     onClick={async () => {
                       await logOut();
-                      router.push("/login");
+                      window.location.href = "/login";
                     }}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
