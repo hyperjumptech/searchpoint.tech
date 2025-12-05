@@ -2,7 +2,6 @@ import SourcesFilter from "../components/sources-flter";
 import FileFilter from "../components/file-filter";
 import { Fragment } from "react";
 import { Separator } from "@/components/ui/separator";
-import LastUpdatedFilter from "./last-updated-filter";
 import AccessFilter from "../components/access-filter";
 
 // This function generates random counts for the search summary for placeholder data
@@ -33,7 +32,6 @@ export default function SearchSummary({ count }: { count: number }) {
   const accessCounts = getRandomCounts(count, 5);
   const sourceCounts = getRandomCounts(count, 2);
   const fileTypeCounts = getRandomCounts(count, 4);
-  const lastUpdatedCounts = getRandomCounts(count, 3);
 
   return (
     <Fragment>
@@ -96,25 +94,6 @@ export default function SearchSummary({ count }: { count: number }) {
             {
               type: "xlsx",
               count: fileTypeCounts[3],
-            },
-          ]}
-        />
-      </div>
-      <div className="flex flex-col gap-2 bg-gray-50 p-3 rounded-md text-xs">
-        <p className="text-muted-foreground">Last Updated</p>
-        <LastUpdatedFilter
-          data={[
-            {
-              type: "pastWeek",
-              count: lastUpdatedCounts[0],
-            },
-            {
-              type: "pastMonth",
-              count: lastUpdatedCounts[1],
-            },
-            {
-              type: "older",
-              count: lastUpdatedCounts[2],
             },
           ]}
         />
