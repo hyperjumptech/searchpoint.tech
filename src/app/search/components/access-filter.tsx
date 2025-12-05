@@ -13,13 +13,15 @@ export default function AccessFilter({
 }) {
   return (
     <ToggleGroup type={type} className="flex flex-wrap" spacing={2}>
-      {data.map((item) => (
-        <AccessToggle
-          key={item.access}
-          access={item.access}
-          count={item.count}
-        />
-      ))}
+      {data
+        .sort((a, b) => b.count - a.count)
+        .map((item) => (
+          <AccessToggle
+            key={item.access}
+            access={item.access}
+            count={item.count}
+          />
+        ))}
     </ToggleGroup>
   );
 }
@@ -34,14 +36,14 @@ function AccessToggle({
   return (
     <ToggleGroupItem
       value={access}
-      className="group text-xs flex flex-row gap-1 items-center rounded-md border-0 bg-gray-100 text-slate-800 cursor-pointer hover:text-black hover:bg-gray-200 data-[state=on]:bg-red-600 data-[state=on]:text-white transition-all duration-300">
+      className="cursor-default group text-xs flex flex-row gap-1 items-center rounded-md border-0 bg-gray-100 text-slate-800 hover:text-black hover:bg-gray-100 data-[state=on]:bg-gray-100 data-[state=on]:text-slate-800 transition-all duration-300">
       <AccessTooltip access={access}>
         <div className="flex flex-row gap-1 items-center">
           <RenderIcon access={access} />
           {accessLabels[access]}
           <Badge
             variant="secondary"
-            className="bg-blue-50 text-blue-400 font-semibold border-0 text-xs rounded-sm px-1 py-0.5 group-data-[state=on]:bg-transparent group-data-[state=on]:text-white">
+            className="bg-blue-50 text-blue-400 font-semibold border-0 text-xs rounded-sm px-1 py-0.5 group-data-[state=on]:bg-transparent group-data-[state=on]:text-blue-400">
             {count}
           </Badge>
         </div>

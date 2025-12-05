@@ -30,7 +30,7 @@ function getRandomCounts(total: number, numCategories: number): number[] {
 
 export default function SearchSummary({ count }: { count: number }) {
   // Get placeholder counts for the search summary
-  const accessCounts = getRandomCounts(count, 6);
+  const accessCounts = getRandomCounts(count, 5);
   const sourceCounts = getRandomCounts(count, 2);
   const fileTypeCounts = getRandomCounts(count, 4);
   const lastUpdatedCounts = getRandomCounts(count, 3);
@@ -40,28 +40,24 @@ export default function SearchSummary({ count }: { count: number }) {
       <AccessFilter
         data={[
           {
-            access: "public",
+            access: "private-full-access",
             count: accessCounts[0],
           },
           {
-            access: "private-full-access",
+            access: "private-restricted",
             count: accessCounts[1],
           },
           {
-            access: "private-restricted",
+            access: "private-forbidden",
             count: accessCounts[2],
           },
           {
-            access: "private-forbidden",
+            access: "personal-restricted",
             count: accessCounts[3],
           },
           {
-            access: "personal-restricted",
-            count: accessCounts[4],
-          },
-          {
             access: "personal-forbidden",
-            count: accessCounts[5],
+            count: accessCounts[4],
           },
         ]}
       />
