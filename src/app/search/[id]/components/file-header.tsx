@@ -32,9 +32,11 @@ export function FileHeader({ file }: { file: TFile }) {
         {file.fileName}
       </h1>
 
-      <div className="flex lg:hidden">
-        <FilePreview file={file} />
-      </div>
+      {file.fileSource !== "shared folder" && (
+        <div className="flex lg:hidden">
+          <FilePreview file={file} />
+        </div>
+      )}
 
       <TypographyP className="text-base md:text-lg text-muted-foreground mb-10 leading-relaxed wrap-break-word">
         <span className="font-bold">Updated {file.updatedTime}</span> -{" "}
