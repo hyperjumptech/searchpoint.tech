@@ -1,38 +1,37 @@
-import { Toggle } from "@/components/ui/toggle";
-import { FolderIcon, GlobeIcon } from "lucide-react";
+import OneDriveIcon from "@/components/icons/onedrive-source";
+import OtherSourceIcon from "@/components/icons/other-source";
+import FilterToggleGroup, { FilterItem } from "./filter-toggle-group";
 
 export type TSourcesFilter = {
-  source: "sharepoint" | "local";
+  source: "onedrive" | "shared folder";
   count: number;
 };
 
 const sourcesLabels: Record<TSourcesFilter["source"], string> = {
-  sharepoint: "SharePoint",
-  local: "Local",
+  onedrive: "OneDrive",
+  "shared folder": "Shared Folder",
+};
+
+const renderIcon = (source: TSourcesFilter["source"]) => {
+  switch (source) {
+    case "onedrive":
+      return <OneDriveIcon />;
+    case "shared folder":
+      return <OtherSourceIcon />;
+  }
 };
 
 export default function SourcesFilter({ data }: { data: TSourcesFilter[] }) {
+  const items: FilterItem<TSourcesFilter["source"]>[] = data.map((item) => ({
+    value: item.source,
+    count: item.count,
+  }));
+
   return (
-    <div className="flex flex-wrap gap-2">
-      {data.map((item) => (
-        <Toggle
-          key={item.source}
-          variant="outline"
-          className="flex flex-row items-center text-sm rounded-md text-muted-foreground cursor-pointer hover:text-black data-[state=on]:bg-red-600 data-[state=on]:text-white transition-all duration-300">
-          <RenderIcon source={item.source} />
-          {sourcesLabels[item.source]}
-          <span className="text-xs">({item.count})</span>
-        </Toggle>
-      ))}
-    </div>
+    <FilterToggleGroup
+      items={items}
+      labels={sourcesLabels}
+      renderIcon={renderIcon}
+    />
   );
 }
-
-const RenderIcon = ({ source }: { source: TSourcesFilter["source"] }) => {
-  switch (source) {
-    case "sharepoint":
-      return <GlobeIcon />;
-    case "local":
-      return <FolderIcon />;
-  }
-};

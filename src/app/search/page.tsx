@@ -7,7 +7,13 @@ import NotFound from "./not-found";
 import PageLayout from "./components/page-layout";
 import SearchSummary from "./components/search-summary";
 import SearchSummaryDialog from "./components/search-summary-dialog";
-import { Card, CardTitle, CardHeader, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardTitle,
+  CardHeader,
+  CardContent,
+  CardDescription,
+} from "@/components/ui/card";
 
 type SearchPageProps = {
   searchParams: Promise<{
@@ -40,12 +46,20 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <PageLayout
         summary={
           <div className="hidden xl:block">
-            <Card className="w-full max-w-none xl:max-w-sm h-max gap-0">
-              <CardHeader>
-                <CardTitle>Search Summary for &quot;{query}&quot;</CardTitle>
+            <Card className="w-full py-0 max-w-none xl:max-w-sm h-max gap-0 bg-gray-50/30 shadow-accent-foregroundmd">
+              <CardHeader className="p-4 pb-2">
+                <CardTitle className="text-lg font-semibold">
+                  Search Summary -{" "}
+                  <span className="font-semibold italic">
+                    &quot;{query}&quot;
+                  </span>
+                </CardTitle>
+                <CardDescription className="text-gray-500 font-light text-sm">
+                  {data.pagination.total} document(s) found
+                </CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-col gap-4">
-                <SearchSummary data={data} />
+              <CardContent className="flex flex-col gap-4 p-4 pb-4">
+                <SearchSummary count={data.pagination.total} />
               </CardContent>
             </Card>
           </div>

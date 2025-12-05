@@ -1,37 +1,32 @@
-import Image from "next/image";
-
+import { Badge } from "@/components/ui/badge";
 import { Toggle } from "@/components/ui/toggle";
+import {
+  BanIcon,
+  GlobeIcon,
+  ShieldAlertIcon,
+  ShieldCheckIcon,
+  UserRoundCheckIcon,
+  UserRoundXIcon,
+} from "lucide-react";
 
 export type TAccessFilter = {
-  access: "private-full-access" | "private-restricted" | "private-forbidden";
+  access:
+    | "public"
+    | "private-full-access"
+    | "private-restricted"
+    | "private-forbidden"
+    | "personal-restricted"
+    | "personal-forbidden";
   count: number;
 };
 
 const accessLabels: Record<TAccessFilter["access"], string> = {
-  "private-full-access": "Private - Full Access",
-  "private-restricted": "Private - Restricted",
-  "private-forbidden": "Private - Forbidden",
-};
-
-const accessIcons: Record<
-  TAccessFilter["access"],
-  { iconPath: string; svgColor: string }
-> = {
-  "private-full-access": {
-    iconPath: "/images/private-full-access.svg",
-    svgColor:
-      "invert(48%) sepia(79%) saturate(1800%) hue-rotate(86deg) brightness(90%) contrast(119%)",
-  },
-  "private-restricted": {
-    iconPath: "/images/restricted-access.svg",
-    svgColor:
-      "invert(69%) sepia(54%) saturate(280%) hue-rotate(8deg) brightness(88%) contrast(101%)",
-  },
-  "private-forbidden": {
-    iconPath: "/images/forbidden-access.svg",
-    svgColor:
-      "invert(27%) sepia(51%) saturate(2200%) hue-rotate(346deg) brightness(85%) contrast(97%)",
-  },
+  public: "Public",
+  "private-full-access": "Private: Full Access",
+  "private-restricted": "Private: Restricted",
+  "private-forbidden": "Private: Forbidden",
+  "personal-restricted": "Personal: Restricted",
+  "personal-forbidden": "Personal: Forbidden",
 };
 
 export default function AccessFilter({ data }: { data: TAccessFilter[] }) {
@@ -41,10 +36,14 @@ export default function AccessFilter({ data }: { data: TAccessFilter[] }) {
         <Toggle
           key={item.access}
           variant="outline"
-          className="group flex flex-row items-center text-sm rounded-md text-muted-foreground cursor-pointer hover:text-black data-[state=on]:bg-red-600 data-[state=on]:text-white transition-all duration-300">
+          className="group flex flex-row items-center gap-1 text-xs rounded-md text-black cursor-pointer hover:text-black data-[state=on]:bg-red-600 data-[state=on]:text-white transition-all duration-300">
           <RenderIcon access={item.access} />
           {accessLabels[item.access]}
-          <span className="text-xs">({item.count})</span>
+          <Badge
+            variant="secondary"
+            className="bg-blue-50 text-blue-400 font-semibold border-0 text-xs rounded-sm px-1 py-0.5 group-data-[state=on]:bg-transparent group-data-[state=on]:text-white">
+            {item.count}
+          </Badge>
         </Toggle>
       ))}
     </div>
@@ -52,16 +51,18 @@ export default function AccessFilter({ data }: { data: TAccessFilter[] }) {
 }
 
 const RenderIcon = ({ access }: { access: TAccessFilter["access"] }) => {
-  const icon = accessIcons[access];
-
-  return (
-    <Image
-      width={14}
-      height={14}
-      alt={accessLabels[access]}
-      src={icon.iconPath}
-      style={{ filter: icon.svgColor }}
-      className="group-data-[state=on]:brightness-0 group-data-[state=on]:invert"
-    />
-  );
+  switch (access) {
+    case "public":
+      return <GlobeIcon className="text-green-400" />;
+    case "private-full-access":
+      return <ShieldCheckIcon className="text-green-400" />;
+    case "private-restricted":
+      return <ShieldAlertIcon className="text-yellow-400" />;
+    case "private-forbidden":
+      return <BanIcon className="text-red-400" />;
+    case "personal-restricted":
+      return <UserRoundCheckIcon className="text-yellow-400" />;
+    case "personal-forbidden":
+      return <UserRoundXIcon className="text-red-400" />;
+  }
 };
