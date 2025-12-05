@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { TypographyP } from "@/components/typography";
 import { Skeleton } from "@/components/ui/skeleton";
-import AccessBadge from "./access-badge";
+import AccessBadge from "./access/access-badge";
 import { TFile } from "../types";
 
 type Props = {

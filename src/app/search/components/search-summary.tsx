@@ -1,9 +1,9 @@
-import AccessFilter from "../components/access-filter";
 import SourcesFilter from "../components/sources-flter";
 import FileFilter from "../components/file-filter";
 import { Fragment } from "react";
 import { Separator } from "@/components/ui/separator";
 import LastUpdatedFilter from "./last-updated-filter";
+import AccessFilter from "../components/access-filter";
 
 // This function generates random counts for the search summary for placeholder data
 // It ensures that the total count is distributed evenly among the categories

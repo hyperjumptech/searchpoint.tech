@@ -2,7 +2,7 @@ import Image from "next/image";
 import { TypographyP } from "@/components/typography";
 import { TFile } from "@/types";
 import { FilePreview } from "./file-preview";
-import AccessBadge from "@/components/access-badge";
+import AccessBadge from "@/components/access/access-badge";
 
 export function FileHeader({ file }: { file: TFile }) {
   return (

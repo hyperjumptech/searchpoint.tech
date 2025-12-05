@@ -1,6 +1,6 @@
 import { getMe } from "@/actions/me";
 import { Badge } from "@/components/ui/badge";
-import { TFile } from "../types";
+import { TFile } from "../../types";
 import {
   BanIcon,
   GlobeIcon,
@@ -9,29 +9,12 @@ import {
   UserRoundCheckIcon,
   UserRoundXIcon,
 } from "lucide-react";
+import { TAccessFilter } from "./types";
+import { accessLabels } from "./types";
+import AccessTooltip from "./access-tooltip";
 
 type Props = {
   file: TFile;
-};
-
-export type TAccessFilter = {
-  access:
-    | "public"
-    | "private-full-access"
-    | "private-restricted"
-    | "private-forbidden"
-    | "personal-restricted"
-    | "personal-forbidden";
-  count: number;
-};
-
-export const accessLabels: Record<TAccessFilter["access"], string> = {
-  public: "Public",
-  "private-full-access": "Private: Full Access",
-  "private-restricted": "Private: Restricted",
-  "private-forbidden": "Private: Forbidden",
-  "personal-restricted": "Personal: Restricted",
-  "personal-forbidden": "Personal: Forbidden",
 };
 
 export default async function AccessBadge({ file }: Props) {
@@ -59,12 +42,14 @@ export default async function AccessBadge({ file }: Props) {
   const access = determineAccess();
 
   return (
-    <Badge
-      variant="outline"
-      className="text-[11px] shrink-0 text-muted-foreground gap-1">
-      <RenderIcon access={access} />
-      {accessLabels[access]}
-    </Badge>
+    <AccessTooltip access={access}>
+      <Badge
+        variant="outline"
+        className="cursor-default! text-[11px] shrink-0 text-muted-foreground gap-1">
+        <RenderIcon access={access} />
+        {accessLabels[access]}
+      </Badge>
+    </AccessTooltip>
   );
 }
 

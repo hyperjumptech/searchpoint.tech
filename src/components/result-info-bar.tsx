@@ -1,11 +1,8 @@
-import { capitalize } from "@/lib/utils";
-
 type ResultInfoBarProps = {
   total: number;
   type: string;
 };
-
-export default function ResultInfoBar({ total, type }: ResultInfoBarProps) {
+export default function ResultInfoBar({ total }: ResultInfoBarProps) {
   return (
     <div className="bg-[#EFF6FF] shadow-xs px-4 py-2 rounded-xl text-xs space-y-3 text-[#3593EA]">
       <div className="flex flex-row items-center gap-4">

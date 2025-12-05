@@ -10,7 +10,8 @@ const PPTXFileIcon = React.forwardRef<SVGSVGElement, LucideProps>(
         height={size}
         fill="none"
         viewBox="0 0 11 14"
-        {...props}>
+        {...props}
+        ref={ref}>
         <path
           fill="currentColor"
           opacity="0.6"

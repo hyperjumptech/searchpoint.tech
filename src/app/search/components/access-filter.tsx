@@ -1,28 +1,51 @@
-import {
-  accessLabels,
-  RenderIcon,
-  TAccessFilter,
-} from "@/components/access-badge";
+import { accessLabels, TAccessFilter } from "@/components/access/types";
+import { RenderIcon } from "@/components/access/access-badge";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import AccessTooltip from "@/components/access/access-tooltip";
 import { Badge } from "@/components/ui/badge";
-import { Toggle } from "@/components/ui/toggle";
 
-export default function AccessFilter({ data }: { data: TAccessFilter[] }) {
+export default function AccessFilter({
+  data,
+  type = "multiple",
+}: {
+  data: TAccessFilter[];
+  type?: "multiple" | "single";
+}) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <ToggleGroup type={type} className="flex flex-wrap" spacing={2}>
       {data.map((item) => (
-        <Toggle
+        <AccessToggle
           key={item.access}
-          variant="outline"
-          className="group flex flex-row items-center gap-1 text-xs rounded-md text-black cursor-pointer hover:text-black data-[state=on]:bg-red-600 data-[state=on]:text-white transition-all duration-300">
-          <RenderIcon access={item.access} />
-          {accessLabels[item.access]}
+          access={item.access}
+          count={item.count}
+        />
+      ))}
+    </ToggleGroup>
+  );
+}
+
+function AccessToggle({
+  access,
+  count,
+}: {
+  access: TAccessFilter["access"];
+  count: number;
+}) {
+  return (
+    <ToggleGroupItem
+      value={access}
+      className="group text-xs flex flex-row gap-1 items-center rounded-md border-0 bg-gray-100 text-slate-800 cursor-pointer hover:text-black hover:bg-gray-200 data-[state=on]:bg-red-600 data-[state=on]:text-white transition-all duration-300">
+      <AccessTooltip access={access}>
+        <div className="flex flex-row gap-1 items-center">
+          <RenderIcon access={access} />
+          {accessLabels[access]}
           <Badge
             variant="secondary"
             className="bg-blue-50 text-blue-400 font-semibold border-0 text-xs rounded-sm px-1 py-0.5 group-data-[state=on]:bg-transparent group-data-[state=on]:text-white">
-            {item.count}
+            {count}
           </Badge>
-        </Toggle>
-      ))}
-    </div>
+        </div>
+      </AccessTooltip>
+    </ToggleGroupItem>
   );
 }
