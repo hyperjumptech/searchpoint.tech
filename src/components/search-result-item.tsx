@@ -12,7 +12,7 @@ type Props = {
 
 export default function SearchResultItem({ result }: Props) {
   if (result.fileName.includes("****")) {
-    return <SearchResultItemPrivate result={result} />;
+    return <SearchResultItemMasked result={result} />;
   }
 
   return (
@@ -53,10 +53,49 @@ export default function SearchResultItem({ result }: Props) {
   );
 }
 
-export function SearchResultItemPrivate({ result }: Props) {
+export function SearchResultItemMasked({ result }: Props) {
+  const renderMaskedText = (text: string) => {
+    const parts = text.split(/(\*{2,})/);
+
+    return parts.map((part, index) => {
+      if (/^\*{2,}$/.test(part)) {
+        const width = Math.min(part.length * 8, 200);
+
+        return (
+          <span
+            key={index}
+            className="inline-block h-4 rounded-md bg-blue-100 align-middle"
+            style={{ width: `${width}px` }}
+          />
+        );
+      }
+
+      return <span key={index}>{part}</span>;
+    });
+  };
+
+  const renderMaskedPath = (path: string) => {
+    const parts = path.split(/(\*{2,})/);
+
+    return parts.map((part, index) => {
+      if (/^\*{2,}$/.test(part)) {
+        const width = Math.min(part.length * 6, 150);
+
+        return (
+          <span
+            key={index}
+            className="inline-block h-3 rounded-md bg-muted align-middle"
+            style={{ width: `${width}px` }}
+          />
+        );
+      }
+
+      return <span key={index}>{part}</span>;
+    });
+  };
+
   return (
     <div className="w-full border-b border-muted pb-6">
-      {/* top row: icon + meta (email, path) */}
       <div className="flex items-center gap-4 mb-3">
         <div className="shrink-0 p-1 bg-muted rounded-full">
           <Image
@@ -68,25 +107,22 @@ export function SearchResultItemPrivate({ result }: Props) {
           />
         </div>
         <div className="flex flex-col min-w-0 gap-1">
-          {/* ownerEmail */}
           <TypographyP className="text-sm truncate gap-2 flex flex-row">
             {result.ownerEmail}
             <AccessBadge file={result} />
           </TypographyP>
-          {/* filePath */}
-          <Skeleton className="h-3 w-56 max-w-[70vw] rounded-md animate-none mt-1" />
+          <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+            {renderMaskedPath(result.filePath)}
+          </div>
         </div>
       </div>
 
-      {/* fileName */}
-      <h2 className="text-base font-semibold leading-snug flex items-center">
-        <p className="text-blue-600 wrap-break-word sm:truncate max-w-[calc(100vw-24px)] overflow-hidden">
-          {result.fileName.replace("****", "")}
-        </p>
-        <Skeleton className="h-4 w-3xs max-w-screen rounded-none rounded-r-md bg-blue-100 animate-none" />
+      <h2 className="text-base font-semibold leading-snug flex items-center gap-1">
+        <div className="text-blue-600 wrap-break-word flex items-center gap-1">
+          {renderMaskedText(result.fileName)}
+        </div>
       </h2>
 
-      {/* updatedTime */}
       <div className="text-sm mt-2 text-muted-foreground">
         <Skeleton className="h-4 w-28 rounded-md animate-none" />
       </div>
@@ -97,26 +133,20 @@ export function SearchResultItemPrivate({ result }: Props) {
 export function SearchResultItemSkeleton() {
   return (
     <div className="w-full border-b border-muted pb-6">
-      {/* top row: icon + meta (email, path) */}
       <div className="flex items-center gap-4 mb-3">
         <div className="shrink-0 p-1 bg-muted rounded-full">
-          {/* match the 32px wrapper w/ 24px image */}
           <Skeleton className="w-6 h-6 rounded-full" />
         </div>
         <div className="flex flex-col min-w-0 gap-1">
-          {/* ownerEmail */}
           <Skeleton className="h-4 w-40 max-w-[60vw] rounded-md" />
-          {/* filePath */}
           <Skeleton className="h-3 w-56 max-w-[70vw] rounded-md" />
         </div>
       </div>
 
-      {/* fileName */}
       <h2 className="text-base font-semibold leading-snug">
         <Skeleton className="h-4 w-3xs max-w-screen rounded-md bg-blue-100" />
       </h2>
 
-      {/* updatedTime */}
       <div className="text-sm mt-2 text-muted-foreground">
         <Skeleton className="h-4 w-28 rounded-md" />
       </div>

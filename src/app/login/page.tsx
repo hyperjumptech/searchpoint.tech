@@ -33,7 +33,6 @@ export default function Login() {
           alt="Sinarmas"
           src="/images/sml.jpeg"
           className="object-cover"
-          sizes="(max-width: 768px) 0vw, 50vw"
         />
       </aside>
       <section className="flex-1 w-full flex-col flex items-center justify-between py-16">

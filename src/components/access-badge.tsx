@@ -17,7 +17,6 @@ export default async function AccessBadge({ file }: Props) {
     if (fileSource === "onedrive") {
       if (allowList.includes(user?.email ?? "") || user?.email === ownerEmail) {
         return {
-          color: "text-green-500",
           title: "Private: Full Access",
           iconPath: "/images/private-full-access.svg",
           svgColor:
@@ -26,7 +25,6 @@ export default async function AccessBadge({ file }: Props) {
       }
 
       return {
-        color: "text-red-500",
         title: "Private: Forbidden",
         iconPath: "/images/forbidden-access.svg",
         svgColor:
@@ -35,7 +33,6 @@ export default async function AccessBadge({ file }: Props) {
     }
 
     return {
-      color: "text-yellow-500",
       title: "Private: Restricted",
       iconPath: "/images/restricted-access.svg",
       svgColor:
