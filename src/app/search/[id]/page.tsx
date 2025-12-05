@@ -6,6 +6,7 @@ import { ButtonTabsSection } from "./components/button-tabs-section";
 import { FileHeader } from "./components/file-header";
 import { FileActions } from "./components/file-actions";
 import { FilePreview } from "./components/file-preview";
+import { RestrictedAccess } from "./components/restricted-access";
 
 export default async function ResultDetailPage({
   params,
@@ -13,6 +14,10 @@ export default async function ResultDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+
+  if (id === "401") {
+    return <RestrictedAccess />;
+  }
   const file = await getFileById(id);
 
   if (!file) {
