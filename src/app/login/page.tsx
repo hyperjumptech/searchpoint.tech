@@ -32,7 +32,7 @@ export default function Login() {
           priority={true}
           alt="Sinarmas"
           src="/images/sml.jpeg"
-          className="object-cover"
+          className="object-cover object-top"
         />
       </aside>
       <section className="flex-1 w-full flex-col flex items-center justify-between py-16">
