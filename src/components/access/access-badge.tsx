@@ -56,16 +56,16 @@ export default async function AccessBadge({ file }: Props) {
 export const RenderIcon = ({ access }: { access: TAccessFilter["access"] }) => {
   switch (access) {
     case "public":
-      return <GlobeIcon className="text-green-400" />;
+      return <GlobeIcon className="text-[#3593EA]" />;
     case "private-full-access":
-      return <ShieldCheckIcon className="text-green-400" />;
+      return <ShieldCheckIcon className="text-[#4CAF50]" />;
     case "private-restricted":
-      return <ShieldAlertIcon className="text-yellow-400" />;
+      return <ShieldAlertIcon className="text-[#EB7F22]" />;
     case "private-forbidden":
-      return <BanIcon className="text-red-400" />;
+      return <BanIcon className="text-[#CB3635]" />;
     case "personal-restricted":
-      return <UserRoundCheckIcon className="text-yellow-400" />;
+      return <UserRoundCheckIcon className="text-[#EB7F22]" />;
     case "personal-forbidden":
-      return <UserRoundXIcon className="text-red-400" />;
+      return <UserRoundXIcon className="text-[#CB3635]" />;
   }
 };

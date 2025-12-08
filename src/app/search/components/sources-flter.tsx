@@ -1,5 +1,5 @@
 import OneDriveIcon from "@/components/icons/onedrive-source";
-import OtherSourceIcon from "@/components/icons/other-source";
+import OtherSourceIcon from "@/components/icons/shared-folder-source";
 import FilterToggleGroup, { FilterItem } from "./filter-toggle-group";
 
 export type TSourcesFilter = {
@@ -8,7 +8,7 @@ export type TSourcesFilter = {
 };
 
 const sourcesLabels: Record<TSourcesFilter["source"], string> = {
-  onedrive: "OneDrive",
+  onedrive: "SharePoint",
   "shared folder": "Shared Folder",
 };
 

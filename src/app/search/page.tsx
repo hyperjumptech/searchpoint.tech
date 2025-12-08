@@ -41,11 +41,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     return <NotFound />;
   }
 
+  const totalDocuments =
+    (data.accessMeta.allowed || 0) + (data.accessMeta.not_allowed || 0);
+
   return (
     <>
       <PageLayout
         summary={
-          <div className="hidden xl:block">
+          <div className="hidden xl:flex max-w-sm w-full">
             <Card className="w-full py-0 max-w-none xl:max-w-sm h-max gap-0 bg-gray-50/30 shadow-accent-foregroundmd">
               <CardHeader className="p-4 pb-2">
                 <CardTitle className="text-lg font-semibold">
@@ -55,11 +58,17 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   </span>
                 </CardTitle>
                 <CardDescription className="text-gray-500 font-light text-sm">
-                  {data.pagination.total} document(s) found
+                  {totalDocuments.toLocaleString("id-ID")} document(s) found
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-col gap-4 p-4 pb-4">
-                <SearchSummary count={data.pagination.total} />
+              <CardContent className="flex flex-col gap-4 p-4 pb-4 w-full">
+                <SearchSummary
+                  count={totalDocuments}
+                  meta={{
+                    accessMeta: data.accessMeta,
+                    sourceMeta: data.sourceMeta,
+                  }}
+                />
               </CardContent>
             </Card>
           </div>
@@ -76,7 +85,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       </PageLayout>
 
-      <SearchSummaryDialog open={showSummary} query={query} data={data} />
+      <SearchSummaryDialog
+        open={showSummary}
+        query={query}
+        data={data}
+        meta={{
+          accessMeta: data.accessMeta,
+          sourceMeta: data.sourceMeta,
+        }}
+      />
     </>
   );
 }

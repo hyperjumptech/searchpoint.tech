@@ -29,7 +29,9 @@ export default function FilterToggleGroup<T extends string>({
           className="group text-xs flex flex-row gap-1 items-center rounded-md border-0 bg-gray-100 text-slate-800 cursor-pointer hover:text-black data-[state=on]:bg-red-600 data-[state=on]:text-white transition-all duration-300">
           {renderIcon && renderIcon(item.value)}
           {labels[item.value]}
-          <span className="font-semibold">{item.count}</span>
+          <span className="font-semibold">
+            {item.count.toLocaleString("id-ID")}
+          </span>
         </Toggle>
       ))}
     </div>

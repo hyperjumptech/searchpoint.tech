@@ -36,6 +36,18 @@ export type SearchPagination = {
 export type Result = {
   pagination: SearchPagination;
   results: TFile[];
+  accessMeta: FileAccessMeta;
+  sourceMeta: FileSourceMeta;
+};
+
+export type FileSourceMeta = {
+  onedrive?: number;
+  shared_folder?: number;
+};
+
+export type FileAccessMeta = {
+  allowed?: number;
+  not_allowed?: number;
 };
 
 function buildFilterQuery(type: string): string {
@@ -135,6 +147,16 @@ export async function performSearch(
       total: 0,
     };
 
+    const accessMeta = (data.meta?.files_access as FileAccessMeta) ?? {
+      allowed: 0,
+      not_allowed: 0,
+    };
+
+    const sourceMeta = (data.meta?.files_source as FileSourceMeta) ?? {
+      onedrive: 0,
+      shared_folder: 0,
+    };
+
     const fileValues = (data.value ?? []) as FileValue[];
 
     const results: TFile[] = fileValues.map(({ version, _source }) => ({
@@ -156,8 +178,10 @@ export async function performSearch(
     }));
 
     return {
-      pagination,
       results,
+      pagination,
+      accessMeta,
+      sourceMeta,
     };
   } catch (error) {
     throw error;
