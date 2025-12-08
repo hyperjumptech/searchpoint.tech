@@ -8,17 +8,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import SearchSummary from "./search-summary";
 import { FileAccessMeta, FileSourceMeta } from "@/actions/search";
+import SearchSummaryView from "./view";
 
 type SearchSummaryDialogProps = {
   open: boolean;
   query: string;
-  data: {
-    pagination: {
-      total: number;
-    };
-  };
+  count: number;
   meta: {
     accessMeta: FileAccessMeta;
     sourceMeta: FileSourceMeta;
@@ -28,7 +24,7 @@ type SearchSummaryDialogProps = {
 export default function SearchSummaryDialog({
   open,
   query,
-  data,
+  count,
   meta,
 }: SearchSummaryDialogProps) {
   const router = useRouter();
@@ -42,10 +38,6 @@ export default function SearchSummaryDialog({
     }
   };
 
-  // TODO: Do not calculate total documents
-  const totalDocuments =
-    (meta.accessMeta.allowed || 0) + (meta.accessMeta.not_allowed || 0);
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -55,10 +47,10 @@ export default function SearchSummaryDialog({
             <span className="font-semibold italic">&quot;{query}&quot;</span>
           </DialogTitle>
           <DialogDescription className="text-gray-500 font-light text-sm text-left">
-            {totalDocuments.toLocaleString("id-ID")} document(s) found
+            {count.toLocaleString("id-ID")} document(s) found
           </DialogDescription>
         </DialogHeader>
-        <SearchSummary count={totalDocuments} meta={meta} />
+        <SearchSummaryView count={count} meta={meta} />
       </DialogContent>
     </Dialog>
   );

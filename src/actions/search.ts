@@ -116,11 +116,19 @@ function buildFilterQuery(type: string): string {
   return `extension in (${extensions.map((ext) => `'${ext}'`).join(",")})`;
 }
 
+// Build source filter query from sources param
+function buildSourceFilter(sources: string | null): string | null {
+  if (!sources) return null;
+
+  return `source eq '${sources}'`;
+}
+
 export async function performSearch(
   query: string,
   page: number = 1,
   limit: number = 10,
   type: string = "all",
+  sources?: string | null,
 ): Promise<Result> {
   try {
     const offset = (page - 1) * limit;
@@ -131,10 +139,24 @@ export async function performSearch(
       offset: offset.toString(),
     });
 
-    const filterQuery = buildFilterQuery(type);
+    const typeFilterQuery = buildFilterQuery(type);
+    const sourceFilterQuery = buildSourceFilter(sources ?? null);
+    const filters: string[] = [];
 
-    if (filterQuery) {
-      params.set("filter", filterQuery);
+    // Add type filter if exists
+    if (typeFilterQuery) {
+      filters.push(typeFilterQuery);
+    }
+
+    // Add source filter if exists
+    if (sourceFilterQuery) {
+      filters.push(sourceFilterQuery);
+    }
+
+    // Combine all filters with ' and '
+    if (filters.length > 0) {
+      const combinedFilter = filters.join(" and ");
+      params.set("filter", combinedFilter);
     }
 
     const path = `/v1/files?${params.toString()}`;

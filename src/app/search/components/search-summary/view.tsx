@@ -1,10 +1,10 @@
-import SourcesFilter from "../components/sources-flter";
 import { Fragment } from "react";
 import { Separator } from "@/components/ui/separator";
 import { FileAccessMeta, FileSourceMeta } from "@/actions/search";
-import AccessFilterSimple from "./access-filter-simple";
+import AccessFilterSimple from "../access-filter-simple";
+import SourcesFilter from "../sources-flter";
 
-export default function SearchSummary({
+export default function SearchSummaryView({
   meta,
 }: {
   count: number;

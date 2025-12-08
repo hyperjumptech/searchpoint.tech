@@ -5,8 +5,7 @@ import SearchResultItem from "@/components/search-result-item";
 
 import NotFound from "./not-found";
 import PageLayout from "./components/page-layout";
-import SearchSummary from "./components/search-summary";
-import SearchSummaryDialog from "./components/search-summary-dialog";
+import SearchSummary from "./components/search-summary/index";
 import {
   Card,
   CardTitle,
@@ -21,6 +20,7 @@ type SearchPageProps = {
     type?: string;
     page?: string;
     summary?: string;
+    sources?: string;
   }>;
 };
 
@@ -30,19 +30,19 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const type = params?.type ?? "all";
   const page = parseInt(params?.page ?? "1");
   const showSummary = params?.summary === "true";
+  const sources = params?.sources ?? null;
 
   if (!query) {
     return <NotFound />;
   }
 
-  const data = await performSearch(query, page, 10, type);
-
+  // Get search results
+  const data = await performSearch(query, page, 10, type, sources);
+  const totalDocuments =
+    (data.accessMeta.allowed || 0) + (data.accessMeta.not_allowed || 0);
   if (data.results.length === 0) {
     return <NotFound />;
   }
-
-  const totalDocuments =
-    (data.accessMeta.allowed || 0) + (data.accessMeta.not_allowed || 0);
 
   return (
     <>
@@ -63,11 +63,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               </CardHeader>
               <CardContent className="flex flex-col gap-4 p-4 pb-4 w-full">
                 <SearchSummary
-                  count={totalDocuments}
-                  meta={{
-                    accessMeta: data.accessMeta,
-                    sourceMeta: data.sourceMeta,
-                  }}
+                  type="sidebar"
+                  query={query}
+                  page={page}
+                  total={totalDocuments}
                 />
               </CardContent>
             </Card>
@@ -85,14 +84,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       </PageLayout>
 
-      <SearchSummaryDialog
-        open={showSummary}
+      <SearchSummary
+        type="dialog"
         query={query}
-        data={data}
-        meta={{
-          accessMeta: data.accessMeta,
-          sourceMeta: data.sourceMeta,
-        }}
+        page={page}
+        total={totalDocuments}
+        open={showSummary}
       />
     </>
   );

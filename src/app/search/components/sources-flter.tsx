@@ -1,6 +1,9 @@
+"use client";
+
 import OneDriveIcon from "@/components/icons/onedrive-source";
 import OtherSourceIcon from "@/components/icons/shared-folder-source";
 import FilterToggleGroup, { FilterItem } from "./filter-toggle-group";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export type TSourcesFilter = {
   source: "onedrive" | "shared folder";
@@ -22,16 +25,42 @@ const renderIcon = (source: TSourcesFilter["source"]) => {
 };
 
 export default function SourcesFilter({ data }: { data: TSourcesFilter[] }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const items: FilterItem<TSourcesFilter["source"]>[] = data.map((item) => ({
     value: item.source,
     count: item.count,
   }));
+
+  const currentSource = searchParams.get("sources");
+
+  const handleValueChange = (value: string | string[]) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    // For single selection, value is a string (or empty string if deselected)
+    const selectedSource = typeof value === "string" ? value : value[0] || "";
+
+    if (selectedSource && selectedSource !== currentSource) {
+      // Set sources param
+      params.set("sources", selectedSource);
+    } else if (!selectedSource && currentSource) {
+      // Remove sources param
+      params.delete("sources");
+    }
+
+    // Reset to page 1 when filter changes
+    params.set("page", "1");
+    router.push(`?${params.toString()}`);
+  };
 
   return (
     <FilterToggleGroup
       items={items}
       labels={sourcesLabels}
       renderIcon={renderIcon}
+      value={currentSource || undefined}
+      onValueChange={handleValueChange}
     />
   );
 }
