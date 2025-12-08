@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 
@@ -12,17 +12,16 @@ const types = [
 ];
 
 export default function CategoryTabs() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const currentType = searchParams.get("type") ?? "all";
 
-  const onClick = (key: string) => {
+  const buildUrl = (key: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("type", key);
     params.set("page", "1");
 
-    router.push(`?${params.toString()}`);
+    return `?${params.toString()}`;
   };
 
   return (
@@ -30,16 +29,15 @@ export default function CategoryTabs() {
       {types.map((t) => (
         <Button
           key={t.key}
-          type="button"
-          onClick={() => onClick(t.key)}
           variant={"outline"}
           className={cn(
-            "px-3 py-1 rounded-md border text-sm cursor-pointer",
+            "px-3 py-1 border rounded-md text-sm cursor-pointer",
             currentType === t.key
               ? "bg-red-600 text-white border-red-600"
               : "bg-white",
-          )}>
-          {t.label}
+          )}
+          asChild>
+          <a href={buildUrl(t.key)}>{t.label}</a>
         </Button>
       ))}
     </div>

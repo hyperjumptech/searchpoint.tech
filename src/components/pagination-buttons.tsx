@@ -6,7 +6,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { SearchPagination } from "@/actions/search";
@@ -20,7 +20,6 @@ export default function PaginationButtons({
   pagination,
   maxPageButtons = 5,
 }: PaginationButtonsProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   if (!pagination) {
@@ -34,18 +33,11 @@ export default function PaginationButtons({
   const isFirstPage = currentPage === 1;
   const isLastPage = currentPage >= totalPages;
 
-  const updatePage = (newPage: number) => {
+  const buildUrl = (newPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", newPage.toString());
-    router.push(`?${params.toString()}`);
+    return `?${params.toString()}`;
   };
-
-  const handleFirstPage = () => updatePage(1);
-  const handlePreviousPage = () => updatePage(Math.max(1, currentPage - 1));
-  const handleNextPage = () =>
-    updatePage(Math.min(totalPages, currentPage + 1));
-  const handleLastPage = () => updatePage(totalPages);
-  const handlePageChange = (newPage: number) => updatePage(newPage);
 
   const getPageNumbers = () => {
     if (totalPages === 0) return [];
@@ -73,40 +65,48 @@ export default function PaginationButtons({
     <div className="flex items-center space-x-2 md:space-x-4">
       <Button
         variant="secondary"
-        onClick={handleFirstPage}
         disabled={isFirstPage}
-        className="cursor-pointer h-8 w-8 p-0 md:h-10 md:w-10">
-        <ChevronsLeft className="h-4 w-4" />
+        className="p-0 w-8 md:w-10 h-8 md:h-10 cursor-pointer"
+        asChild>
+        <a href={buildUrl(1)}>
+          <ChevronsLeft className="w-4 h-4" />
+        </a>
       </Button>
       <Button
         variant="secondary"
-        onClick={handlePreviousPage}
         disabled={isFirstPage}
-        className="cursor-pointer h-8 w-8 p-0 md:h-10 md:w-10">
-        <ChevronLeft className="h-4 w-4" />
+        className="p-0 w-8 md:w-10 h-8 md:h-10 cursor-pointer"
+        asChild>
+        <a href={buildUrl(Math.max(1, currentPage - 1))}>
+          <ChevronLeft className="w-4 h-4" />
+        </a>
       </Button>
       {pageNumbers.map((pageNum) => (
         <Button
           key={`page-${pageNum}`}
           variant={pageNum === currentPage ? "default" : "secondary"}
-          onClick={() => handlePageChange(pageNum)}
-          className="cursor-pointer h-8 min-w-8 px-2 md:h-10 md:min-w-10 md:px-4">
-          {pageNum}
+          className="px-2 md:px-4 min-w-8 md:min-w-10 h-8 md:h-10 cursor-pointer"
+          asChild>
+          <a href={buildUrl(pageNum)}>{pageNum}</a>
         </Button>
       ))}
       <Button
         variant="secondary"
-        onClick={handleNextPage}
         disabled={isLastPage}
-        className="cursor-pointer h-8 w-8 p-0 md:h-10 md:w-10">
-        <ChevronRight className="h-4 w-4" />
+        className="p-0 w-8 md:w-10 h-8 md:h-10 cursor-pointer"
+        asChild>
+        <a href={buildUrl(Math.min(totalPages, currentPage + 1))}>
+          <ChevronRight className="w-4 h-4" />
+        </a>
       </Button>
       <Button
         variant="secondary"
-        onClick={handleLastPage}
         disabled={isLastPage}
-        className="cursor-pointer h-8 w-8 p-0 md:h-10 md:w-10">
-        <ChevronsRight className="h-4 w-4" />
+        className="p-0 w-8 md:w-10 h-8 md:h-10 cursor-pointer"
+        asChild>
+        <a href={buildUrl(totalPages)}>
+          <ChevronsRight className="w-4 h-4" />
+        </a>
       </Button>
     </div>
   );
