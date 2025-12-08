@@ -1,11 +1,17 @@
+diff --git a/node_modules/next/.bun-tag-3b47170a511ab732 b/.bun-tag-3b47170a511ab732
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/next/.bun-tag-a74105ae5cd6307 b/.bun-tag-a74105ae5cd6307
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/dist/server/lib/start-server.js b/dist/server/lib/start-server.js
-index 85fb16f89e93dc0ed81564e9ab2264715b931015..a0ac1b1da16cf9eedb994a53dee82bb6e6599aa4 100644
+index 0c0288aabd025e5262a6d727f500f96b233df0e5..339164ea6610d65a202690cd5067c0bf392d6e33 100644
 --- a/dist/server/lib/start-server.js
 +++ b/dist/server/lib/start-server.js
-@@ -42,6 +42,33 @@ const _constants = require("../../shared/lib/constants");
- const _appinfolog = require("./app-info-log");
- const _turbopackwarning = require("../../lib/turbopack-warning");
+@@ -44,6 +44,33 @@ const _turbopackwarning = require("../../lib/turbopack-warning");
  const _trace = require("../../trace");
+ const _isipv6 = require("./is-ipv6");
+ const _asynccallbackset = require("./async-callback-set");
 +const _pino = require("pino")({
 +    base: {
 +        service: "web",
@@ -33,9 +39,9 @@ index 85fb16f89e93dc0ed81564e9ab2264715b931015..a0ac1b1da16cf9eedb994a53dee82bb6
 +        }
 +    }
 +});
- const _isipv6 = require("./is-ipv6");
- const _asynccallbackset = require("./async-callback-set");
  function _interop_require_default(obj) {
+     return obj && obj.__esModule ? obj : {
+         default: obj
 @@ -218,6 +245,7 @@ async function startServer(serverOptions) {
          });
      }
