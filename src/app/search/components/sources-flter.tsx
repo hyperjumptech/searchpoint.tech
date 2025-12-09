@@ -51,7 +51,7 @@ export default function SourcesFilter({ data }: { data: TSourcesFilter[] }) {
 
     // Reset to page 1 when filter changes
     params.set("page", "1");
-    router.push(`?${params.toString()}`);
+    window.location.href = `?${params.toString()}`;
   };
 
   return (
