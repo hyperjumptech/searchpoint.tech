@@ -25,7 +25,7 @@ export default function AccessFilterSimple({
             )}
           />
           <span>
-            {item.access === "allowed" ? "Full Access/Restricted" : "Forbidden"}
+            {item.access === "allowed" ? "Accessible" : "Inaccessible"}
           </span>
           <Badge
             variant="secondary"
