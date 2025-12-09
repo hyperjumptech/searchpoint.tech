@@ -7,7 +7,6 @@ import SourcesFilter from "../sources-flter";
 export default function SearchSummaryView({
   meta,
 }: {
-  count: number;
   meta: {
     accessMeta: FileAccessMeta;
     sourceMeta: FileSourceMeta;

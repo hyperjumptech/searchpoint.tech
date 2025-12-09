@@ -14,7 +14,7 @@ import SearchSummaryView from "./view";
 type SearchSummaryDialogProps = {
   open: boolean;
   query: string;
-  count: number;
+  total: number;
   meta: {
     accessMeta: FileAccessMeta;
     sourceMeta: FileSourceMeta;
@@ -24,7 +24,7 @@ type SearchSummaryDialogProps = {
 export default function SearchSummaryDialog({
   open,
   query,
-  count,
+  total,
   meta,
 }: SearchSummaryDialogProps) {
   const router = useRouter();
@@ -47,10 +47,10 @@ export default function SearchSummaryDialog({
             <span className="font-semibold italic">&quot;{query}&quot;</span>
           </DialogTitle>
           <DialogDescription className="text-gray-500 font-light text-sm text-left">
-            {count.toLocaleString("id-ID")} document(s) found
+            {total.toLocaleString("id-ID")} document(s) found
           </DialogDescription>
         </DialogHeader>
-        <SearchSummaryView count={count} meta={meta} />
+        <SearchSummaryView meta={meta} />
       </DialogContent>
     </Dialog>
   );
