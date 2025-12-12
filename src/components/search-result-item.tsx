@@ -9,23 +9,26 @@ type Props = {
   result: TFile;
 };
 
-const hasConsecutiveAsterisks = (value: string) => /\*{2,}/.test(value);
+const hasConsecutiveAsterisks = (value: string) => /\*{1,}/.test(value);
 
 const renderWithSkeleton = (value: string, className?: string) => {
   if (!hasConsecutiveAsterisks(value)) {
     return value;
   }
 
-  const parts = value.split(/(\*{2,})/);
+  const parts = value.split(/(\*{1,})/);
 
   return (
     <>
       {parts.map((part, index) => {
-        if (/\*{2,}/.test(part)) {
+        if (/\*{1,}/.test(part)) {
+          const asteriskCount = part.length;
+          const widthClass = `w-[${asteriskCount * 8}px]`;
           return (
             <Skeleton
               key={index}
-              className={`${className || "h-4 w-20 rounded-md animate-none"} inline-block align-middle mx-0.5`}
+              className={`${className || `h-4 ${widthClass} rounded-md animate-none`} inline-block align-middle mx-0.5`}
+              style={{ width: `${asteriskCount * 8}px` }}
             />
           );
         }
