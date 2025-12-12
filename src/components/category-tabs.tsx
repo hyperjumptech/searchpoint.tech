@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 
@@ -8,20 +8,26 @@ const types = [
   { key: "all", label: "All" },
   { key: "pdf", label: "PDF" },
   { key: "office", label: "Microsoft Office" },
-  { key: "images", label: "Images" },
+  { key: "image", label: "Image" },
 ];
 
 export default function CategoryTabs() {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
-  const currentType = searchParams.get("type") ?? "all";
+  const currentType =
+    pathname === "/image" ? "image" : (searchParams.get("type") ?? "all");
 
   const buildUrl = (key: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("type", key);
     params.set("page", "1");
 
-    return `?${params.toString()}`;
+    if (key === "image") {
+      return `/image?${params.toString()}`;
+    }
+
+    return `/search?${params.toString()}`;
   };
 
   return (
@@ -33,7 +39,7 @@ export default function CategoryTabs() {
           className={cn(
             "px-3 py-1 border rounded-md text-sm cursor-pointer",
             currentType === t.key
-              ? "bg-red-600 text-white border-red-600"
+              ? "bg-red-600 text-white border-red-600 hover:bg-red-500 hover:text-white"
               : "bg-white",
           )}
           asChild>

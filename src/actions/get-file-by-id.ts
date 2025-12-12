@@ -25,7 +25,7 @@ export type FileResult = {
 };
 
 export async function getFileById(id: string): Promise<FileResult | null> {
-  const response = await fetcher(`/v1/files/${decodeURIComponent(id)}`);
+  const response = await fetcher(`/v1/files/${id}`);
   const data = await response.json();
 
   if (!data.value) {

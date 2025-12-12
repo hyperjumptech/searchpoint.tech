@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { SearchIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
+import { usePathname } from "next/navigation";
 
 type Props = {
   autoFocus?: boolean;
@@ -18,11 +19,16 @@ export default function SearchBar({
   className,
   inputClassName,
 }: Props) {
+  const pathname = usePathname();
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const q = e.currentTarget.q.value.trim();
 
-    if (q) window.location.href = `/search?q=${encodeURIComponent(q)}`;
+    if (q) {
+      const path = pathname === "/" ? "/search" : pathname;
+      window.location.href = `${path}?q=${encodeURIComponent(q)}`;
+    }
   }
 
   return (

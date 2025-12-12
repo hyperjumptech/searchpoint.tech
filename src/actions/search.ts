@@ -94,7 +94,7 @@ function buildFilterQuery(type: string): string {
   let extensions: string[] = [];
 
   switch (type) {
-    case "images":
+    case "image":
       extensions = imageExtensions;
       break;
     case "pdf":

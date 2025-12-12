@@ -24,7 +24,8 @@ import { cn } from "@/lib/utils";
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const showSearchBar = pathname === "/search";
+  const showSearchBar = pathname === "/search" || pathname === "/image";
+  const showSummary = pathname !== "/image";
 
   const searchParams = useSearchParams();
   const searchValue = searchParams.get("q") ?? "";
@@ -135,12 +136,14 @@ export default function Navbar() {
                 <div className="flex gap-2 items-center justify-between">
                   <CategoryTabs />
                   {/* Summary */}
-                  <Button
-                    className="cursor-pointer xl:hidden"
-                    onClick={handleOpenSummary}
-                    variant={"outline"}>
-                    <FilterIcon />
-                  </Button>
+                  {showSummary && (
+                    <Button
+                      className="cursor-pointer xl:hidden"
+                      onClick={handleOpenSummary}
+                      variant={"outline"}>
+                      <FilterIcon />
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
@@ -200,6 +203,7 @@ export default function Navbar() {
             </div>
           )}
         </div>
+
         {/* Search Bar - Mobile only */}
         {showSearchBar && (
           <div className="lg:hidden pt-3">
@@ -219,12 +223,14 @@ export default function Navbar() {
                 <CategoryTabs />
               </div>
               {/* Summary */}
-              <Button
-                className="cursor-pointer xl:hidden shrink-0"
-                onClick={handleOpenSummary}
-                variant={"outline"}>
-                <FilterIcon />
-              </Button>
+              {showSummary && (
+                <Button
+                  className="cursor-pointer xl:hidden shrink-0"
+                  onClick={handleOpenSummary}
+                  variant={"outline"}>
+                  <FilterIcon />
+                </Button>
+              )}
             </div>
           </div>
         )}
