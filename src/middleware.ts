@@ -41,6 +41,7 @@ export const config = {
     "/login",
     "/logout",
     "/search",
+    "/image",
     // Add other routes as needed
   ],
 };

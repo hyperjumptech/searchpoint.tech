@@ -35,6 +35,7 @@ export const useUserStore = create<Store>()((set) => ({
     await fetch("/logout");
     clearCookies();
     set({ user: null });
+    window.location.href = "/login";
   },
 }));
 
