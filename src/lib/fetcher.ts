@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { env } from "@/lib/env";
 
@@ -22,6 +23,9 @@ export async function fetcher(
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      redirect("/login");
+    }
     throw new Error(response.statusText);
   }
 
