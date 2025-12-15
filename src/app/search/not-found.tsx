@@ -1,5 +1,3 @@
-"use client";
-
 import { SearchX } from "lucide-react";
 import { TypographyH2, TypographyP } from "@/components/typography";
 

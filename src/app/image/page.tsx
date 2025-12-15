@@ -1,6 +1,7 @@
 import { performSearch } from "@/actions/search";
 import ImageResultItem from "./components/ImageResultItem";
 import PaginationButtons from "@/components/pagination-buttons";
+import notFound from "../search/not-found";
 
 type PageProps = {
   searchParams: Promise<{
@@ -19,6 +20,10 @@ export default async function ImagePage({ searchParams }: PageProps) {
   const limit = 15;
 
   const data = await performSearch(query, page, limit, type, sources);
+
+  if (data.results.length === 0) {
+    return notFound();
+  }
 
   return (
     <>

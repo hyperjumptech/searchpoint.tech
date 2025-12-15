@@ -1,5 +1,4 @@
 import { getFileById } from "@/actions/get-file-by-id";
-import NotFound from "../not-found";
 import { AccessLogItem, VersionHistoryItem } from "@/types";
 import BackButton from "./components/back-button";
 import { ButtonTabsSection } from "./components/button-tabs-section";
@@ -7,6 +6,7 @@ import { FileHeader } from "./components/file-header";
 import { FileActions } from "./components/file-actions";
 import { FilePreview } from "./components/file-preview";
 import { RestrictedAccess } from "./components/restricted-access";
+import { notFound } from "next/navigation";
 
 export default async function ResultDetailPage({
   params,
@@ -21,7 +21,7 @@ export default async function ResultDetailPage({
   const file = await getFileById(decodeURIComponent(id));
 
   if (!file) {
-    return <NotFound />;
+    return notFound();
   }
 
   const versionHistory: VersionHistoryItem[] = file.versionHistory || [];

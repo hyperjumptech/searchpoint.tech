@@ -3,9 +3,9 @@ import PaginationButtons from "@/components/pagination-buttons";
 import ResultInfoBar from "@/components/result-info-bar";
 import SearchResultItem from "@/components/search-result-item";
 
-import NotFound from "./not-found";
 import PageLayout from "./components/page-layout";
 import SearchSummary from "./components/search-summary/index";
+import { notFound } from "next/navigation";
 
 type SearchPageProps = {
   searchParams: Promise<{
@@ -25,12 +25,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const showSummary = params?.summary === "true";
   const sources = params?.sources ?? null;
 
-  if (!query) {
-    return <NotFound />;
-  }
-
   // Get search results
   const data = await performSearch(query, page, 10, type, sources);
+
+  if (data.results.length === 0) {
+    return notFound();
+  }
 
   return (
     <>
