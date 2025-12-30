@@ -1,8 +1,7 @@
 "use client";
 
-import { Download, FilterIcon, Key, LogOut } from "lucide-react";
+import { Download, FilterIcon, LogOut } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
 
 import NavbarLogo from "@/components/navbar-logo";
 import SearchBar from "@/components/searchbar";
@@ -32,16 +31,6 @@ export default function Navbar() {
 
   const { user, logOut } = useUserStore();
 
-  const [isLicenseOpen, setIsLicenseOpen] = useState(false);
-  const [licenseKey, setLicenseKey] = useState<string | null>(null);
-  const [isGeneratingLicense, setIsGeneratingLicense] = useState(false);
-  const [copyLabel, setCopyLabel] = useState("Copy");
-  const [hasDownloaded, setHasDownloaded] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("hasDownloaded") === "true";
-    }
-    return false;
-  });
   const navbarHeightClass = showSearchBar ? "lg:h-32" : "lg:h-16";
 
   const handleOpenSummary = () => {
@@ -50,29 +39,7 @@ export default function Navbar() {
     router.push(`/search?${params.toString()}`);
   };
 
-  const generateLicenseKey = async () => {
-    if (!user?.email) return;
-
-    const detectedOS = detectOS();
-
-    try {
-      setIsGeneratingLicense(true);
-      const res = await fetch(
-        `/api/generate-license?email=${encodeURIComponent(
-          user.email,
-        )}&os=${encodeURIComponent(detectedOS)}`,
-      );
-      if (!res.ok) return;
-      const data = await res.json();
-      setLicenseKey(data.licenseKey);
-      setIsLicenseOpen(true);
-      setCopyLabel("Copy");
-    } finally {
-      setIsGeneratingLicense(false);
-    }
-  };
-
-  const handleDownloadAndLicense = async () => {
+  const handleDownload = async () => {
     if (!user?.email) return;
 
     // Detect OS from browser
@@ -99,22 +66,8 @@ export default function Navbar() {
         const url = data.platforms?.[platformKey]?.url;
         if (url) {
           window.location.href = url;
-          localStorage.setItem("hasDownloaded", "true");
-          setHasDownloaded(true);
         }
       }
-    } catch {}
-
-    // Generate license key with detected OS
-    await generateLicenseKey();
-  };
-
-  const handleCopy = async () => {
-    if (!licenseKey) return;
-    try {
-      await navigator.clipboard.writeText(licenseKey);
-      setCopyLabel("Copied");
-      setTimeout(() => setCopyLabel("Copy"), 2000);
     } catch {}
   };
 
@@ -170,26 +123,10 @@ export default function Navbar() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleDownloadAndLicense}
-                    disabled={isGeneratingLicense}>
+                  <DropdownMenuItem onClick={handleDownload}>
                     <Download className="mr-2 h-4 w-4" />
-                    <span>
-                      Download desktop app{" "}
-                      {isGeneratingLicense ? "(preparing license...)" : ""}
-                    </span>
+                    <span>Download desktop app</span>
                   </DropdownMenuItem>
-                  {hasDownloaded && (
-                    <DropdownMenuItem
-                      onClick={generateLicenseKey}
-                      disabled={isGeneratingLicense}>
-                      <Key className="mr-2 h-4 w-4" />
-                      <span>
-                        Show license key{" "}
-                        {isGeneratingLicense ? "(loading...)" : ""}
-                      </span>
-                    </DropdownMenuItem>
-                  )}
                   <DropdownMenuItem
                     onClick={async () => {
                       await logOut();
@@ -234,35 +171,6 @@ export default function Navbar() {
           </div>
         )}
       </nav>
-
-      {isLicenseOpen && licenseKey && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40">
-          <div className="w-full max-w-md rounded-lg bg-background p-6 shadow-lg border">
-            <h2 className="text-lg font-semibold mb-2">License Key</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              Use this license key to activate your SCSE desktop application.
-            </p>
-            <div className="mb-4 rounded-md border bg-muted px-3 py-2 text-sm break-all">
-              {licenseKey}
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsLicenseOpen(false)}>
-                Close
-              </Button>
-              <Button
-                className="bg-sky-600 hover:bg-sky-600/90"
-                variant="default"
-                size="sm"
-                onClick={handleCopy}>
-                {copyLabel}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </header>
   );
 }
