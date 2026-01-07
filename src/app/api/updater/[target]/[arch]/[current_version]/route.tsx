@@ -24,14 +24,14 @@ export async function GET(
     const { current_version } = await params;
 
     // Check if there's a newer version available
-    const latestVersion = "0.4.3";
+    const latestVersion = "0.4.4";
 
     if (current_version === latestVersion) {
       return new NextResponse(null, { status: 204 });
     }
 
     // Fetch signatures from MinIO
-    const baseUrl = `https://storage.scse.hyperjump.tech/scse/releases/v${latestVersion}`;
+    const baseUrl = `https://storage.searchpoint.hyperjump.tech/scse/releases/v${latestVersion}`;
 
     const [darwinSig, windowsSig, linuxSig] = await Promise.all([
       fetch(`${baseUrl}/macos/SearchPoint.app.tar.gz.sig`).then((res) =>
@@ -47,7 +47,7 @@ export async function GET(
 
     const updateResponse: TauriUpdateResponse = {
       version: latestVersion,
-      notes: "Improvements and bug fixes.",
+      notes: "Update backend url",
       pub_date: new Date().toISOString(),
       platforms: {
         ["darwin-aarch64"]: {

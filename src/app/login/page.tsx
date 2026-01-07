@@ -20,7 +20,7 @@ export default function Login() {
   const handleLogin = () => {
     setIsLoading(true);
     setTimeout(() => {
-      window.location.href = "https://api.scse.hyperjump.tech/v1/auth";
+      window.location.href = `https://api.searchpoint.hyperjump.tech/v1/auth`;
     }, 1200);
   };
 
