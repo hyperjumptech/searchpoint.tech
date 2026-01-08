@@ -24,7 +24,7 @@ export async function GET(
     const { current_version } = await params;
 
     // Check if there's a newer version available
-    const latestVersion = "0.4.5";
+    const latestVersion = "0.4.6";
 
     if (current_version === latestVersion) {
       return new NextResponse(null, { status: 204 });
@@ -47,7 +47,7 @@ export async function GET(
 
     const updateResponse: TauriUpdateResponse = {
       version: latestVersion,
-      notes: "Fix multiple instance issue",
+      notes: "Fix multiple instance issue and autostart",
       pub_date: new Date().toISOString(),
       platforms: {
         ["darwin-aarch64"]: {
