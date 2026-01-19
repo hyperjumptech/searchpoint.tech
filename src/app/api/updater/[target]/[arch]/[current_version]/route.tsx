@@ -24,7 +24,7 @@ export async function GET(
     const { current_version } = await params;
 
     // Check if there's a newer version available
-    const latestVersion = "0.5.1";
+    const latestVersion = "0.5.2";
 
     if (current_version === latestVersion) {
       return new NextResponse(null, { status: 204 });
@@ -48,7 +48,7 @@ export async function GET(
     const updateResponse: TauriUpdateResponse = {
       version: latestVersion,
       notes:
-        "Remove owner email in UI, Remove folder size check and skip indexing content for exceeding size file",
+        "- Fix image result title format \n- Fix Icon doesn’t change to login state after SMDV authentication",
       pub_date: new Date().toISOString(),
       platforms: {
         ["darwin-aarch64"]: {
