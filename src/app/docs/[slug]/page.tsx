@@ -1,6 +1,6 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
 import * as fs from "fs";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import Link from "next/link";
 import * as path from "path";
 
 type Props = {
@@ -63,7 +63,7 @@ export default async function DocsPage({ params }: Props) {
       <header className="border-b">
         <Container>
           <div className="flex items-center py-4">
-            <Link
+            <a
               href="/"
               className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               <svg
@@ -79,7 +79,7 @@ export default async function DocsPage({ params }: Props) {
                 <path d="m15 18-6-6 6-6" />
               </svg>
               Back to Home
-            </Link>
+            </a>
           </div>
         </Container>
       </header>
