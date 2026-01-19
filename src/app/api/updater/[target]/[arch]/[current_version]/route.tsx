@@ -24,7 +24,7 @@ export async function GET(
     const { current_version } = await params;
 
     // Check if there's a newer version available
-    const latestVersion = "0.5.0";
+    const latestVersion = "0.5.1";
 
     if (current_version === latestVersion) {
       return new NextResponse(null, { status: 204 });
@@ -48,7 +48,7 @@ export async function GET(
     const updateResponse: TauriUpdateResponse = {
       version: latestVersion,
       notes:
-        "Delete file detection and Show notification on index start and finish",
+        "Remove owner email in UI, Remove folder size check and skip indexing content for exceeding size file",
       pub_date: new Date().toISOString(),
       platforms: {
         ["darwin-aarch64"]: {
