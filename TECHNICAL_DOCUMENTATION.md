@@ -82,8 +82,6 @@ src/
 │   └── utils.ts                 # General utilities
 ├── stores/                      # State management
 │   └── user.ts                  # User store (Zustand)
-├── data/                        # Static data
-│   └── data.json                # Mock data for demo
 └── middleware.ts                # Route protection & auth
 ```
 
