@@ -6,6 +6,17 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const scseId = request.cookies.get("SCSE_ID");
 
+  // Allow public routes without authentication
+  if (pathname.startsWith("/docs/")) {
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-pathname", pathname);
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+  }
+
   // If accessing /login and cookie exists, redirect to root
   if (pathname === "/login" && scseId) {
     return NextResponse.redirect(new URL("/", request.url));
@@ -42,6 +53,7 @@ export const config = {
     "/logout",
     "/search",
     "/image",
+    "/docs/:path*",
     // Add other routes as needed
   ],
 };

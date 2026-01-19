@@ -41,7 +41,7 @@ export default async function RootLayout({
           }}
         />
         <UserStoreInitializer user={me} />
-        {pathname === "/login" ? null : (
+        {pathname === "/login" || pathname.includes("/docs/") ? null : (
           <Suspense>
             <Navbar />
           </Suspense>
