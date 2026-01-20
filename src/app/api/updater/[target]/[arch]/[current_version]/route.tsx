@@ -24,7 +24,7 @@ export async function GET(
     const { current_version } = await params;
 
     // Check if there's a newer version available
-    const latestVersion = "0.5.2";
+    const latestVersion = "0.5.4";
 
     if (current_version === latestVersion) {
       return new NextResponse(null, { status: 204 });
@@ -48,7 +48,7 @@ export async function GET(
     const updateResponse: TauriUpdateResponse = {
       version: latestVersion,
       notes:
-        "- Fix image result title format \n- Fix Icon doesn’t change to login state after SMDV authentication",
+        "- Fix error for file with no extension \n- Add retry button for unsynced files",
       pub_date: new Date().toISOString(),
       platforms: {
         ["darwin-aarch64"]: {
