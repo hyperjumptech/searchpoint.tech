@@ -12,6 +12,14 @@ interface TauriUpdateResponse {
   };
 }
 
+// Update Configuration - Edit these values for new releases
+const LATEST_VERSION = "0.5.5";
+const RELEASE_NOTES = [
+  "Remove onboarding",
+  "Fix token not found",
+  "Change uploading files wording - Treat as indexing process",
+];
+
 export async function GET(
   request: NextRequest,
   {
@@ -24,31 +32,28 @@ export async function GET(
     const { current_version } = await params;
 
     // Check if there's a newer version available
-    const latestVersion = "0.5.4";
-
-    if (current_version === latestVersion) {
+    if (current_version === LATEST_VERSION) {
       return new NextResponse(null, { status: 204 });
     }
 
     // Fetch signatures from MinIO
-    const baseUrl = `https://storage.searchpoint.hyperjump.tech/scse/releases/v${latestVersion}`;
+    const baseUrl = `https://storage.searchpoint.hyperjump.tech/scse/releases/v${LATEST_VERSION}`;
 
     const [darwinSig, windowsSig, linuxSig] = await Promise.all([
       fetch(`${baseUrl}/macos/SearchPoint.app.tar.gz.sig`).then((res) =>
         res.text(),
       ),
       fetch(
-        `${baseUrl}/windows/SearchPoint_${latestVersion}_x64_en-US.msi.sig`,
+        `${baseUrl}/windows/SearchPoint_${LATEST_VERSION}_x64_en-US.msi.sig`,
       ).then((res) => res.text()),
       fetch(
-        `${baseUrl}/linux/SearchPoint_${latestVersion}_amd64.AppImage.sig`,
+        `${baseUrl}/linux/SearchPoint_${LATEST_VERSION}_amd64.AppImage.sig`,
       ).then((res) => res.text()),
     ]);
 
     const updateResponse: TauriUpdateResponse = {
-      version: latestVersion,
-      notes:
-        "- Fix error for file with no extension \n- Add retry button for unsynced files",
+      version: LATEST_VERSION,
+      notes: RELEASE_NOTES.map((note) => `- ${note}`).join("\n"),
       pub_date: new Date().toISOString(),
       platforms: {
         ["darwin-aarch64"]: {
@@ -57,16 +62,16 @@ export async function GET(
         },
         ["windows-x86_64"]: {
           signature: windowsSig,
-          url: `${baseUrl}/windows/SearchPoint_${latestVersion}_x64_en-US.msi`,
+          url: `${baseUrl}/windows/SearchPoint_${LATEST_VERSION}_x64_en-US.msi`,
         },
         ["linux-x86_64"]: {
           signature: linuxSig,
-          url: `${baseUrl}/linux/SearchPoint_${latestVersion}_amd64.AppImage`,
+          url: `${baseUrl}/linux/SearchPoint_${LATEST_VERSION}_amd64.AppImage`,
         },
         ["macOS-download"]: {
           // this is a workaround to get the .dmg file instead of the .tar.gz
           signature: "",
-          url: `${baseUrl}/macos/SearchPoint_${latestVersion}_universal.dmg`,
+          url: `${baseUrl}/macos/SearchPoint_${LATEST_VERSION}_universal.dmg`,
         },
       },
     };
