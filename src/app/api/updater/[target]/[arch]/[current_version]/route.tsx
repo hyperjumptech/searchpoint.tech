@@ -13,11 +13,11 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.5.5";
+const LATEST_VERSION = "0.6.0";
 const RELEASE_NOTES = [
-  "Remove onboarding",
-  "Fix token not found",
-  "Change uploading files wording - Treat as indexing process",
+  "Clear search results",
+  "Search history",
+  "Fix error sync temp file",
 ];
 
 export async function GET(
