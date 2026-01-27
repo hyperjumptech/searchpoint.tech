@@ -13,10 +13,10 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.7.0";
+const LATEST_VERSION = "0.7.1";
 const RELEASE_NOTES = [
-  "Modified in search detial",
-  "Field date matching metadata",
+  "Use Wording Modified in search detail",
+  "Match field date with metadata",
 ];
 
 export async function GET(
