@@ -13,7 +13,7 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.8.2";
+const LATEST_VERSION = "0.8.3";
 const RELEASE_NOTES = [
   "New menu design",
   "Alert when removing folder",
