@@ -13,7 +13,7 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.9.0";
+const LATEST_VERSION = "0.9.1";
 const RELEASE_NOTES = [
   "Search result new design",
   "Progress bar for each folder",
