@@ -13,12 +13,11 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.8.3";
+const LATEST_VERSION = "0.9.0";
 const RELEASE_NOTES = [
-  "New menu design",
-  "Alert when removing folder",
-  "Multi tenant support",
-  "Sync wording to processing",
+  "Search result new design",
+  "Progress bar for each folder",
+  "Copy logging for debugging issues",
 ];
 
 export async function GET(
