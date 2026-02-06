@@ -13,11 +13,12 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.9.1";
+const LATEST_VERSION = "0.9.2";
 const RELEASE_NOTES = [
-  "Search result new design",
-  "Progress bar for each folder",
-  "Copy logging for debugging issues",
+  "Fail indexing some pdf files issue fixed",
+  "Fix error when delete folder",
+  "UI state when open file in local folder to make user aware",
+  "Display image from local folder",
 ];
 
 export async function GET(
