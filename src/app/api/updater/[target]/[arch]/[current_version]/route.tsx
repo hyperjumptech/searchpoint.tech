@@ -4,6 +4,7 @@ interface TauriUpdateResponse {
   version: string;
   notes: string;
   pub_date: string;
+  needReindex: boolean;
   platforms: {
     [key: string]: {
       signature: string;
@@ -13,12 +14,11 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.9.2";
+const LATEST_VERSION = "0.9.3";
+const RELEASE_DATE = "2026-02-09T00:00:00Z";
 const RELEASE_NOTES = [
-  "Fail indexing some pdf files issue fixed",
-  "Fix error when delete folder",
-  "UI state when open file in local folder to make user aware",
-  "Display image from local folder",
+  "Auto reindex trigger when update",
+  "Join loading to become 1 progress bar",
 ];
 
 export async function GET(
@@ -55,7 +55,8 @@ export async function GET(
     const updateResponse: TauriUpdateResponse = {
       version: LATEST_VERSION,
       notes: RELEASE_NOTES.map((note) => `- ${note}`).join("\n"),
-      pub_date: new Date().toISOString(),
+      pub_date: RELEASE_DATE,
+      needReindex: true,
       platforms: {
         ["darwin-aarch64"]: {
           signature: darwinSig,
