@@ -14,12 +14,15 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.9.5";
-const RELEASE_DATE = "2026-02-10T00:00:00Z";
+const LATEST_VERSION = "0.9.6";
+const RELEASE_DATE = "2026-02-11T00:00:00Z";
+const NEED_REINDEX = false;
 const RELEASE_NOTES = [
   "Auto reindex trigger when update",
   "Join loading to become 1 progress bar",
   "Show image from share point",
+  "Search by extension filter",
+  "Timestamp shown in file watch list",
 ];
 
 export async function GET(
@@ -57,7 +60,7 @@ export async function GET(
       version: LATEST_VERSION,
       notes: RELEASE_NOTES.map((note) => `- ${note}`).join("\n"),
       pub_date: RELEASE_DATE,
-      needReindex: true,
+      needReindex: NEED_REINDEX,
       platforms: {
         ["darwin-aarch64"]: {
           signature: darwinSig,
