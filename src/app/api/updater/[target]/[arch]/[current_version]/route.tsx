@@ -14,12 +14,13 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.9.7";
+const LATEST_VERSION = "0.9.8";
 const RELEASE_DATE = "2026-02-12T00:00:00Z";
-const NEED_REINDEX = false;
+const NEED_REINDEX = true;
 const RELEASE_NOTES = [
-  "Join checking and processing to be processing",
-  "Hash filename in log",
+  "Handle file change detection while indexing",
+  "Show file detail when clicking image",
+  "Not extract keywords from file names during scanning",
 ];
 
 export async function GET(
