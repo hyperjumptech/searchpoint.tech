@@ -14,7 +14,7 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.9.8";
+const LATEST_VERSION = "0.9.9";
 const RELEASE_DATE = "2026-02-12T00:00:00Z";
 const NEED_REINDEX = true;
 const RELEASE_NOTES = [
