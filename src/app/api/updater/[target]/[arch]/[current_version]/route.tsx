@@ -14,15 +14,12 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.9.6";
-const RELEASE_DATE = "2026-02-11T00:00:00Z";
+const LATEST_VERSION = "0.9.7";
+const RELEASE_DATE = "2026-02-12T00:00:00Z";
 const NEED_REINDEX = false;
 const RELEASE_NOTES = [
-  "Auto reindex trigger when update",
-  "Join loading to become 1 progress bar",
-  "Show image from share point",
-  "Search by extension filter",
-  "Timestamp shown in file watch list",
+  "Join checking and processing to be processing",
+  "Hash filename in log",
 ];
 
 export async function GET(
