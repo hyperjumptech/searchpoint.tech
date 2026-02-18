@@ -14,14 +14,12 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.9.10";
-const RELEASE_DATE = "2026-02-13T00:00:00Z";
+const LATEST_VERSION = "0.9.13";
+const RELEASE_DATE = "2026-02-18T00:00:00Z";
 const NEED_REINDEX = false;
 const RELEASE_NOTES = [
-  "Search local folder even when offline",
-  "Handle file change detection while processing",
-  "Show file detail when clicking image",
-  "Not extract keywords from file names during processing",
+  "Change syntax filter extension",
+  "Share point and oneDrive folder",
 ];
 
 export async function GET(
