@@ -49,7 +49,7 @@ export async function GET(
         `${baseUrl}/windows/SearchPoint_${LATEST_VERSION}_x64_en-US.msi.sig`,
       ).then((res) => res.text()),
       fetch(
-        `${baseUrl}/linux/SearchPoint_${LATEST_VERSION}_amd64.AppImage.sig`,
+        `${baseUrl}/linux/SearchPoint_${LATEST_VERSION}_amd64.deb.sig`,
       ).then((res) => res.text()),
     ]);
 
@@ -69,7 +69,7 @@ export async function GET(
         },
         ["linux-x86_64"]: {
           signature: linuxSig,
-          url: `${baseUrl}/linux/SearchPoint_${LATEST_VERSION}_amd64.AppImage`,
+          url: `${baseUrl}/linux/SearchPoint_${LATEST_VERSION}_amd64.deb`,
         },
         ["macOS-download"]: {
           // this is a workaround to get the .dmg file instead of the .tar.gz
