@@ -14,12 +14,14 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.9.13";
-const RELEASE_DATE = "2026-02-18T00:00:00Z";
-const NEED_REINDEX = false;
+const LATEST_VERSION = "0.10.0";
+const RELEASE_DATE = "2026-02-19T00:00:00Z";
+const NEED_REINDEX = true;
 const RELEASE_NOTES = [
-  "Change syntax filter extension",
-  "Share point and oneDrive folder",
+  "Remove folder from watcher also delete index for the files in the folder",
+  "Choose browser to open",
+  "Fix mime type",
+  "Elapsed time for processing files",
 ];
 
 export async function GET(
