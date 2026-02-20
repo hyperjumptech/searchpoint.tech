@@ -39,7 +39,7 @@ export async function GET(
     }
 
     // Fetch signatures from MinIO
-    const baseUrl = `https://storage.searchpoint.hyperjump.tech/scse/releases/v${LATEST_VERSION}`;
+    const baseUrl = `https://searchpoint-nss-1.nos.wjv-1.neo.id/releases/v${LATEST_VERSION}`;
 
     const [darwinSig, windowsSig, linuxSig] = await Promise.all([
       fetch(`${baseUrl}/macos/SearchPoint.app.tar.gz.sig`).then((res) =>
