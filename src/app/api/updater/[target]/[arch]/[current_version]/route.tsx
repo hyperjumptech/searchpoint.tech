@@ -14,13 +14,10 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.11.0";
-const RELEASE_DATE = "2026-02-19T00:00:00Z";
-const NEED_REINDEX = true;
-const RELEASE_NOTES = [
-  "Fix dont parse file content to DB for step 1",
-  "Refactor code to be modular",
-];
+const LATEST_VERSION = "0.11.2";
+const RELEASE_DATE = "2026-02-23T00:00:00Z";
+const NEED_REINDEX = false;
+const RELEASE_NOTES = ["Fix show copy log button when error watcher"];
 
 export async function GET(
   request: NextRequest,
