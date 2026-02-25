@@ -14,13 +14,14 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.12.0";
-const RELEASE_DATE = "2026-02-24T00:00:00Z";
+const LATEST_VERSION = "0.12.1";
+const RELEASE_DATE = "2026-02-25T00:00:00Z";
 const NEED_REINDEX = false;
 const RELEASE_NOTES = [
   "Cancel scanning and processing",
   "Fix invalidate date on update info",
   "Show file size info",
+  "Fix handle masking result",
 ];
 
 export async function GET(
