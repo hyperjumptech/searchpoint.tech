@@ -14,14 +14,12 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.12.5";
-const RELEASE_DATE = "2026-02-27T00:00:00Z";
+const LATEST_VERSION = "0.12.6";
+const RELEASE_DATE = "2026-03-02T00:00:00Z";
 const NEED_REINDEX = false;
 const RELEASE_NOTES = [
+  "Fix refresh token mechanism in watcher",
   "Change wording shared with public in search detail",
-  "Unify Settings into a single sidebar page with dedicated About section",
-  "Fix error section still showing even after retry success",
-  "Search offline while server is down",
 ];
 
 export async function GET(
