@@ -1,7 +1,9 @@
 name: "SCSE Web"
 
 variables:
-  CI: true
+  - group: scse-openvpn
+  - name: CI
+    value: true
 
 pool:
   vmImage: "ubuntu-latest"
@@ -81,7 +83,7 @@ stages:
           - task: SSH@0
             displayName: "Use SSH to connect to PoC server"
             inputs:
-              sshEndpoint: "SSH to SCSE PoC" # Name of the service connection
+              sshEndpoint: "ssh_to_staging_server" # Name of the service connection
               runOptions: inline
               inline: |
                 sed -i "s/^FRONTEND_TAG=.*/FRONTEND_TAG=$(Build.BuildId)-rc/" services/frontend/.env
@@ -144,6 +146,62 @@ stages:
               echo "Version tag: $VERSION_TAG"
             displayName: "Prepare version tag"
 
+          - task: DownloadSecureFile@1
+            name: ovpnFile
+            displayName: "Download OpenVPN Configuration"
+            inputs:
+              secureFile: "AzureSearchPointProd.ovpn"
+
+          - script: |
+              sudo apt-get update
+              sudo apt-get install -y openvpn
+            displayName: "Install OpenVPN"
+
+          - script: |
+              echo "Starting OpenVPN connection..."
+              echo "$(OPENVPN_PASSWORD)" > /tmp/openvpn-auth.txt
+              chmod 600 /tmp/openvpn-auth.txt
+              sudo openvpn --config $(ovpnFile.secureFilePath) --daemon --log /tmp/openvpn.log --verb 4 --status /tmp/openvpn-status.log 5 --askpass /tmp/openvpn-auth.txt
+
+              echo "Waiting for VPN connection..."
+              for i in {1..60}; do
+                if ip addr show tun0 > /dev/null 2>&1; then
+                  echo "VPN connected successfully after $i seconds"
+                  ip addr show tun0
+                  echo ""
+                  echo "--- OpenVPN Status ---"
+                  sudo cat /tmp/openvpn-status.log 2>/dev/null || echo "Status file not available"
+                  echo ""
+                  echo "--- Last 30 lines of OpenVPN Log ---"
+                  sudo tail -30 /tmp/openvpn.log
+                  exit 0
+                fi
+                
+                if [ $((i % 10)) -eq 0 ]; then
+                  echo "Still waiting... ($i/60 seconds)"
+                  if ! pgrep openvpn > /dev/null; then
+                    echo "ERROR: OpenVPN process is not running"
+                    echo ""
+                    echo "--- Full OpenVPN Log ---"
+                    sudo cat /tmp/openvpn.log
+                    exit 1
+                  fi
+                  echo "OpenVPN process is running (PID: $(pgrep openvpn))"
+                  echo "--- Last 10 lines of log ---"
+                  sudo tail -10 /tmp/openvpn.log
+                fi
+                sleep 1
+              done
+
+              echo ""
+              echo "VPN connection timed out after 60 seconds"
+              echo "OpenVPN process status: $(pgrep openvpn > /dev/null && echo 'RUNNING' || echo 'NOT RUNNING')"
+              echo ""
+              echo "--- Full OpenVPN Log ---"
+              sudo cat /tmp/openvpn.log
+              exit 1
+            displayName: "Connect to OpenVPN"
+
           # Build image
           - task: Docker@2
             displayName: "Build production docker image"
@@ -172,8 +230,14 @@ stages:
           - task: SSH@0
             displayName: "Use SSH to connect to PoC server"
             inputs:
-              sshEndpoint: "SSH to SCSE PoC" # Name of the service connection
+              sshEndpoint: "ssh_to_production_server" # Name of the service connection
               runOptions: inline
               inline: |
                 sed -i "s/^FRONTEND_TAG=.*/FRONTEND_TAG=$(VERSION_TAG)/" services/frontend/.env
                 cd services/frontend && docker compose up -d --remove-orphans 2>&1
+
+          - script: |
+              sudo pkill openvpn || true
+              rm -f /tmp/openvpn-auth.txt
+            displayName: "Disconnect OpenVPN"
+            condition: always()
