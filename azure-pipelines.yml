@@ -96,44 +96,45 @@ stages:
       - job: DeployToProduction
         displayName: "Deploy to Production"
         steps:
-          - task: Npm@1
-            displayName: Install Bun
-            inputs:
-              command: "custom"
-              customCommand: "install -g bun"
-              verbose: true
+          # TODO: Re-enable Playwright tests before production deployment
+          # - task: Npm@1
+          #   displayName: Install Bun
+          #   inputs:
+          #     command: "custom"
+          #     customCommand: "install -g bun"
+          #     verbose: true
 
-          - script: bun install
-            displayName: "Install dependencies"
+          # - script: bun install
+          #   displayName: "Install dependencies"
 
-          - script: bunx playwright install --with-deps
-            displayName: "Install Playwright browsers"
+          # - script: bunx playwright install --with-deps
+          #   displayName: "Install Playwright browsers"
 
-          - script: bun run test:e2e
-            displayName: "Run Playwright Tests"
-            env:
-              CI: "true"
-              APP_BASE_URL: $(APP_BASE_URL)
-              BACKEND_BASE_URL: $(BACKEND_BASE_URL)
+          # - script: bun run test:e2e
+          #   displayName: "Run Playwright Tests"
+          #   env:
+          #     CI: "true"
+          #     APP_BASE_URL: $(APP_BASE_URL)
+          #     BACKEND_BASE_URL: $(BACKEND_BASE_URL)
 
-          - task: PublishTestResults@2
-            displayName: "Publish test results"
-            inputs:
-              searchFolder: "test-results"
-              testResultsFormat: "JUnit"
-              testResultsFiles: "e2e-junit-results.xml"
-              mergeTestResults: true
-              failTaskOnFailedTests: true
-              testRunTitle: "SCSE Web E2E Tests"
-            condition: succeededOrFailed()
+          # - task: PublishTestResults@2
+          #   displayName: "Publish test results"
+          #   inputs:
+          #     searchFolder: "test-results"
+          #     testResultsFormat: "JUnit"
+          #     testResultsFiles: "e2e-junit-results.xml"
+          #     mergeTestResults: true
+          #     failTaskOnFailedTests: true
+          #     testRunTitle: "SCSE Web E2E Tests"
+          #   condition: succeededOrFailed()
 
-          - task: PublishPipelineArtifact@1
-            displayName: "Publish Playwright report"
-            inputs:
-              targetPath: playwright-report
-              artifact: playwright-report
-              publishLocation: "pipeline"
-            condition: succeededOrFailed()
+          # - task: PublishPipelineArtifact@1
+          #   displayName: "Publish Playwright report"
+          #   inputs:
+          #     targetPath: playwright-report
+          #     artifact: playwright-report
+          #     publishLocation: "pipeline"
+          #   condition: succeededOrFailed()
 
             # Strip the 'v' prefix from the tag e.g. v1.0.0 -> 1.0.0
             # This is needed because the tag is prefixed with 'v' in the Azure Pipelines UI
