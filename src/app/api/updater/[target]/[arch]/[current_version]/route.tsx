@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import { NextRequest, NextResponse } from "next/server";
 
 interface TauriUpdateResponse {
@@ -39,7 +40,9 @@ export async function GET(
     }
 
     // Fetch signatures from MinIO
-    const baseUrl = `https://searchpoint-nss-1.nos.wjv-1.neo.id/releases/v${LATEST_VERSION}`;
+    const updaterBaseUrl =
+      env.UPDATER_BASE_URL || "https://searchpoint-nss-1.nos.wjv-1.neo.id";
+    const baseUrl = `${updaterBaseUrl}/releases/v${LATEST_VERSION}`;
 
     const [darwinSig, windowsSig, linuxSig] = await Promise.all([
       fetch(`${baseUrl}/macos/SearchPoint.app.tar.gz.sig`).then((res) =>
