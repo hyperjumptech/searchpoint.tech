@@ -14,16 +14,6 @@ interface TauriUpdateResponse {
   };
 }
 
-// Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.13.0";
-const RELEASE_DATE = "2026-03-05T00:00:00Z";
-const NEED_REINDEX = false;
-const RELEASE_NOTES = [
-  "Handle file change when app is closed",
-  "See recent changes even after closing app",
-  "Fix security dependency vulnerability",
-];
-
 export async function GET(
   request: NextRequest,
   {
@@ -34,6 +24,13 @@ export async function GET(
 ) {
   try {
     const { current_version } = await params;
+
+    const metadata = await fetch(
+      `${env.UPDATER_BASE_URL}/releases/metadata.json`,
+    );
+    const metadataResponse = await metadata.json();
+    const { LATEST_VERSION, RELEASE_DATE, NEED_REINDEX, RELEASE_NOTES } =
+      metadataResponse;
 
     // Check if there's a newer version available
     if (current_version === LATEST_VERSION) {
@@ -59,7 +56,7 @@ export async function GET(
 
     const updateResponse: TauriUpdateResponse = {
       version: LATEST_VERSION,
-      notes: RELEASE_NOTES.map((note) => `- ${note}`).join("\n"),
+      notes: RELEASE_NOTES.map((note: string) => `- ${note}`).join("\n"),
       pub_date: RELEASE_DATE,
       needReindex: NEED_REINDEX,
       platforms: {

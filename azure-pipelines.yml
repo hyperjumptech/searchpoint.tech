@@ -236,7 +236,7 @@ stages:
               runOptions: inline
               inline: |
                 sed -i "s/^FRONTEND_TAG=.*/FRONTEND_TAG=$(VERSION_TAG)/" services/frontend/.env
-                cd services/frontend && docker compose up -d --remove-orphans 2>&1
+                cd services/frontend && docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.ports.yml up -d --remove-orphans 2>&1
 
           - script: |
               sudo pkill openvpn || true
