@@ -15,12 +15,13 @@ interface TauriUpdateResponse {
 }
 
 // Update Configuration - Edit these values for new releases
-const LATEST_VERSION = "0.12.6";
-const RELEASE_DATE = "2026-03-02T00:00:00Z";
+const LATEST_VERSION = "0.13.0";
+const RELEASE_DATE = "2026-03-05T00:00:00Z";
 const NEED_REINDEX = false;
 const RELEASE_NOTES = [
-  "Fix refresh token mechanism in watcher",
-  "Change wording shared with public in search detail",
+  "Handle file change when app is closed",
+  "See recent changes even after closing app",
+  "Fix security dependency vulnerability",
 ];
 
 export async function GET(
