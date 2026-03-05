@@ -48,6 +48,7 @@ stages:
             env:
               APP_BASE_URL: $(APP_BASE_URL)
               BACKEND_BASE_URL: $(BACKEND_BASE_URL)
+              UPDATER_BASE_URL: $(UPDATER_BASE_URL)
 
   - stage: "DeployToStaging"
     displayName: "Deploy to Staging"
@@ -136,8 +137,8 @@ stages:
           #     publishLocation: "pipeline"
           #   condition: succeededOrFailed()
 
-            # Strip the 'v' prefix from the tag e.g. v1.0.0 -> 1.0.0
-            # This is needed because the tag is prefixed with 'v' in the Azure Pipelines UI
+          # Strip the 'v' prefix from the tag e.g. v1.0.0 -> 1.0.0
+          # This is needed because the tag is prefixed with 'v' in the Azure Pipelines UI
           - bash: |
               TAG=$(Build.SourceBranchName)
               # Strip 'v' prefix if it exists
