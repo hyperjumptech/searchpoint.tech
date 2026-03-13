@@ -45,9 +45,9 @@ export async function GET(
     const baseUrl = `${updaterBaseUrl}/releases/v${LATEST_VERSION}`;
 
     const [darwinSig, windowsSig, linuxSig] = await Promise.all([
-      fetch(
-        `${baseUrl}/macos/${appName}_${LATEST_VERSION}.app.tar.gz.sig`,
-      ).then((res) => res.text()),
+      fetch(`${baseUrl}/macos/${appName}.app.tar.gz.sig`).then((res) =>
+        res.text(),
+      ),
       fetch(
         `${baseUrl}/windows/${appName}_${LATEST_VERSION}_x64_en-US.msi.sig`,
       ).then((res) => res.text()),
