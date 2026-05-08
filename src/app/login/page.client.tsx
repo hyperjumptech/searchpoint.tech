@@ -58,7 +58,7 @@ export function LoginClient({ authUrl }: LoginClientProps) {
           </div>
         </article>
         <footer className="text-xs text-muted-foreground">
-          Copyright © 2025 Sinar Mas. All Right Reserved.
+          Copyright © {new Date().getFullYear()} Sinar Mas. All Right Reserved.
         </footer>
       </section>
 

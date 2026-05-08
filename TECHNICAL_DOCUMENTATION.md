@@ -3,14 +3,11 @@
 ## Table of Contents
 
 1. [System Overview](#system-overview)
-2. [System Architecture](#system-architecture)
-3. [Technology Stack](#technology-stack)
-4. [Sequence Diagrams](#sequence-diagrams)
-5. [Component Architecture](#component-architecture)
-6. [API Integration](#api-integration)
-7. [Security & Authentication](#security--authentication)
-8. [Deployment Architecture](#deployment-architecture)
-9. [Development Workflow](#development-workflow)
+2. [Technology Stack](#technology-stack)
+3. [API Integration](#api-integration)
+4. [Security & Authentication](#security--authentication)
+5. [Deployment Architecture](#deployment-architecture)
+6. [Development Workflow](#development-workflow)
 
 ---
 
@@ -220,7 +217,7 @@ All routes except `/login` require authentication:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Azure DevOps Pipeline                 │
+│                    Azure DevOps Pipeline                │
 └─────────────────────────────────────────────────────────┘
 
 Trigger: Push to main OR tag creation
@@ -230,38 +227,38 @@ Trigger: Push to main OR tag creation
 ├─────────────────────────────────────────────────────────┤
 │ 1. Install Bun                                          │
 │ 2. Install dependencies (bun install)                   │
-│ 3. Run linting (bun run lint)                          │
-│ 4. Build application (bun run build)                   │
+│ 3. Run linting (bun run lint)                           │
+│ 4. Build application (bun run build)                    │
 └─────────────────────────────────────────────────────────┘
                          │
                          ↓
 ┌─────────────────────────────────────────────────────────┐
-│ Stage 2: Deploy to Staging (main branch only)          │
+│ Stage 2: Deploy to Staging (main branch only)           │
 ├─────────────────────────────────────────────────────────┤
 │ 1. Build Docker image                                   │
-│    - Tag: {BuildId}-rc, test                           │
-│    - Build args: staging_build_arguments               │
-│ 2. Push to Azure Container Registry                    │
-│ 3. SSH to PoC server                                   │
-│ 4. Update .env with new tag                            │
-│ 5. Docker compose up -d                                │
+│    - Tag: {BuildId}-rc, test                            │
+│    - Build args: staging_build_arguments                │
+│ 2. Push to Azure Container Registry                     │
+│ 3. SSH to PoC server                                    │
+│ 4. Update .env with new tag                             │
+│ 5. Docker compose up -d                                 │
 └─────────────────────────────────────────────────────────┘
                          │
                          ↓
 ┌─────────────────────────────────────────────────────────┐
-│ Stage 3: Release to Production (tags only)             │
+│ Stage 3: Release to Production (tags only)              │
 ├─────────────────────────────────────────────────────────┤
 │ 1. Install Playwright & browsers                        │
-│ 2. Run E2E tests (bun run test:e2e)                   │
-│ 3. Publish test results & reports                      │
-│ 4. Parse version tag (strip 'v' prefix)               │
-│ 5. Build production Docker image                       │
-│    - Tags: {version}, latest                           │
-│    - Build args: production_build_arguments            │
-│ 6. Push to Azure Container Registry                    │
-│ 7. SSH to production server                            │
-│ 8. Update .env with version tag                        │
-│ 9. Docker compose up -d                                │
+│ 2. Run E2E tests (bun run test:e2e)                     │
+│ 3. Publish test results & reports                       │
+│ 4. Parse version tag (strip 'v' prefix)                 │
+│ 5. Build production Docker image                        │
+│    - Tags: {version}, latest                            │
+│    - Build args: production_build_arguments             │
+│ 6. Push to Azure Container Registry                     │
+│ 7. SSH to production server                             │
+│ 8. Update .env with version tag                         │
+│ 9. Docker compose up -d                                 │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -298,14 +295,12 @@ bun dev
 bun run build
 
 # Docker Build
-docker build \
-  --build-arg APP_BASE_URL=https://scse.hyperjump.tech \
-  --build-arg BACKEND_BASE_URL=https://api.scse.hyperjump.tech \
-  -t scse-web-app \
-  -f Dockerfile .
+docker build -t scse-web-app -f Dockerfile .
 
 # Docker Run
-docker run -p 3000:3000 scse-web-app
+docker run -p 3000:3000 \
+  -e BACKEND_BASE_URL=https://api.searchpoint.hyperjump.tech \
+  scse-web-app
 
 # E2E Tests
 bunx playwright install
@@ -324,8 +319,7 @@ bun install
 
 # 2. Set environment variables
 # Create .env.local file
-APP_BASE_URL=http://localhost:3000
-BACKEND_BASE_URL=https://api.scse.hyperjump.tech
+BACKEND_BASE_URL=https://api.searchpoint.hyperjump.tech
 
 # 3. Run development server
 bun dev
@@ -486,10 +480,11 @@ import pinoHttp from "pino-http";
 
 ### Environment Variables Reference
 
-| Variable           | Description     | Required | Example                           |
-| ------------------ | --------------- | -------- | --------------------------------- |
-| `APP_BASE_URL`     | Frontend URL    | Yes      | `https://scse.hyperjump.tech`     |
-| `BACKEND_BASE_URL` | Backend API URL | Yes      | `https://api.scse.hyperjump.tech` |
+| Variable           | Description                                | Required | Example                                        |
+| ------------------ | ------------------------------------------ | -------- | ---------------------------------------------- |
+| `BACKEND_BASE_URL` | Backend API URL                            | No       | `https://api.searchpoint.hyperjump.tech`       |
+| `UPDATER_BASE_URL` | Updater URL                                | No       | `https://nss-mr1-searchpoint.nos.wjv-1.neo.id` |
+| `APP_NAME`         | Application name for desktop app downloads | No       | `SearchPoint`                                  |
 
 ### Browser Support
 

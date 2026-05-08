@@ -15,7 +15,7 @@ interface TauriUpdateResponse {
 }
 
 export async function GET(
-  request: NextRequest,
+  _: NextRequest,
   {
     params,
   }: {
@@ -38,22 +38,17 @@ export async function GET(
     }
 
     // Fetch signatures from MinIO
-    const stagingUrl = "https://searchpoint-nss-1.nos.wjv-1.neo.id";
-    const updaterBaseUrl = env.UPDATER_BASE_URL || stagingUrl;
-    const appName =
-      updaterBaseUrl === stagingUrl ? "SearchPoint-Staging" : "SearchPoint";
-    const baseUrl = `${updaterBaseUrl}/releases/v${LATEST_VERSION}`;
-
+    const baseUrl = `${env.UPDATER_BASE_URL}/releases/v${LATEST_VERSION}`;
     const [darwinSig, windowsSig, linuxSig] = await Promise.all([
-      fetch(`${baseUrl}/macos/${appName}.app.tar.gz.sig`).then((res) =>
+      fetch(`${baseUrl}/macos/${env.APP_NAME}.app.tar.gz.sig`).then((res) =>
         res.text(),
       ),
       fetch(
-        `${baseUrl}/windows/${appName}_${LATEST_VERSION}_x64_en-US.msi.sig`,
+        `${baseUrl}/windows/${env.APP_NAME}_${LATEST_VERSION}_x64_en-US.msi.sig`,
       ).then((res) => res.text()),
-      fetch(`${baseUrl}/linux/${appName}_${LATEST_VERSION}_amd64.deb.sig`).then(
-        (res) => res.text(),
-      ),
+      fetch(
+        `${baseUrl}/linux/${env.APP_NAME}_${LATEST_VERSION}_amd64.deb.sig`,
+      ).then((res) => res.text()),
     ]);
 
     const updateResponse: TauriUpdateResponse = {
@@ -64,20 +59,20 @@ export async function GET(
       platforms: {
         ["darwin-aarch64"]: {
           signature: darwinSig,
-          url: `${baseUrl}/macos/${appName}.app.tar.gz`,
+          url: `${baseUrl}/macos/${env.APP_NAME}.app.tar.gz`,
         },
         ["windows-x86_64"]: {
           signature: windowsSig,
-          url: `${baseUrl}/windows/${appName}_${LATEST_VERSION}_x64_en-US.msi`,
+          url: `${baseUrl}/windows/${env.APP_NAME}_${LATEST_VERSION}_x64_en-US.msi`,
         },
         ["linux-x86_64"]: {
           signature: linuxSig,
-          url: `${baseUrl}/linux/${appName}_${LATEST_VERSION}_amd64.deb`,
+          url: `${baseUrl}/linux/${env.APP_NAME}_${LATEST_VERSION}_amd64.deb`,
         },
         ["macOS-download"]: {
           // this is a workaround to get the .dmg file instead of the .tar.gz
           signature: "",
-          url: `${baseUrl}/macos/${appName}_${LATEST_VERSION}_universal.dmg`,
+          url: `${baseUrl}/macos/${env.APP_NAME}_${LATEST_VERSION}_universal.dmg`,
         },
       },
     };

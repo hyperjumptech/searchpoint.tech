@@ -22,17 +22,6 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Map your NEXT_PUBLIC_ environment variables here. Here is an example:
-# ARG NEXT_PUBLIC_SOMETHING=something
-ARG APP_BASE_URL=http://localhost:3000
-ARG BACKEND_BASE_URL=http://localhost:8080
-ARG UPDATER_BASE_URL=https://searchpoint-nss-1.nos.wjv-1.neo.id
-
-# ENV NEXT_PUBLIC_SOMETHING=$NEXT_PUBLIC_SOMETHING
-ENV APP_BASE_URL=$APP_BASE_URL
-ENV BACKEND_BASE_URL=$BACKEND_BASE_URL
-ENV UPDATER_BASE_URL=$UPDATER_BASE_URL
-
 RUN bun run build
 
 # Production image, copy all the files and run next

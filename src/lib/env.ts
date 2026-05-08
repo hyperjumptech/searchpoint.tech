@@ -1,9 +1,15 @@
 import { z } from "zod";
 
 const schema = z.object({
-  APP_BASE_URL: z.url(),
-  BACKEND_BASE_URL: z.url(),
-  UPDATER_BASE_URL: z.url().optional(),
+  BACKEND_BASE_URL: z
+    .url()
+    .optional()
+    .default("https://api.searchpoint.hyperjump.tech"),
+  UPDATER_BASE_URL: z
+    .url()
+    .optional()
+    .default("https://nss-mr1-searchpoint.nos.wjv-1.neo.id"),
+  APP_NAME: z.string().optional().default("SearchPoint"),
 });
 
 export const env = schema.parse(process.env);

@@ -23,7 +23,8 @@ export async function getMe(): Promise<Result | null> {
       name: user?.name,
       initialName: generateInitialName(user?.name),
     };
-  } catch {
+  } catch (error) {
+    console.error(error);
     return null;
   }
 }
