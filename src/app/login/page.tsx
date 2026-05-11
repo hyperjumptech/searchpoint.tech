@@ -15,7 +15,7 @@ export default function Login() {
           className="object-cover object-top"
         />
       </aside>
-      <LoginClient authUrl={`${env.BACKEND_BASE_URL}/v1/auth`} />
+      <LoginClient authUrl={`${env.AUTH_BASE_URL}/v1/auth`} />
     </main>
   );
 }
