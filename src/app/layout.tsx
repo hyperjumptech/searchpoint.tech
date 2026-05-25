@@ -33,15 +33,18 @@ export default async function RootLayout({
     <html lang="en" className={inter.className}>
       <body className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed relative">
         <div
-          className={`fixed inset-0 -z-10 ${pathname === "/" ? "opacity-80" : "opacity-0"}`}
+          className={`fixed inset-0 -z-10 transition-opacity duration-500 ${pathname === "/" ? "opacity-100" : "opacity-0"}`}
           style={{
-            backgroundImage: "url('/images/bg-scse.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            background: `
+              radial-gradient(ellipse at 20% 20%, oklch(0.92 0.08 22) 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 60%, oklch(0.95 0.05 30) 0%, transparent 40%),
+              radial-gradient(ellipse at 50% 90%, oklch(0.97 0.03 25) 0%, transparent 50%),
+              oklch(0.995 0.005 27)
+            `,
           }}
         />
         <UserStoreInitializer user={me} />
-        {pathname === "/login" || pathname.includes("/docs/") ? null : (
+        {pathname === "/login" || pathname.startsWith("/docs/") ? null : (
           <Suspense>
             <Navbar />
           </Suspense>

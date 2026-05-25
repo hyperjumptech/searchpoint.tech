@@ -3,7 +3,7 @@
 import OneDriveIcon from "@/components/icons/onedrive-source";
 import OtherSourceIcon from "@/components/icons/shared-folder-source";
 import FilterToggleGroup, { FilterItem } from "./filter-toggle-group";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export type TSourcesFilter = {
   source: "onedrive" | "shared folder";
@@ -25,7 +25,6 @@ const renderIcon = (source: TSourcesFilter["source"]) => {
 };
 
 export default function SourcesFilter({ data }: { data: TSourcesFilter[] }) {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const items: FilterItem<TSourcesFilter["source"]>[] = data.map((item) => ({

@@ -1,32 +1,16 @@
-/**
- * Detects the operating system from the browser user agent
- * @returns {string} - OS identifier: darwin-aarch64, windows-x86_64, or linux-x86_64
- */
-export function detectOS(): string {
-  if (typeof window === "undefined") {
-    return "darwin-aarch64"; // Default for server-side
-  }
+export function detectOSFromUA(userAgent: string): string {
+  const ua = userAgent.toLowerCase();
 
-  const platform = window.navigator.platform.toLowerCase();
-  const userAgent = window.navigator.userAgent.toLowerCase();
+  if (ua.includes("mac")) return "darwin-aarch64";
+  if (ua.includes("win")) return "windows-x86_64";
+  if (ua.includes("linux")) return "linux-x86_64";
 
-  // macOS detection
-  if (platform.includes("mac") || userAgent.includes("mac")) {
-    return "darwin-aarch64";
-  }
-
-  // Windows detection
-  if (platform.includes("win") || userAgent.includes("win")) {
-    return "windows-x86_64";
-  }
-
-  // Linux detection
-  if (platform.includes("linux") || userAgent.includes("linux")) {
-    return "linux-x86_64";
-  }
-
-  // Default fallback
   return "darwin-aarch64";
+}
+
+export function detectOS(): string {
+  if (typeof window === "undefined") return "darwin-aarch64";
+  return detectOSFromUA(window.navigator.userAgent);
 }
 
 /**

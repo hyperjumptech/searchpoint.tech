@@ -1,5 +1,3 @@
-import { XCircle } from "lucide-react";
-
 import BackButton from "./back-button";
 import Image from "next/image";
 

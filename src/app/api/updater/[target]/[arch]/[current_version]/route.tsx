@@ -80,7 +80,7 @@ export async function GET(
     return NextResponse.json(updateResponse);
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to check for updates" + (error as Error).message },
+      { error: "Failed to check for updates: " + (error as Error).message },
       { status: 500 },
     );
   }
