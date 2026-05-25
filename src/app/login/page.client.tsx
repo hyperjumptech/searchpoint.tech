@@ -34,9 +34,13 @@ export function LoginClient({ authUrl }: LoginClientProps) {
           <Image src="/icons/logo.svg" alt="Sinarmas" width={143} height={32} />
         </header>
         <article className="flex flex-col items-center justify-center space-y-4 p-8 text-center">
-          <h1 className="text-lg md:text-xl font-bold px-4">
-            Secure Corporate Search Engine
-          </h1>
+          <div className="space-y-1">
+            <h1 className="text-lg md:text-xl font-bold px-4">SearchPoint</h1>
+            <p className="text-sm text-muted-foreground">
+              Secure Corporate Search Engine
+            </p>
+          </div>
+
           <Button
             onClick={handleLogin}
             className="rounded-full space-x-2 w-full py-6">

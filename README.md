@@ -1,4 +1,4 @@
-# Secure Corporate Search Engine (SCSE) Web
+# SearchPoint (SCSE) Web
 
 ## Getting Started
 

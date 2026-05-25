@@ -11,8 +11,8 @@ import Navbar from "@/components/navbar";
 import { headers } from "next/headers";
 
 export const metadata: Metadata = {
-  title: "Secure Corporate Search Engine",
-  description: "Secure Corporate Search Engine",
+  title: "SearchPoint",
+  description: "SearchPoint - Secure Corporate Search Engine",
 };
 
 const inter = Inter({

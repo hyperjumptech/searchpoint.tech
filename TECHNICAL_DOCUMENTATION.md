@@ -13,7 +13,7 @@
 
 ## System Overview
 
-**Secure Corporate Search Engine (SCSE) Web** is a Next.js-based frontend application that provides a secure interface for searching and accessing corporate documents stored across various platforms (OneDrive, Google Drive, etc.). The system implements enterprise-grade authentication via Microsoft OAuth and provides document search, metadata viewing, and access control features.
+**SearchPoint (SCSE) Web** is a Next.js-based frontend application that provides a secure interface for searching and accessing corporate documents stored across various platforms (OneDrive, Google Drive, etc.). The system implements enterprise-grade authentication via Microsoft OAuth and provides document search, metadata viewing, and access control features.
 
 ### Key Features
 
