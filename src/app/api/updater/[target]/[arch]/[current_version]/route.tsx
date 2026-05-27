@@ -72,7 +72,7 @@ export async function GET(
         ["macOS-download"]: {
           // this is a workaround to get the .dmg file instead of the .tar.gz
           signature: "",
-          url: `${baseUrl}/macos/${env.APP_NAME}_${LATEST_VERSION}_universal.dmg`,
+          url: `${baseUrl}/macos/${env.APP_NAME}_${LATEST_VERSION}_aarch64.dmg`,
         },
       },
     };
