@@ -15,7 +15,7 @@ interface TauriUpdateResponse {
 }
 
 export async function GET(
-  _: NextRequest,
+  request: NextRequest,
   {
     params,
   }: {
@@ -24,9 +24,12 @@ export async function GET(
 ) {
   try {
     const { current_version } = await params;
+    const channel = request.nextUrl.searchParams.get("channel");
+    const metadataFile =
+      channel === "internal" ? "metadata-internal.json" : "metadata.json";
 
     const metadata = await fetch(
-      `${env.UPDATER_BASE_URL}/releases/metadata.json`,
+      `${env.UPDATER_BASE_URL}/releases/${metadataFile}`,
     );
     const metadataResponse = await metadata.json();
     const { LATEST_VERSION, RELEASE_DATE, NEED_REINDEX, RELEASE_NOTES } =
