@@ -21,7 +21,7 @@ export function RestrictedAccess() {
           <p className="text-xl leading-relaxed text-muted-foreground">
             If you think you meet the criteria to open this file, please contact{" "}
             <a
-              href="mailto:ferdi@hyperjump.tech"
+              href="mailto:searchpoint@hyperjump.tech"
               className="font-semibold cursor-pointer text-primary underline-offset-2 hover:underline">
               our admin
             </a>

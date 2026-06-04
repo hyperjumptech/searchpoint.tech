@@ -55,7 +55,7 @@ export function LoginClient({ authUrl }: LoginClientProps) {
           <div className="text-sm flex space-x-1">
             <p className="text-muted-foreground">Having trouble logging in?</p>
             <a
-              href="mailto:ferdi@hyperjump.tech"
+              href="mailto:searchpoint@hyperjump.tech"
               className="text-primary font-medium">
               Contact admin
             </a>
