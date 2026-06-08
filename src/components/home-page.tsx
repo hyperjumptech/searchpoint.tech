@@ -35,7 +35,10 @@ function getInstallSteps(os: string) {
     ];
   return [
     "Install with: sudo dpkg -i SearchPoint_*.deb",
-    "Launch SearchPoint from your application menu",
+    "Configure deep linking by creating the desktop entry:\n\nsudo nano /usr/share/applications/SearchPoint.desktop\n\nEdit the file to match the layout shown below.",
+    "Update the desktop database to register the new handler:\n\nupdate-desktop-database ~/.local/share/applications",
+    "Set SearchPoint as the default handler for the URL scheme:\n\nxdg-mime default SearchPoint.desktop x-scheme-handler/searchpoint",
+    "Launch SearchPoint from your application menu or via a searchpoint:// link",
   ];
 }
 
@@ -53,6 +56,7 @@ export default function HomePageClient({
   const [showTutorial, setShowTutorial] = useState(false);
   const platformLabel = getPlatformLabel(detectedOS);
   const isWindows = detectedOS.startsWith("windows");
+  const isLinux = detectedOS.startsWith("linux");
 
   const handleDownload = async () => {
     if (!user?.email || downloaded || fading) return;
@@ -110,9 +114,22 @@ export default function HomePageClient({
               <h2 className="text-xl font-semibold text-foreground">
                 Installing on {platformLabel}
               </h2>
-              <ol className="text-left text-muted-foreground space-y-2 list-decimal list-inside">
-                {getInstallSteps(detectedOS).map((step) => (
-                  <li key={step}>{step}</li>
+              <ol className="text-left text-muted-foreground space-y-4 list-decimal list-inside">
+                {getInstallSteps(detectedOS).map((step, index) => (
+                  <li key={`${step}-${index}`} className="space-y-3">
+                    <span>{step}</span>
+                    {isLinux && index === 1 && (
+                      <div className="rounded-xl overflow-hidden border border-border/60 bg-card/70 max-w-xl">
+                        <Image
+                          src="/images/linux-desktop-entry.svg"
+                          alt="Example Linux .desktop entry layout for SearchPoint deep linking"
+                          width={720}
+                          height={420}
+                          className="w-full h-auto"
+                        />
+                      </div>
+                    )}
+                  </li>
                 ))}
               </ol>
               <Dialog open={showTutorial} onOpenChange={setShowTutorial}>

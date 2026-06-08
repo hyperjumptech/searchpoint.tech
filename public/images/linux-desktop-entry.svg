@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Linux desktop entry example</title>
+  <desc id="desc">Example .desktop file layout for configuring the SearchPoint URL handler.</desc>
+  <rect width="1200" height="700" rx="32" ry="32" fill="#0f172a"/>
+  <rect x="60" y="60" width="1080" height="580" rx="24" fill="#111827" stroke="#334155" stroke-width="2"/>
+  <text x="100" y="130" fill="#f8fafc" font-family="Inter, Arial, sans-serif" font-size="52" font-weight="700">[Desktop Entry]</text>
+  <line x1="100" y1="150" x2="1100" y2="150" stroke="#334155" stroke-width="2"/>
+  <text x="100" y="220" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="32">Name=SearchPoint</text>
+  <text x="100" y="280" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="32">Comment=SearchPoint App</text>
+  <text x="100" y="340" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="32">Exec=SearchPoint %u</text>
+  <text x="100" y="400" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="32">Terminal=false</text>
+  <text x="100" y="460" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="32">Type=Application</text>
+  <text x="100" y="520" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="32">Icon=SearchPoint</text>
+  <text x="100" y="580" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="32">Categories=Utility;</text>
+  <text x="100" y="640" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="32">MimeType=x-scheme-handler/searchpoint;</text>
+</svg>
