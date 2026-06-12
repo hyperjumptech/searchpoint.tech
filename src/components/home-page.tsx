@@ -119,7 +119,7 @@ export default function HomePageClient({
                   <li key={`${step}-${index}`} className="space-y-3">
                     <span>{step}</span>
                     {isLinux && index === 1 && (
-                      <div className="rounded-xl overflow-hidden border border-border/60 bg-card/70 max-w-xl">
+                      <div className="flex mt-2 justify-center items-center rounded-xl overflow-hidden border border-border/60 bg-card/70 max-w-xl mx-auto">
                         <Image
                           src="/images/linux-desktop-entry.svg"
                           alt="Example Linux .desktop entry layout for SearchPoint deep linking"

@@ -1,12 +1,9 @@
 "use client";
 
-import { Download, FilterIcon, LogOut } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Download, LogOut } from "lucide-react";
 
 import NavbarLogo from "@/components/navbar-logo";
-import SearchBar from "@/components/searchbar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,27 +14,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { detectOS, osToUpdaterFormat } from "@/lib/detect-os";
 import { useUserStore } from "@/stores/user";
-import CategoryTabs from "./category-tabs";
 import { cn } from "@/lib/utils";
 
 export default function Navbar() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const showSearchBar = pathname === "/search" || pathname === "/image";
-  const showSummary = pathname !== "/image";
-
-  const searchParams = useSearchParams();
-  const searchValue = searchParams.get("q") ?? "";
-
   const { user, logOut } = useUserStore();
-
-  const navbarHeightClass = showSearchBar ? "lg:h-32" : "lg:h-16";
-
-  const handleOpenSummary = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("summary", "true");
-    router.push(`/search?${params.toString()}`);
-  };
 
   const handleDownload = async () => {
     if (!user?.email) return;
@@ -73,41 +53,16 @@ export default function Navbar() {
 
   return (
     <header className="relative z-50 border-b border-border/20 bg-transparent text-foreground">
-      <nav className={cn("mx-auto px-4 py-4", navbarHeightClass, "lg:py-0")}>
-        <div className="flex items-start lg:py-4 justify-between lg:flex lg:flex-row lg:justify-between lg:gap-8 lg:h-full">
+      <nav className={cn("mx-auto px-4 py-4 lg:h-16 lg:py-0")}>
+        <div className="flex items-center justify-between lg:py-4 lg:flex-row lg:gap-8 lg:h-full">
           <NavbarLogo />
-
-          {/* Middle Column - Always rendered */}
-          <div className="hidden w-full lg:flex h-full items-center">
-            {showSearchBar && (
-              <div className="flex flex-col w-full gap-4 max-w-3xl">
-                <SearchBar
-                  defaultValue={searchValue}
-                  className="max-w-4xl w-full"
-                  inputClassName="py-0.5 px-2"
-                />
-                <div className="flex gap-2 items-center justify-between">
-                  <CategoryTabs />
-                  {/* Summary */}
-                  {showSummary && (
-                    <Button
-                      className="cursor-pointer xl:hidden"
-                      onClick={handleOpenSummary}
-                      variant={"outline"}>
-                      <FilterIcon />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
 
           {/* Profile Dropdown */}
           {user && (
             <div className="flex justify-end">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Avatar className="cursor-pointer w-10 h-10 mt-1 shadow-xs border">
+                  <Avatar className="cursor-pointer w-10 h-10 shadow-xs border">
                     <AvatarFallback>{user.initialName}</AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
@@ -139,37 +94,6 @@ export default function Navbar() {
             </div>
           )}
         </div>
-
-        {/* Search Bar - Mobile only */}
-        {showSearchBar && (
-          <div className="lg:hidden pt-3">
-            <SearchBar
-              defaultValue={searchValue}
-              className="w-full"
-              inputClassName="py-0.5 px-2"
-            />
-          </div>
-        )}
-
-        {showSearchBar && (
-          <div className="lg:hidden mt-3 overflow-x-auto scrollbar-hide relative z-50">
-            <div className="flex w-full items-center gap-4">
-              {/* Category Tabs */}
-              <div className="flex-1 overflow-x-auto scrollbar-hide">
-                <CategoryTabs />
-              </div>
-              {/* Summary */}
-              {showSummary && (
-                <Button
-                  className="cursor-pointer xl:hidden shrink-0"
-                  onClick={handleOpenSummary}
-                  variant={"outline"}>
-                  <FilterIcon />
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
       </nav>
     </header>
   );
