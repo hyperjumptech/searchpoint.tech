@@ -55,6 +55,7 @@ export default function HomePageClient({
   const [error, setError] = useState("");
   const [showTutorial, setShowTutorial] = useState(false);
   const platformLabel = getPlatformLabel(detectedOS);
+  const isMac = detectedOS.startsWith("darwin");
   const isWindows = detectedOS.startsWith("windows");
   const isLinux = detectedOS.startsWith("linux");
 
@@ -88,7 +89,7 @@ export default function HomePageClient({
         setFading(true);
         setTimeout(() => {
           setDownloaded(true);
-          if (isWindows) setShowTutorial(true);
+          if (isMac || isWindows) setShowTutorial(true);
         }, 400);
       } else {
         setError("No download available for your platform.");
@@ -133,11 +134,12 @@ export default function HomePageClient({
                 ))}
               </ol>
               <Dialog open={showTutorial} onOpenChange={setShowTutorial}>
-                <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
-                    <DialogTitle>Installing on Windows</DialogTitle>
+                    <DialogTitle>Installing on {platformLabel}</DialogTitle>
                     <DialogDescription>
-                      Follow these steps to install SearchPoint on your PC.
+                      Follow these steps to install SearchPoint on your{" "}
+                      {isMac ? "Mac" : "PC"}.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-6">
@@ -151,37 +153,90 @@ export default function HomePageClient({
                         ))}
                       </ol>
                     </div>
-                    <div className="border-t pt-4">
-                      <h3 className="font-medium text-foreground mb-2">
-                        Windows SmartScreen Warning
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Windows may show a SmartScreen warning because
-                        SearchPoint is new and not yet widely recognized. To
-                        proceed:
-                      </p>
-                      <ol className="text-sm text-muted-foreground space-y-1.5 list-decimal list-inside mb-4">
-                        <li>
-                          Click{" "}
-                          <span className="font-semibold text-foreground">
-                            More info
-                          </span>
-                        </li>
-                        <li>
-                          Click{" "}
-                          <span className="font-semibold text-foreground">
-                            Run anyway
-                          </span>
-                        </li>
-                      </ol>
-                      <Image
-                        src="/images/windows-smartscreen.jpg"
-                        alt="Windows SmartScreen bypass: click More info, then Run anyway"
-                        width={800}
-                        height={600}
-                        className="rounded-lg w-full max-h-96 object-contain"
-                      />
-                    </div>
+                    {isMac ? (
+                      <>
+                        <div className="border-t pt-4">
+                          <h3 className="font-medium text-foreground mb-3">
+                            Installation Walkthrough
+                          </h3>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            Watch the install walkthrough first. If macOS asks
+                            for approval, click{" "}
+                            <span className="font-semibold text-foreground">
+                              Open
+                            </span>{" "}
+                            in the prompt shown below.
+                          </p>
+                          <div className="mx-auto w-full max-w-3xl overflow-hidden rounded-xl border border-border/60 bg-muted/40">
+                            <div className="relative aspect-[1456/936] w-full">
+                              <video
+                                controls
+                                preload="metadata"
+                                className="absolute inset-0 h-full w-full bg-background object-contain">
+                                <source
+                                  src="/videos/mac-installer.mp4"
+                                  type="video/mp4"
+                                />
+                                <track kind="captions" />
+                              </video>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="border-t pt-4">
+                          <h3 className="font-medium text-foreground mb-2">
+                            If this Mac warning appears
+                          </h3>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            Click{" "}
+                            <span className="font-semibold text-foreground">
+                              Open
+                            </span>{" "}
+                            to continue.
+                          </p>
+                          <div className="mx-auto w-full max-w-[340px] overflow-hidden rounded-[2.5rem] bg-background">
+                            <Image
+                              src="/images/mac-exec-gate.jpg"
+                              alt="macOS security prompt asking whether to open SearchPoint"
+                              width={514}
+                              height={517}
+                              className="block h-auto w-full scale-[1.018] object-contain"
+                            />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="border-t pt-4">
+                        <h3 className="font-medium text-foreground mb-2">
+                          Windows SmartScreen Warning
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Windows may show a SmartScreen warning because
+                          SearchPoint is new and not yet widely recognized. To
+                          proceed:
+                        </p>
+                        <ol className="text-sm text-muted-foreground space-y-1.5 list-decimal list-inside mb-4">
+                          <li>
+                            Click{" "}
+                            <span className="font-semibold text-foreground">
+                              More info
+                            </span>
+                          </li>
+                          <li>
+                            Click{" "}
+                            <span className="font-semibold text-foreground">
+                              Run anyway
+                            </span>
+                          </li>
+                        </ol>
+                        <Image
+                          src="/images/windows-smartscreen.jpg"
+                          alt="Windows SmartScreen bypass: click More info, then Run anyway"
+                          width={800}
+                          height={600}
+                          className="rounded-lg w-full max-h-96 object-contain"
+                        />
+                      </div>
+                    )}
                   </div>
                 </DialogContent>
               </Dialog>

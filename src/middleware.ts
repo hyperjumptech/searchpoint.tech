@@ -5,6 +5,7 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const scseId = request.cookies.get("SCSE_ID");
+  const bypassLogin = process.env.BYPASS_LOGIN === "true";
 
   // Allow public routes without authentication
   if (pathname.startsWith("/docs/")) {
@@ -17,13 +18,13 @@ export function middleware(request: NextRequest) {
     });
   }
 
-  // If accessing /login and cookie exists, redirect to root
-  if (pathname === "/login" && scseId) {
+  // If accessing /login while authenticated or running locally, redirect to root
+  if (pathname === "/login" && (scseId || bypassLogin)) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
   // If accessing protected routes without cookie, redirect to login
-  if (pathname !== "/login" && !scseId) {
+  if (pathname !== "/login" && !scseId && !bypassLogin) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
