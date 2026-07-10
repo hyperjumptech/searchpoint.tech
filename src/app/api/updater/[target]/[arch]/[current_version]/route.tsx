@@ -25,6 +25,7 @@ export async function GET(
   try {
     const { current_version } = await params;
     const channel = request.nextUrl.searchParams.get("channel");
+    const company = request.nextUrl.searchParams.get("company") || "hyperjump";
     const metadataFile =
       channel === "internal" ? "metadata-internal.json" : "metadata.json";
 
@@ -43,14 +44,14 @@ export async function GET(
     // Fetch signatures from MinIO
     const baseUrl = `${env.UPDATER_BASE_URL}/releases/v${LATEST_VERSION}`;
     const [darwinSig, windowsSig, linuxSig] = await Promise.all([
-      fetch(`${baseUrl}/macos/${env.APP_NAME}.app.tar.gz.sig`).then((res) =>
-        res.text(),
+      fetch(`${baseUrl}/macos-${company}/${env.APP_NAME}.app.tar.gz.sig`).then(
+        (res) => res.text(),
       ),
       fetch(
-        `${baseUrl}/windows/${env.APP_NAME}_${LATEST_VERSION}_x64_en-US.msi.sig`,
+        `${baseUrl}/windows-${company}/${env.APP_NAME}_${LATEST_VERSION}_x64_en-US.msi.sig`,
       ).then((res) => res.text()),
       fetch(
-        `${baseUrl}/linux/${env.APP_NAME}_${LATEST_VERSION}_amd64.deb.sig`,
+        `${baseUrl}/linux-${company}/${env.APP_NAME}_${LATEST_VERSION}_amd64.deb.sig`,
       ).then((res) => res.text()),
     ]);
 
@@ -62,20 +63,20 @@ export async function GET(
       platforms: {
         ["darwin-aarch64"]: {
           signature: darwinSig,
-          url: `${baseUrl}/macos/${env.APP_NAME}.app.tar.gz`,
+          url: `${baseUrl}/macos-${company}/${env.APP_NAME}.app.tar.gz`,
         },
         ["windows-x86_64"]: {
           signature: windowsSig,
-          url: `${baseUrl}/windows/${env.APP_NAME}_${LATEST_VERSION}_x64_en-US.msi`,
+          url: `${baseUrl}/windows-${company}/${env.APP_NAME}_${LATEST_VERSION}_x64_en-US.msi`,
         },
         ["linux-x86_64"]: {
           signature: linuxSig,
-          url: `${baseUrl}/linux/${env.APP_NAME}_${LATEST_VERSION}_amd64.deb`,
+          url: `${baseUrl}/linux-${company}/${env.APP_NAME}_${LATEST_VERSION}_amd64.deb`,
         },
         ["macOS-download"]: {
           // this is a workaround to get the .dmg file instead of the .tar.gz
           signature: "",
-          url: `${baseUrl}/macos/${env.APP_NAME}_${LATEST_VERSION}_aarch64.dmg`,
+          url: `${baseUrl}/macos-${company}/${env.APP_NAME}_${LATEST_VERSION}_aarch64.dmg`,
         },
       },
     };
