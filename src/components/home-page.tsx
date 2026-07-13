@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { companyFromEmail } from "@/lib/company";
 import { osToUpdaterFormat } from "@/lib/detect-os";
 import { useUserStore } from "@/stores/user";
 import Image from "next/image";
@@ -64,9 +65,15 @@ export default function HomePageClient({
     setError("");
 
     const { target, arch } = osToUpdaterFormat(detectedOS);
+    const company = companyFromEmail(user.email);
 
     try {
-      const res = await fetch(`/api/updater/${target}/${arch}/0.0.0`);
+      // Pass company explicitly from the signed-in user's email — the browser
+      // knows this with certainty, unlike host-based derivation which depends
+      // on the reverse proxy correctly forwarding the original Host.
+      const res = await fetch(
+        `/api/updater/${target}/${arch}/0.0.0?company=${company}`,
+      );
       if (!res.ok) {
         setError("Download unavailable. Please try again later.");
         return;
