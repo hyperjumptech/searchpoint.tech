@@ -53,6 +53,16 @@ stages:
       - job: DeployToStaging
         displayName: "Deploy to Staging"
         steps:
+          # Update package.json version
+          - script: |
+              node -e "
+                const fs = require('fs');
+                const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+                pkg.version = '$(Build.BuildId)-rc';
+                fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+              "
+            displayName: "Update package.json version for staging"
+
           # Build image
           # Needs separate step because build arguments are not supported in Docker@2 buildAndPush
           - task: Docker@2
@@ -198,6 +208,16 @@ stages:
               sudo cat /tmp/openvpn.log
               exit 1
             displayName: "Connect to OpenVPN"
+
+          # Update package.json version
+          - script: |
+              node -e "
+                const fs = require('fs');
+                const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+                pkg.version = '$(VERSION_TAG)';
+                fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+              "
+            displayName: "Update package.json version for production"
 
           # Build image
           - task: Docker@2

@@ -14,6 +14,7 @@ import { useUserStore } from "@/stores/user";
 import Image from "next/image";
 import { Download, Search, ShieldCheck, Lock } from "lucide-react";
 import { useState } from "react";
+import packageInfo from "../../package.json";
 
 function getPlatformLabel(os: string) {
   if (os.startsWith("darwin")) return "macOS";
@@ -284,6 +285,11 @@ export default function HomePageClient({
           description="Results honor Microsoft 365 ACLs and filesystem rights. No one can see files they don't have access to."
         />
       </section>
+
+      {/* Version Tag */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/30 select-none blur-[0.3px] hover:blur-none transition-all duration-200">
+        v{packageInfo.version}
+      </div>
     </main>
   );
 }
