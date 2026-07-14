@@ -260,7 +260,35 @@ Trigger: Push to main OR tag creation
 │ 8. Update .env with version tag                         │
 │ 9. Docker compose up -d                                 │
 └─────────────────────────────────────────────────────────┘
+                         │
+                         ↓
+┌─────────────────────────────────────────────────────────┐
+│ Stage 4: Release to SMDV (tags ending in -smdv only)     │
+├─────────────────────────────────────────────────────────┤
+│ 1. Parse version tag (strip 'v' prefix)                 │
+│ 2. Update package.json version                          │
+│ 3. Build SMDV Docker image                               │
+│    - Tag: {version} only (no latest)                    │
+│    - No build args (no NEXT_PUBLIC_* vars in the app)    │
+│ 4. Push to Azure Container Registry                      │
+│ 5. Install WireGuard & connect to SMDV network            │
+│ 6. SSH to SMDV app server                                 │
+│ 7. Update services/frontend/.env with version tag        │
+│ 8. Docker compose up -d (yml + override + ports files)   │
+│ 9. Disconnect WireGuard (always, even on failure)         │
+└─────────────────────────────────────────────────────────┘
 ```
+
+Notes:
+
+- `Release to SMDV` is triggered by tags matching `v*-smdv` (e.g. `v1.2.3-smdv`) and is mutually
+  exclusive with `Release to Production` — an `-smdv` tag is explicitly excluded from the
+  Production stage's condition, so a single tag only ever deploys to one target.
+- Unlike Staging/Production, the SMDV stage connects over WireGuard (not OpenVPN) using the shared
+  `scse-wireguard-smdv` variable group, and reuses the backend's
+  `smdv_searchpoint_app_server_ssh` SSH service connection.
+- The SMDV image is pushed to the same ACR repository (`scse/search-ui-web`) as Staging/Production,
+  distinguished only by tag — it never pushes `latest`, so it can't clobber the production image.
 
 ### Environment Management
 
@@ -282,6 +310,14 @@ Production:
   - Tags: {version}, latest
   - E2E tests required
   - Backend: Production API
+
+SMDV:
+  - Docker container, deployed via WireGuard tunnel
+  - Deployed on tag creation matching v*-smdv (e.g., v1.0.0-smdv)
+  - Tag: {version} only (no latest)
+  - Runtime env (APP_NAME, BACKEND_BASE_URL, AUTH_BASE_URL, UPDATER_BASE_URL) set via
+    services/frontend/.env on the SMDV host
+  - Backend: SMDV tenant API
 ```
 
 ### Deployment Commands
@@ -377,6 +413,11 @@ git push origin main
 git tag v1.0.0
 git push origin v1.0.0
 # Triggers production deployment with E2E tests
+
+# SMDV release
+git tag v1.0.0-smdv
+git push origin v1.0.0-smdv
+# Triggers SMDV deployment over WireGuard; does not touch staging or production
 ```
 
 ### Project Scripts
