@@ -3,6 +3,7 @@
 import Hero from "@/components/hero";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -47,9 +48,11 @@ function getInstallSteps(os: string) {
 export default function HomePageClient({
   detectedOS,
   isMobile,
+  isGoogleChrome,
 }: {
   detectedOS: string;
   isMobile: boolean;
+  isGoogleChrome: boolean;
 }) {
   const { user } = useUserStore();
   const [downloaded, setDownloaded] = useState(false);
@@ -98,7 +101,7 @@ export default function HomePageClient({
         setTimeout(() => {
           setDownloaded(true);
           if (isMac || isWindows) setShowTutorial(true);
-        }, 400);
+        }, 200);
       } else {
         setError("No download available for your platform.");
       }
@@ -119,7 +122,7 @@ export default function HomePageClient({
               SearchPoint Desktop is available on Windows, macOS, and Linux.
             </p>
           ) : downloaded ? (
-            <div className="flex flex-col items-center gap-4 animate-in fade-in duration-500">
+            <div className="flex flex-col items-center gap-4 animate-in fade-in duration-200 motion-reduce:animate-none">
               <h2 className="text-xl font-semibold text-foreground">
                 Installing on {platformLabel}
               </h2>
@@ -142,7 +145,15 @@ export default function HomePageClient({
                 ))}
               </ol>
               <Dialog open={showTutorial} onOpenChange={setShowTutorial}>
-                <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogContent
+                  tabIndex={-1}
+                  onOpenAutoFocus={(event) => {
+                    event.preventDefault();
+                    (event.currentTarget as HTMLElement).focus({
+                      preventScroll: true,
+                    });
+                  }}
+                  className="max-h-[90vh] max-w-[calc(100%-1rem)] overflow-y-auto p-3 motion-reduce:animate-none sm:max-w-4xl sm:p-6">
                   <DialogHeader>
                     <DialogTitle>Installing on {platformLabel}</DialogTitle>
                     <DialogDescription>
@@ -161,6 +172,34 @@ export default function HomePageClient({
                         ))}
                       </ol>
                     </div>
+                    {isWindows && isGoogleChrome && (
+                      <div className="border-t pt-4">
+                        <h3 className="mb-2 font-medium text-foreground">
+                          If Chrome blocks the download
+                        </h3>
+                        <p className="mb-3 text-sm text-muted-foreground">
+                          Select{" "}
+                          <span className="font-semibold text-foreground">
+                            Keep
+                          </span>{" "}
+                          in Chrome, then choose{" "}
+                          <span className="font-semibold text-foreground">
+                            Keep anyway
+                          </span>{" "}
+                          if prompted.
+                        </p>
+                        <figure className="mx-auto w-full max-w-[359px] overflow-hidden rounded-xl border border-border/60 bg-muted/40 p-1.5 shadow-sm">
+                          <Image
+                            src="/images/chrome-smart-screen.png"
+                            alt="Chrome download warning with the Keep menu highlighted"
+                            width={359}
+                            height={147}
+                            sizes="(max-width: 640px) calc(100vw - 2.5rem), 359px"
+                            className="block h-auto w-full rounded-md"
+                          />
+                        </figure>
+                      </div>
+                    )}
                     {isMac ? (
                       <>
                         <div className="border-t pt-4">
@@ -213,37 +252,47 @@ export default function HomePageClient({
                         </div>
                       </>
                     ) : (
-                      <div className="border-t pt-4">
-                        <h3 className="font-medium text-foreground mb-2">
-                          Windows SmartScreen Warning
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Windows may show a SmartScreen warning because
-                          SearchPoint is new and not yet widely recognized. To
-                          proceed:
-                        </p>
-                        <ol className="text-sm text-muted-foreground space-y-1.5 list-decimal list-inside mb-4">
-                          <li>
-                            Click{" "}
-                            <span className="font-semibold text-foreground">
-                              More info
-                            </span>
-                          </li>
-                          <li>
-                            Click{" "}
-                            <span className="font-semibold text-foreground">
-                              Run anyway
-                            </span>
-                          </li>
-                        </ol>
-                        <Image
-                          src="/images/windows-smartscreen.jpg"
-                          alt="Windows SmartScreen bypass: click More info, then Run anyway"
-                          width={800}
-                          height={600}
-                          className="rounded-lg w-full max-h-96 object-contain"
-                        />
-                      </div>
+                      <>
+                        <div className="border-t pt-4">
+                          <h3 className="font-medium text-foreground mb-2">
+                            Windows SmartScreen Warning
+                          </h3>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            Windows may show a SmartScreen warning because
+                            SearchPoint is new and not yet widely recognized. To
+                            proceed:
+                          </p>
+                          <ol className="text-sm text-muted-foreground space-y-1.5 list-decimal list-inside mb-4">
+                            <li>
+                              Click{" "}
+                              <span className="font-semibold text-foreground">
+                                More info
+                              </span>
+                            </li>
+                            <li>
+                              Click{" "}
+                              <span className="font-semibold text-foreground">
+                                Run anyway
+                              </span>
+                            </li>
+                          </ol>
+                          <figure className="mx-auto w-full max-w-2xl overflow-hidden rounded-xl border border-border/60 bg-muted/40 p-1.5 shadow-sm">
+                            <Image
+                              src="/images/windows-smartscreen.jpg"
+                              alt="Windows SmartScreen warning showing More info, then Run anyway"
+                              width={1295}
+                              height={1214}
+                              sizes="(max-width: 640px) calc(100vw - 2.5rem), 42rem"
+                              className="block h-auto w-full max-h-[28rem] object-contain"
+                            />
+                          </figure>
+                        </div>
+                        <div className="flex justify-end border-t pt-4">
+                          <DialogClose className="inline-flex min-h-11 items-center justify-center rounded-lg border border-border bg-background px-4 text-sm font-medium transition-[background-color,box-shadow,transform] duration-200 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98] motion-reduce:transform-none motion-reduce:transition-none">
+                            Done
+                          </DialogClose>
+                        </div>
+                      </>
                     )}
                   </div>
                 </DialogContent>
@@ -251,11 +300,11 @@ export default function HomePageClient({
             </div>
           ) : (
             <div
-              className={`flex flex-col items-center gap-3 transition-opacity duration-400 ${fading ? "opacity-0" : "opacity-100"}`}>
+              className={`flex flex-col items-center gap-3 transition-opacity duration-200 motion-reduce:transition-none ${fading ? "opacity-0" : "opacity-100"}`}>
               <button
                 onClick={handleDownload}
-                className="group relative px-8 py-4 bg-primary text-primary-foreground text-lg font-medium rounded-xl shadow-lg shadow-primary/20 transition-all duration-200 cursor-pointer hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-3">
-                <Download className="h-5 w-5 transition-transform group-hover:-translate-y-0.5" />
+                className="group relative flex items-center gap-3 rounded-xl bg-primary px-8 py-4 text-lg font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] motion-reduce:transform-none motion-reduce:transition-none cursor-pointer">
+                <Download className="h-5 w-5 transition-transform group-hover:-translate-y-0.5 motion-reduce:transform-none motion-reduce:transition-none" />
                 Download for {platformLabel}
               </button>
               <span className="text-sm text-muted-foreground">

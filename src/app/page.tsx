@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { detectOSFromUA } from "@/lib/detect-os";
+import { detectOSFromUA, hasGoogleChromeBrand } from "@/lib/detect-os";
 import HomePageClient from "@/components/home-page";
 
 export default async function HomePage() {
@@ -7,6 +7,13 @@ export default async function HomePage() {
   const ua = headersList.get("user-agent") || "";
   const detectedOS = detectOSFromUA(ua);
   const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+  const isGoogleChrome = hasGoogleChromeBrand(headersList.get("sec-ch-ua"));
 
-  return <HomePageClient detectedOS={detectedOS} isMobile={isMobile} />;
+  return (
+    <HomePageClient
+      detectedOS={detectedOS}
+      isMobile={isMobile}
+      isGoogleChrome={isGoogleChrome}
+    />
+  );
 }

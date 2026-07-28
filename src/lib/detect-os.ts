@@ -8,6 +8,12 @@ export function detectOSFromUA(userAgent: string): string {
   return "darwin-aarch64";
 }
 
+export function hasGoogleChromeBrand(secChUa: string | null): boolean {
+  if (!secChUa) return false;
+
+  return /(?:^|,)\s*"Google Chrome"(?=\s*(?:;|,|$))/.test(secChUa);
+}
+
 export function detectOS(): string {
   if (typeof window === "undefined") return "darwin-aarch64";
   return detectOSFromUA(window.navigator.userAgent);
