@@ -12,7 +12,8 @@
     "test:e2e:headed": "playwright test --headed -c playwright.config.ts",
     "test:e2e:ui": "playwright test --ui -c playwright.config.ts",
     "test:e2e:report": "playwright show-report",
-    "review-pr": "bun .claude/review-pr/review-pr.ts"
+    "review-pr": "bun .agents/scripts/review-pr.ts",
+    "create-pr": "bun .agents/scripts/create-pr.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
