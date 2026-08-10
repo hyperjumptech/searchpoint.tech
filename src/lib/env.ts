@@ -14,7 +14,6 @@ const schema = z.object({
     .url()
     .optional()
     .default("https://nss-mr1-searchpoint.nos.wjv-1.neo.id"),
-  CURATION_MODEL_VERSION: z.string().optional().default("1"),
   CURATION_MODEL_FILENAME: z
     .string()
     .optional()
