@@ -17,14 +17,14 @@ const schema = z.object({
   CURATION_MODEL_FILENAME: z
     .string()
     .optional()
-    .default("qwen2.5-coder-0.5b-instruct-q4_k_m.gguf"),
+    .default("SmolLM2-1.7B-Instruct-Q4_K_M.gguf"),
   CURATION_MODEL_GGUF_SHA256: z
     .string()
     .optional()
     .default(
-      "0128e77564e43d40682f82d7ebe8a9abdf0c24c8f55fa85629f8cc156b1b6560",
+      "77665ea4815999596525c636fbeb56ba8b080b46ae85efef4f0d986a139834d7",
     ),
-  CURATION_MODEL_SIZE_BYTES: z.string().optional().default("397808288"),
+  CURATION_MODEL_SIZE_BYTES: z.string().optional().default("1055609824"),
 });
 
 export const env = schema.parse(process.env);
