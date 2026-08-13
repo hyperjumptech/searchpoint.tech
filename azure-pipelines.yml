@@ -99,7 +99,7 @@ stages:
 
   - stage: "ReleaseToProd"
     displayName: "Release to Production"
-    condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), not(endsWith(variables['Build.SourceBranch'], '-smdv')))
+    condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), not(endsWith(variables['Build.SourceBranch'], '-smdv')), not(endsWith(variables['Build.SourceBranch'], '-sinarmas')))
     jobs:
       - job: DeployToProduction
         displayName: "Deploy to Production"
@@ -412,3 +412,63 @@ stages:
               rm -rf "$(Agent.TempDirectory)/wireguard"
             displayName: "Disconnect WireGuard"
             condition: always()
+
+  - stage: "ReleaseToSinarmas"
+    displayName: "Release to Sinarmas"
+    condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), endsWith(variables['Build.SourceBranch'], '-sinarmas'))
+    jobs:
+      - job: DeployToSinarmas
+        displayName: "Deploy to Sinarmas"
+        steps:
+          # Strip the 'v' prefix from the tag e.g. v1.0.0-sinarmas -> 1.0.0-sinarmas
+          - bash: |
+              TAG=$(Build.SourceBranchName)
+              VERSION_TAG=${TAG#v}
+              echo "##vso[task.setvariable variable=VERSION_TAG]$VERSION_TAG"
+              echo "Original tag: $TAG"
+              echo "Version tag: $VERSION_TAG"
+            displayName: "Prepare version tag"
+
+          # Update package.json version
+          - script: |
+              node -e "
+                const fs = require('fs');
+                const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+                pkg.version = '$(VERSION_TAG)';
+                fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+              "
+            displayName: "Update package.json version for Sinarmas"
+
+          # Build image
+          # No build arguments needed here — the app has no NEXT_PUBLIC_* vars baked at build
+          # time. Per-tenant config (APP_NAME, BACKEND_BASE_URL, AUTH_BASE_URL, UPDATER_BASE_URL)
+          # is supplied purely at runtime via services/frontend/.env on the Sinarmas host.
+          - task: Docker@2
+            displayName: "Build Sinarmas docker image"
+            inputs:
+              containerRegistry: $(container_registry)
+              command: "build"
+              Dockerfile: "./Dockerfile"
+              repository: "scse/search-ui-web"
+              tags: |
+                $(VERSION_TAG)
+
+          # Push to ACR
+          - task: Docker@2
+            displayName: "Push Sinarmas docker image"
+            inputs:
+              containerRegistry: $(container_registry)
+              command: "push"
+              repository: "scse/search-ui-web"
+              tags: |
+                $(VERSION_TAG)
+
+          # Deploy step using SSH service connection (reused from backend)
+          - task: SSH@0
+            displayName: "Use SSH to connect to Sinarmas server"
+            inputs:
+              sshEndpoint: "sinarmas_searchpoint_app_server_ssh" # Name of the service connection
+              runOptions: inline
+              inline: |
+                sed -i "s/^FRONTEND_TAG=.*/FRONTEND_TAG=$(VERSION_TAG)/" services/frontend/.env
+                cd services/frontend && docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.ports.yml up -d --remove-orphans 2>&1
