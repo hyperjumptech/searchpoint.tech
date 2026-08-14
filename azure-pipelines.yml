@@ -416,6 +416,8 @@ stages:
   - stage: "ReleaseToSinarmas"
     displayName: "Release to Sinarmas"
     condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), endsWith(variables['Build.SourceBranch'], '-sinarmas'))
+    variables:
+      - group: scse-sinarmas-wireguard
     jobs:
       - job: DeployToSinarmas
         displayName: "Deploy to Sinarmas"
@@ -463,6 +465,98 @@ stages:
               tags: |
                 $(VERSION_TAG)
 
+          - script: |
+              sudo apt-get update
+              sudo apt-get install -y wireguard-tools wireguard-go python3-jinja2
+            displayName: "Install WireGuard dependencies"
+
+          - bash: |
+              set -euo pipefail
+
+              WG_WORKDIR="$(Agent.TempDirectory)/wireguard"
+              mkdir -p "$WG_WORKDIR"
+              umask 077
+
+              python3 - <<'PY'
+              import os
+              from pathlib import Path
+              from textwrap import dedent
+              from jinja2 import Template
+
+              def wg_env(key, default=""):
+                  val = os.environ.get(key, default)
+                  if val.startswith("$(") and val.endswith(")"):
+                      return default
+                  return val
+
+              context = {
+                  "wireguard_address": os.environ["WIREGUARD_ADDRESS"],
+                  "wireguard_private_key": os.environ["WIREGUARD_PRIVATE_KEY"],
+                  "wireguard_dns": wg_env("WIREGUARD_DNS"),
+                  "wireguard_peer_public_key": os.environ["WIREGUARD_PEER_PUBLIC_KEY"],
+                  "wireguard_preshared_key": wg_env("WIREGUARD_PRESHARED_KEY"),
+                  "wireguard_endpoint": os.environ["WIREGUARD_ENDPOINT"],
+                  "wireguard_allowed_ips": wg_env("WIREGUARD_ALLOWED_IPS", "0.0.0.0/0"),
+                  "wireguard_persistent_keepalive": wg_env("WIREGUARD_PERSISTENT_KEEPALIVE", "25"),
+              }
+
+              template = Template(dedent("""\
+              [Interface]
+              Address = {{ wireguard_address }}
+              PrivateKey = {{ wireguard_private_key }}
+              {% if wireguard_dns %}
+              DNS = {{ wireguard_dns }}
+              {% endif %}
+
+              [Peer]
+              PublicKey = {{ wireguard_peer_public_key }}
+              {% if wireguard_preshared_key %}
+              PresharedKey = {{ wireguard_preshared_key }}
+              {% endif %}
+              Endpoint = {{ wireguard_endpoint }}
+              AllowedIPs = {{ wireguard_allowed_ips }}
+              PersistentKeepalive = {{ wireguard_persistent_keepalive }}
+              """))
+              rendered = template.render(**context).strip() + "\n"
+              Path(os.path.join(os.environ["WG_WORKDIR"], "wg0.conf")).write_text(rendered, encoding="utf-8")
+              PY
+
+              sudo install -d -m 700 /etc/wireguard
+              sudo install -m 600 "$WG_WORKDIR/wg0.conf" /etc/wireguard/wg0.conf
+            env:
+              WG_WORKDIR: $(Agent.TempDirectory)/wireguard
+              WIREGUARD_ADDRESS: $(WIREGUARD_ADDRESS)
+              WIREGUARD_PRIVATE_KEY: $(WIREGUARD_PRIVATE_KEY)
+              WIREGUARD_DNS: $(WIREGUARD_DNS)
+              WIREGUARD_PEER_PUBLIC_KEY: $(WIREGUARD_PEER_PUBLIC_KEY)
+              WIREGUARD_PRESHARED_KEY: $(WIREGUARD_PRESHARED_KEY)
+              WIREGUARD_ENDPOINT: $(WIREGUARD_ENDPOINT)
+              WIREGUARD_ALLOWED_IPS: $(WIREGUARD_ALLOWED_IPS)
+              WIREGUARD_PERSISTENT_KEEPALIVE: $(WIREGUARD_PERSISTENT_KEEPALIVE)
+            displayName: "Render WireGuard configuration"
+
+          - bash: |
+              set -euo pipefail
+
+              echo "Starting WireGuard tunnel with wireguard-go..."
+              sudo ip link delete dev wg0 2>/dev/null || true
+              sudo WG_QUICK_USERSPACE_IMPLEMENTATION=wireguard-go wg-quick up wg0
+
+              echo "Waiting for WireGuard interface..."
+              for i in {1..30}; do
+                if ip addr show wg0 > /dev/null 2>&1; then
+                  echo "WireGuard interface is up after $i seconds"
+                  ip addr show wg0
+                  sudo wg show
+                  exit 0
+                fi
+                sleep 1
+              done
+
+              echo "WireGuard interface did not come up within 30 seconds"
+              exit 1
+            displayName: "Connect via WireGuard"
+
           # Deploy step using SSH service connection (reused from backend)
           - task: SSH@0
             displayName: "Use SSH to connect to Sinarmas server"
@@ -472,3 +566,10 @@ stages:
               inline: |
                 sed -i "s/^FRONTEND_TAG=.*/FRONTEND_TAG=$(VERSION_TAG)/" services/frontend/.env
                 cd services/frontend && docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.ports.yml up -d --remove-orphans 2>&1
+
+          - script: |
+              sudo wg-quick down wg0 || sudo ip link delete dev wg0 || true
+              sudo rm -f /etc/wireguard/wg0.conf
+              rm -rf "$(Agent.TempDirectory)/wireguard"
+            displayName: "Disconnect WireGuard"
+            condition: always()
