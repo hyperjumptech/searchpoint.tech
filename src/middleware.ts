@@ -1,11 +1,12 @@
 // middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { isLoginBypassEnabled } from "@/lib/is-login-bypass-enabled";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const scseId = request.cookies.get("SCSE_ID");
-  const bypassLogin = process.env.BYPASS_LOGIN === "true";
+  const bypassLogin = isLoginBypassEnabled();
 
   // Allow public routes without authentication
   if (pathname.startsWith("/docs/")) {

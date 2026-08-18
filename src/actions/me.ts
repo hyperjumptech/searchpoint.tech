@@ -1,4 +1,5 @@
 import { fetcher } from "@/lib/fetcher";
+import { isLoginBypassEnabled } from "@/lib/is-login-bypass-enabled";
 
 type Value = {
   email?: string;
@@ -12,10 +13,7 @@ type Result = {
 };
 
 export async function getMe(): Promise<Result | null> {
-  if (
-    process.env.NODE_ENV === "development" &&
-    process.env.BYPASS_LOGIN === "true"
-  ) {
+  if (isLoginBypassEnabled()) {
     return {
       email: "dev@searchpoint.local",
       name: "Dev User",

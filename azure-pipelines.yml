@@ -40,9 +40,8 @@ stages:
           - script: bun run lint
             displayName: "Run Static Code Analysis"
 
-          # TODO: Enable tests when they are available
-          # - script: bun test
-          #   displayName: "Test the application"
+          - script: bun run test
+            displayName: "Test the application"
 
           - script: bun run build
             displayName: "Build the application"
