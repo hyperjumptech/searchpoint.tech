@@ -56,6 +56,8 @@ export const config = {
     "/search",
     "/image",
     "/docs/:path*",
-    // Add other routes as needed
+    // /api is intentionally omitted. Desktop auto-update and the curation
+    // model manifest must stay reachable without a session cookie. Those
+    // handlers apply their own per-IP rate limits.
   ],
 };

@@ -1,4 +1,5 @@
 import { env } from "@/lib/env";
+import { applyPublicApiRateLimit, limiterForScope } from "@/lib/rate-limit";
 import { NextRequest, NextResponse } from "next/server";
 
 interface TauriUpdateResponse {
@@ -22,6 +23,14 @@ export async function GET(
     params: Promise<{ target: string; arch: string; current_version: string }>;
   },
 ) {
+  const rateLimited = await applyPublicApiRateLimit(
+    request,
+    limiterForScope("updater"),
+  );
+  if (rateLimited) {
+    return rateLimited;
+  }
+
   try {
     const { current_version } = await params;
 

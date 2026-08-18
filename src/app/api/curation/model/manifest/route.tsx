@@ -1,4 +1,5 @@
 import { env } from "@/lib/env";
+import { applyPublicApiRateLimit, limiterForScope } from "@/lib/rate-limit";
 import { NextRequest, NextResponse } from "next/server";
 
 interface ModelManifestResponse {
@@ -8,7 +9,15 @@ interface ModelManifestResponse {
   size_bytes: number;
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
+  const rateLimited = await applyPublicApiRateLimit(
+    request,
+    limiterForScope("manifest"),
+  );
+  if (rateLimited) {
+    return rateLimited;
+  }
+
   try {
     const filename = env.CURATION_MODEL_FILENAME;
     const gguf_sha256 = env.CURATION_MODEL_GGUF_SHA256;
