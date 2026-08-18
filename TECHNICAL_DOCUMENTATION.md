@@ -525,7 +525,8 @@ import pinoHttp from "pino-http";
 | ------------------ | ------------------------------------------ | -------- | ---------------------------------------------- |
 | `BACKEND_BASE_URL` | Backend API URL                            | No       | `https://api.searchpoint.hyperjump.tech`       |
 | `UPDATER_BASE_URL` | Updater URL                                | No       | `https://nss-mr1-searchpoint.nos.wjv-1.neo.id` |
-| `APP_NAME`         | Application name for desktop app downloads | No       | `SearchPoint`                                  |
+| `APP_NAME`          | Application name for desktop app downloads | No       | `SearchPoint`                                  |
+| `ENABLE_MAGIC_LINK` | Toggle magic link email login feature      | No       | `true` / `false` (default: `false`)            |
 
 ### Browser Support
 

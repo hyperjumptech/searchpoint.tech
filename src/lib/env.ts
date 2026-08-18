@@ -25,6 +25,15 @@ const schema = z.object({
       "77665ea4815999596525c636fbeb56ba8b080b46ae85efef4f0d986a139834d7",
     ),
   CURATION_MODEL_SIZE_BYTES: z.string().optional().default("1055609824"),
+  ENABLE_MAGIC_LINK: z
+    .preprocess((val) => {
+      if (typeof val === "boolean") return val;
+      if (typeof val === "string") {
+        return val.toLowerCase() === "true" || val === "1";
+      }
+      return false;
+    }, z.boolean())
+    .default(false),
 });
 
 export const env = schema.parse(process.env);
