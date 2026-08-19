@@ -1,7 +1,10 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 import * as fs from "fs";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import { notFound } from "next/navigation";
 import * as path from "path";
+
+export const dynamicParams = false;
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -22,16 +25,32 @@ function Container({
   );
 }
 
-async function getDocContent(slug: string) {
-  const docsPublicPath = path.join(process.cwd(), "src", "docs", "public");
-  const mdFilePath = path.join(docsPublicPath, `${slug}.md`);
-  const mdxFilePath = path.join(docsPublicPath, `${slug}.mdx`);
-  let filePath: string;
+function resolveDocPath(docsPublicPath: string, slug: string) {
+  const candidates = [
+    path.resolve(docsPublicPath, `${slug}.md`),
+    path.resolve(docsPublicPath, `${slug}.mdx`),
+  ];
+  const containmentPrefix = docsPublicPath + path.sep;
 
-  if (fs.existsSync(mdFilePath)) {
-    filePath = mdFilePath;
-  } else {
-    filePath = mdxFilePath;
+  for (const candidate of candidates) {
+    if (!candidate.startsWith(containmentPrefix)) {
+      continue;
+    }
+
+    if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+async function getDocContent(slug: string) {
+  const docsPublicPath = path.resolve(process.cwd(), "src", "docs", "public");
+  const filePath = resolveDocPath(docsPublicPath, slug);
+
+  if (!filePath) {
+    notFound();
   }
 
   const fileContent = fs.readFileSync(filePath, "utf-8");
@@ -95,11 +114,15 @@ export default async function DocsPage({ params }: Props) {
 }
 
 export async function generateStaticParams() {
-  const dirPath = path.join(process.cwd(), "src", "docs", "public");
-  const source = fs.readdirSync(dirPath);
-  const files = source.filter((s) => s.includes(".mdx") || s.includes(".md"));
+  const dirPath = path.resolve(process.cwd(), "src", "docs", "public");
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+  const files = entries.filter(
+    (entry) =>
+      entry.isFile() &&
+      (entry.name.endsWith(".md") || entry.name.endsWith(".mdx")),
+  );
 
-  return files.map((s) => ({
-    slug: s.replaceAll(".mdx", "").replaceAll(".md", ""),
+  return files.map((entry) => ({
+    slug: entry.name.replace(/\.mdx?$/, ""),
   }));
 }
