@@ -1,17 +1,32 @@
-// Same domain rule as the desktop app (company_from_email in
-// src-tauri/src/utils/constants.rs) and the updater route's host fallback:
-// an @smdv.com user belongs to smdv, @hyperjump.tech to hyperjump,
-// and everyone else to sinarmas.
 export type Company = "hyperjump" | "smdv" | "sinarmas";
 
-export function companyFromEmail(email?: string | null): Company {
-  const domain = email?.toLowerCase().split("@")[1] ?? "";
-  if (!domain) return "hyperjump";
-  if (domain === "smdv.com" || domain.endsWith(".smdv.com")) {
+export function companyFromHostname(hostname?: string | null): Company {
+  const host = hostname?.toLowerCase().split(":")[0] ?? "";
+  if (!host) return "hyperjump";
+  if (host === "smdv.com" || host.endsWith(".smdv.com")) {
     return "smdv";
   }
-  if (domain === "hyperjump.tech" || domain.endsWith(".hyperjump.tech")) {
-    return "hyperjump";
+  if (
+    host === "searchpoint.sinarmas.hyperjump.tech" ||
+    host.endsWith(".sinarmas.hyperjump.tech") ||
+    host.includes("sinarmas")
+  ) {
+    return "sinarmas";
   }
-  return "sinarmas";
+  return "hyperjump";
+}
+
+export function getCompanyAppName(
+  company: Company,
+  baseName = "SearchPoint",
+): string {
+  switch (company) {
+    case "sinarmas":
+      return `${baseName}-Sinarmas`;
+    case "smdv":
+      return `${baseName}-SMDV`;
+    case "hyperjump":
+    default:
+      return `${baseName}-Hyperjump`;
+  }
 }

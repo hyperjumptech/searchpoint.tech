@@ -1,18 +1,47 @@
+import { Company, companyFromHostname, getCompanyAppName } from "@/lib/company";
 import { env } from "@/lib/env";
 import { applyPublicApiRateLimit, limiterForScope } from "@/lib/rate-limit";
 import { NextRequest, NextResponse } from "next/server";
+
+interface TauriPlatformUpdate {
+  signature: string;
+  url: string;
+}
 
 interface TauriUpdateResponse {
   version: string;
   notes: string;
   pub_date: string;
   needReindex: boolean;
-  platforms: {
-    [key: string]: {
-      signature: string;
-      url: string;
-    };
-  };
+  platforms: Record<string, TauriPlatformUpdate>;
+}
+
+interface ReleaseMetadata {
+  LATEST_VERSION: string;
+  RELEASE_DATE: string;
+  NEED_REINDEX: boolean;
+  RELEASE_NOTES: string[];
+}
+
+function resolveCompany(request: NextRequest): Company {
+  const queryCompany = request.nextUrl.searchParams.get("company");
+  if (
+    queryCompany === "smdv" ||
+    queryCompany === "sinarmas" ||
+    queryCompany === "hyperjump"
+  ) {
+    return queryCompany;
+  }
+
+  // Fall back to the hostname when ?company= is not provided (e.g. direct API calls
+  // or default updater config). x-forwarded-host first: sites sit behind a proxy.
+  const host = request.headers.get("x-forwarded-host") ?? request.nextUrl.host;
+  return companyFromHostname(host);
+}
+
+async function fetchSignature(assetUrl: string): Promise<string> {
+  const res = await fetch(`${assetUrl}.sig`);
+  return res.text();
 }
 
 export async function GET(
@@ -33,81 +62,64 @@ export async function GET(
 
   try {
     const { current_version } = await params;
-
-    // A request with no ?company= is either a first-time download from the
-    // website or an app built before COMPANY existed. Defaulting to hyperjump
-    // hands SMDV/Sinarmas users the wrong build, so fall back to the host that was
-    // actually asked. x-forwarded-host first: sites sit behind a proxy.
-    const host =
-      request.headers.get("x-forwarded-host") ?? request.nextUrl.host ?? "";
-    const hostname = host.toLowerCase().split(":")[0];
-    const company =
-      request.nextUrl.searchParams.get("company") ||
-      (hostname === "smdv.com" || hostname.endsWith(".smdv.com")
-        ? "smdv"
-        : hostname === "searchpoint.sinarmas.hyperjump.tech" ||
-            hostname.endsWith(".sinarmas.hyperjump.tech") ||
-            hostname.includes("sinarmas")
-          ? "sinarmas"
-          : "hyperjump");
+    const company = resolveCompany(request);
 
     // hyperjump ships from main -> metadata-internal.json
     // smdv and sinarmas ship from tags -> metadata.json
     const metadataFile =
       company === "hyperjump" ? "metadata-internal.json" : "metadata.json";
 
-    const metadata = await fetch(
+    const metadataRes = await fetch(
       `${env.UPDATER_BASE_URL}/releases/${metadataFile}`,
     );
-    const metadataResponse = await metadata.json();
-    const { LATEST_VERSION, RELEASE_DATE, NEED_REINDEX, RELEASE_NOTES } =
-      metadataResponse;
+    const {
+      LATEST_VERSION,
+      RELEASE_DATE,
+      NEED_REINDEX,
+      RELEASE_NOTES,
+    }: ReleaseMetadata = await metadataRes.json();
 
     // Check if there's a newer version available
     if (current_version === LATEST_VERSION) {
       return new NextResponse(null, { status: 204 });
     }
 
-    // Fetch signatures from MinIO
     const baseUrl = `${env.UPDATER_BASE_URL}/releases/v${LATEST_VERSION}`;
-    const macosFolder = company === "smdv" ? "macos" : `macos-${company}`;
-    const windowsFolder = company === "smdv" ? "windows" : `windows-${company}`;
-    const linuxFolder = company === "smdv" ? "linux" : `linux-${company}`;
+    const appName = getCompanyAppName(company, env.APP_NAME);
+
+    const macosAssetUrl = `${baseUrl}/macos/${appName}.app.tar.gz`;
+    const windowsAssetUrl = `${baseUrl}/windows/${appName}_${LATEST_VERSION}_x64_en-US.msi`;
+    const linuxAssetUrl = `${baseUrl}/linux/${appName}_${LATEST_VERSION}_amd64.deb`;
+    const macosDmgUrl = `${baseUrl}/macos/${appName}_${LATEST_VERSION}_aarch64.dmg`;
 
     const [darwinSig, windowsSig, linuxSig] = await Promise.all([
-      fetch(`${baseUrl}/${macosFolder}/${env.APP_NAME}.app.tar.gz.sig`).then(
-        (res) => res.text(),
-      ),
-      fetch(
-        `${baseUrl}/${windowsFolder}/${env.APP_NAME}_${LATEST_VERSION}_x64_en-US.msi.sig`,
-      ).then((res) => res.text()),
-      fetch(
-        `${baseUrl}/${linuxFolder}/${env.APP_NAME}_${LATEST_VERSION}_amd64.deb.sig`,
-      ).then((res) => res.text()),
+      fetchSignature(macosAssetUrl),
+      fetchSignature(windowsAssetUrl),
+      fetchSignature(linuxAssetUrl),
     ]);
 
     const updateResponse: TauriUpdateResponse = {
       version: LATEST_VERSION,
-      notes: RELEASE_NOTES.map((note: string) => `- ${note}`).join("\n"),
+      notes: RELEASE_NOTES.map((note) => `- ${note}`).join("\n"),
       pub_date: RELEASE_DATE,
       needReindex: NEED_REINDEX,
       platforms: {
-        ["darwin-aarch64"]: {
+        "darwin-aarch64": {
           signature: darwinSig,
-          url: `${baseUrl}/${macosFolder}/${env.APP_NAME}.app.tar.gz`,
+          url: macosAssetUrl,
         },
-        ["windows-x86_64"]: {
+        "windows-x86_64": {
           signature: windowsSig,
-          url: `${baseUrl}/${windowsFolder}/${env.APP_NAME}_${LATEST_VERSION}_x64_en-US.msi`,
+          url: windowsAssetUrl,
         },
-        ["linux-x86_64"]: {
+        "linux-x86_64": {
           signature: linuxSig,
-          url: `${baseUrl}/${linuxFolder}/${env.APP_NAME}_${LATEST_VERSION}_amd64.deb`,
+          url: linuxAssetUrl,
         },
-        ["macOS-download"]: {
-          // this is a workaround to get the .dmg file instead of the .tar.gz
+        "macOS-download": {
+          // Workaround to get the .dmg file instead of the .tar.gz
           signature: "",
-          url: `${baseUrl}/${macosFolder}/${env.APP_NAME}_${LATEST_VERSION}_aarch64.dmg`,
+          url: macosDmgUrl,
         },
       },
     };

@@ -21,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { companyFromEmail } from "@/lib/company";
+import { companyFromHostname } from "@/lib/company";
 import { detectOS, osToUpdaterFormat } from "@/lib/detect-os";
 import { useUserStore } from "@/stores/user";
 import { cn } from "@/lib/utils";
@@ -31,8 +31,6 @@ export default function Navbar() {
   const [showLinuxModal, setShowLinuxModal] = useState(false);
 
   const handleDownload = async () => {
-    if (!user?.email) return;
-
     // Detect OS from browser
     const detectedOS = detectOS();
     if (detectedOS.startsWith("linux")) {
@@ -41,13 +39,11 @@ export default function Navbar() {
     }
 
     const { target, arch } = osToUpdaterFormat(detectedOS);
-    const company = companyFromEmail(user.email);
+    const company = companyFromHostname(
+      typeof window !== "undefined" ? window.location.hostname : "",
+    );
 
     try {
-      // Trigger download URL via updater API with dynamic OS. Pass company
-      // explicitly from the signed-in user's email — the browser knows this
-      // with certainty, unlike host-based derivation which depends on the
-      // reverse proxy correctly forwarding the original Host.
       const res = await fetch(
         `/api/updater/${target}/${arch}/0.1.1?company=${company}`,
       );
