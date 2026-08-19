@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { MicrosoftLoginModal } from "@/components/microsoft-login-modal";
 import { Input } from "@/components/ui/input";
 import { UnlockingAnimation } from "@/components/ui/unlocking-animation";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -29,6 +30,7 @@ export function LoginClient({
   isDev = false,
 }: LoginClientProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [showMicrosoftModal, setShowMicrosoftModal] = useState(false);
   const [showDevModal, setShowDevModal] = useState(false);
   const [devCallbackUrl, setDevCallbackUrl] = useState("");
   const [devError, setDevError] = useState("");
@@ -99,7 +101,7 @@ export function LoginClient({
 
           {!enableMagicLink ? (
             <Button
-              onClick={handleLogin}
+              onClick={() => setShowMicrosoftModal(true)}
               disabled={isLoading}
               className="rounded-full space-x-2 w-full py-6">
               <Image
@@ -148,7 +150,7 @@ export function LoginClient({
             <>
               <Button
                 variant="outline"
-                onClick={handleLogin}
+                onClick={() => setShowMicrosoftModal(true)}
                 disabled={isLoading || isSendingMagicLink}
                 className="w-full rounded-full py-6 space-x-2 text-base font-semibold">
                 <Image
@@ -326,6 +328,12 @@ export function LoginClient({
           </div>
         </DialogContent>
       </Dialog>
+
+      <MicrosoftLoginModal
+        open={showMicrosoftModal}
+        onOpenChange={setShowMicrosoftModal}
+        onContinue={handleLogin}
+      />
     </>
   );
 }
