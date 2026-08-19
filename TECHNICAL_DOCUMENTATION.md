@@ -318,6 +318,15 @@ SMDV:
   - Runtime env (APP_NAME, BACKEND_BASE_URL, AUTH_BASE_URL, UPDATER_BASE_URL) set via
     services/frontend/.env on the SMDV host
   - Backend: SMDV tenant API
+
+Sinarmas:
+  - Docker container, deployed via WireGuard tunnel
+  - Deployed on tag creation matching v*-sinarmas (e.g., v1.0.0-sinarmas)
+  - Tag: {version} only (no latest)
+  - Web URL: https://searchpoint.sinarmas.hyperjump.tech
+  - Runtime env (APP_NAME, BACKEND_BASE_URL, AUTH_BASE_URL, UPDATER_BASE_URL) set via
+    services/frontend/.env on the Sinarmas host
+  - Backend: Sinarmas tenant API
 ```
 
 ### Deployment Commands
@@ -418,6 +427,11 @@ git push origin v1.0.0
 git tag v1.0.0-smdv
 git push origin v1.0.0-smdv
 # Triggers SMDV deployment over WireGuard; does not touch staging or production
+
+# Sinarmas release
+git tag v1.0.0-sinarmas
+git push origin v1.0.0-sinarmas
+# Triggers Sinarmas deployment over WireGuard; does not touch staging or production
 ```
 
 ### Project Scripts

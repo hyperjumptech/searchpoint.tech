@@ -13,7 +13,7 @@ import { companyFromEmail } from "@/lib/company";
 import { osToUpdaterFormat } from "@/lib/detect-os";
 import { useUserStore } from "@/stores/user";
 import Image from "next/image";
-import { Download, Search, ShieldCheck, Lock } from "lucide-react";
+import { Clock, Download, Search, ShieldCheck, Lock } from "lucide-react";
 import { useState } from "react";
 import packageInfo from "../../package.json";
 
@@ -68,6 +68,11 @@ export default function HomePageClient({
     if (!user?.email || downloaded || fading) return;
     setError("");
 
+    if (isLinux) {
+      setError("Linux build is coming soon. Please check back later.");
+      return;
+    }
+
     const { target, arch } = osToUpdaterFormat(detectedOS);
     const company = companyFromEmail(user.email);
 
@@ -119,7 +124,8 @@ export default function HomePageClient({
         <div className="mt-10 flex flex-col items-center gap-3">
           {isMobile ? (
             <p className="text-sm text-muted-foreground">
-              SearchPoint Desktop is available on Windows, macOS, and Linux.
+              SearchPoint Desktop is available on Windows and macOS (Linux
+              coming soon).
             </p>
           ) : downloaded ? (
             <div className="flex flex-col items-center gap-4 animate-in fade-in duration-200 motion-reduce:animate-none">
@@ -297,6 +303,28 @@ export default function HomePageClient({
                   </div>
                 </DialogContent>
               </Dialog>
+            </div>
+          ) : isLinux ? (
+            <div
+              className={`flex flex-col items-center gap-3 transition-opacity duration-200 motion-reduce:transition-none ${fading ? "opacity-0" : "opacity-100"}`}>
+              <button
+                disabled
+                aria-disabled="true"
+                className="group relative flex items-center gap-3 rounded-xl bg-muted px-8 py-4 text-lg font-medium text-muted-foreground shadow-xs cursor-not-allowed opacity-80">
+                <Download className="h-5 w-5" />
+                Download for Linux (Coming Soon)
+              </button>
+              <div className="flex flex-col items-center gap-1.5 text-center max-w-md">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                  <Clock className="h-3.5 w-3.5" />
+                  Linux Coming Soon
+                </span>
+                <p className="text-sm text-muted-foreground">
+                  SearchPoint Desktop for Linux is currently in development.
+                  SearchPoint is available for Windows and macOS.
+                </p>
+              </div>
+              {error && <p className="text-sm text-destructive">{error}</p>}
             </div>
           ) : (
             <div

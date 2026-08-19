@@ -36,8 +36,8 @@ export async function GET(
 
     // A request with no ?company= is either a first-time download from the
     // website or an app built before COMPANY existed. Defaulting to hyperjump
-    // hands SMDV users the wrong build, so fall back to the host that was
-    // actually asked. x-forwarded-host first: both sites sit behind a proxy.
+    // hands SMDV/Sinarmas users the wrong build, so fall back to the host that was
+    // actually asked. x-forwarded-host first: sites sit behind a proxy.
     const host =
       request.headers.get("x-forwarded-host") ?? request.nextUrl.host ?? "";
     const hostname = host.toLowerCase().split(":")[0];
@@ -45,12 +45,16 @@ export async function GET(
       request.nextUrl.searchParams.get("company") ||
       (hostname === "smdv.com" || hostname.endsWith(".smdv.com")
         ? "smdv"
-        : "hyperjump");
+        : hostname === "searchpoint.sinarmas.hyperjump.tech" ||
+            hostname.endsWith(".sinarmas.hyperjump.tech") ||
+            hostname.includes("sinarmas")
+          ? "sinarmas"
+          : "hyperjump");
 
     // hyperjump ships from main -> metadata-internal.json
-    // smdv      ships from tags -> metadata.json
+    // smdv and sinarmas ship from tags -> metadata.json
     const metadataFile =
-      company === "smdv" ? "metadata.json" : "metadata-internal.json";
+      company === "hyperjump" ? "metadata-internal.json" : "metadata.json";
 
     const metadata = await fetch(
       `${env.UPDATER_BASE_URL}/releases/${metadataFile}`,
