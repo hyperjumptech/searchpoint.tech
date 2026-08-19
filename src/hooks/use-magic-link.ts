@@ -26,7 +26,11 @@ export function useMagicLink() {
     try {
       setIsSendingMagicLink(true);
       setMagicLinkError("");
-      const res = await sendMagicLink(email);
+      const returnTo =
+        typeof window !== "undefined" && window.location.origin
+          ? window.location.origin
+          : undefined;
+      const res = await sendMagicLink(email, returnTo);
       if (res.success) {
         setIsMagicLinkSubmitted(true);
       } else {

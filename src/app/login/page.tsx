@@ -18,6 +18,7 @@ export default function Login() {
       <LoginClient
         authUrl={`${env.AUTH_BASE_URL}/v1/auth`}
         enableMagicLink={env.ENABLE_MAGIC_LINK}
+        isDev={process.env.NODE_ENV !== "production"}
       />
     </main>
   );

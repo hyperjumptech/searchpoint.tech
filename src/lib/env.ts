@@ -40,13 +40,14 @@ const schema = z.object({
   }, z.number().int().positive().default(30)),
   ENABLE_MAGIC_LINK: z
     .preprocess((val) => {
+      if (val === undefined || val === "") return true;
       if (typeof val === "boolean") return val;
       if (typeof val === "string") {
-        return val.toLowerCase() === "true" || val === "1";
+        return val.toLowerCase() !== "false" && val !== "0";
       }
-      return false;
+      return true;
     }, z.boolean())
-    .default(false),
+    .default(true),
 });
 
 export const env = schema.parse(process.env);

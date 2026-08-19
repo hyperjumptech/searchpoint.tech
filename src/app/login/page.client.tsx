@@ -15,17 +15,25 @@ import { Input } from "@/components/ui/input";
 import { UnlockingAnimation } from "@/components/ui/unlocking-animation";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useMagicLink } from "@/hooks/use-magic-link";
+import { resolveMagicLinkUrl } from "@/actions/resolve-magic-link";
 
 interface LoginClientProps {
   authUrl: string;
   enableMagicLink?: boolean;
+  isDev?: boolean;
 }
 
 export function LoginClient({
   authUrl,
   enableMagicLink = false,
+  isDev = false,
 }: LoginClientProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [showDevModal, setShowDevModal] = useState(false);
+  const [devCallbackUrl, setDevCallbackUrl] = useState("");
+  const [devError, setDevError] = useState("");
+  const [isResolvingDevLink, setIsResolvingDevLink] = useState(false);
+
   const {
     magicLinkEmail,
     setMagicLinkEmail,
@@ -42,6 +50,34 @@ export function LoginClient({
     setTimeout(() => {
       window.location.href = authUrl;
     }, 1200);
+  };
+
+  const handleManualDevCallback = async () => {
+    if (!devCallbackUrl.trim()) {
+      setDevError("Please enter a callback or magic link URL.");
+      return;
+    }
+    setIsResolvingDevLink(true);
+    setDevError("");
+
+    try {
+      const res = await resolveMagicLinkUrl(devCallbackUrl);
+      if (res.success) {
+        setShowDevModal(false);
+        setIsLoading(true);
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 1200);
+      } else {
+        setDevError(res.error || "Failed to resolve authentication link.");
+      }
+    } catch (err) {
+      setDevError(
+        err instanceof Error ? err.message : "An unexpected error occurred.",
+      );
+    } finally {
+      setIsResolvingDevLink(false);
+    }
   };
 
   return (
@@ -95,6 +131,18 @@ export function LoginClient({
                 className="mt-6 cursor-pointer text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline">
                 Use a different email
               </button>
+              {isDev && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDevError("");
+                    setDevCallbackUrl("");
+                    setShowDevModal(true);
+                  }}
+                  className="mt-4 cursor-pointer text-xs text-muted-foreground underline hover:text-foreground">
+                  Dev Mode: Paste Callback URL
+                </button>
+              )}
             </div>
           ) : (
             <>
@@ -201,6 +249,80 @@ export function LoginClient({
             <p className="text-xs text-muted-foreground">
               {"We're validating your identity and loading your access."}
             </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDevModal} onOpenChange={setShowDevModal}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Dev Mode: Paste Callback URL</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 text-left">
+            <div className="rounded-lg border border-blue-200 bg-blue-50/70 p-3 text-xs leading-relaxed dark:border-blue-800 dark:bg-blue-950/40">
+              <p className="font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                Instructions:
+              </p>
+              <ol className="list-inside list-decimal space-y-1 text-slate-700 dark:text-slate-300">
+                <li>
+                  Check your email inbox (or Mailpit at http://localhost:8025)
+                </li>
+                <li>
+                  Copy the &quot;Sign in&quot; link from the email or the
+                  redirect URL
+                </li>
+                <li>
+                  The URL should look like:{" "}
+                  <code className="rounded bg-muted px-1 py-0.5 font-mono text-[10px]">
+                    https://.../v1/auth/magic-link/redirect?token=...
+                  </code>{" "}
+                  or{" "}
+                  <code className="rounded bg-muted px-1 py-0.5 font-mono text-[10px]">
+                    searchpoint://auth/callback?session=...
+                  </code>
+                </li>
+              </ol>
+            </div>
+
+            <div className="space-y-1.5">
+              <label
+                htmlFor="dev-callback-url"
+                className="text-xs font-medium text-foreground">
+                Callback / Redirect URL
+              </label>
+              <textarea
+                id="dev-callback-url"
+                value={devCallbackUrl}
+                onChange={(e) => {
+                  setDevCallbackUrl(e.target.value);
+                  if (devError) setDevError("");
+                }}
+                placeholder="https://api.searchpoint.hyperjump.tech/v1/auth/magic-link/redirect?token=... or searchpoint://auth/callback?session=..."
+                className="w-full h-24 rounded-lg border border-input bg-background px-3 py-2 text-xs font-mono placeholder:text-muted-foreground focus:outline-hidden focus:ring-1 focus:ring-ring"
+              />
+            </div>
+
+            {devError && (
+              <p role="alert" className="text-xs text-destructive">
+                {devError}
+              </p>
+            )}
+
+            <div className="flex justify-end space-x-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowDevModal(false)}
+                disabled={isResolvingDevLink}>
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleManualDevCallback}
+                disabled={!devCallbackUrl.trim() || isResolvingDevLink}>
+                {isResolvingDevLink ? "Resolving..." : "Submit"}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

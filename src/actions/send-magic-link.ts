@@ -9,6 +9,7 @@ export type SendMagicLinkResult = {
 
 export async function sendMagicLink(
   email: string,
+  returnTo?: string,
 ): Promise<SendMagicLinkResult> {
   if (!env.ENABLE_MAGIC_LINK) {
     return { success: false, error: "Magic link login is currently disabled." };
@@ -19,20 +20,48 @@ export async function sendMagicLink(
     return { success: false, error: "Enter a valid email address." };
   }
 
+  const targetReturnTo = returnTo?.trim();
+
   try {
     const url = new URL("/v1/auth/magic-link", env.BACKEND_BASE_URL);
+    const payload: { email: string; return_to?: string } = {
+      email: trimmedEmail,
+    };
+    if (targetReturnTo) {
+      payload.return_to = targetReturnTo;
+    }
+
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "User-Agent": "frontend",
       },
-      body: JSON.stringify({ email: trimmedEmail }),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
       const status = response.status;
       const bodyText = await response.text().catch(() => "");
+
+      if (
+        status === 400 &&
+        targetReturnTo &&
+        bodyText.includes("return_to is not an allowed destination")
+      ) {
+        const retryResponse = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "User-Agent": "frontend",
+          },
+          body: JSON.stringify({ email: trimmedEmail }),
+        });
+        if (retryResponse.ok) {
+          return { success: true };
+        }
+      }
+
       let errMsg = `Magic link request failed with status ${status}`;
       if (bodyText.trim()) {
         try {
