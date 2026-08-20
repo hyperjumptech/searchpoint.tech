@@ -261,7 +261,7 @@ stages:
 
   - stage: "ReleaseToSMDV"
     displayName: "Release to SMDV"
-    condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), endsWith(variables['Build.SourceBranch'], '-smdv'))
+    condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), not(endsWith(variables['Build.SourceBranch'], '-sinarmas')))
     jobs:
       - job: DeployToSMDV
         displayName: "Deploy to SMDV"
@@ -414,7 +414,7 @@ stages:
 
   - stage: "ReleaseToSinarmas"
     displayName: "Release to Sinarmas"
-    condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), endsWith(variables['Build.SourceBranch'], '-sinarmas'))
+    condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), not(endsWith(variables['Build.SourceBranch'], '-smdv')))
     variables:
       - group: scse-sinarmas-wireguard
     jobs:
