@@ -43,6 +43,14 @@ stages:
           - script: bun run test
             displayName: "Test the application"
 
+          - task: Cache@2
+            displayName: "Cache Next.js build"
+            inputs:
+              key: 'next | "$(Agent.OS)" | bun.lock'
+              restoreKeys: |
+                next | "$(Agent.OS)"
+              path: $(System.DefaultWorkingDirectory)/.next/cache
+
           - script: bun run build
             displayName: "Build the application"
 
