@@ -10,6 +10,7 @@ pool:
   vmImage: "ubuntu-latest"
 
 trigger:
+  batch: true
   branches:
     include:
       - main
