@@ -46,59 +46,61 @@ stages:
           - script: bun run build
             displayName: "Build the application"
 
-  - stage: "DeployToStaging"
-    displayName: "Deploy to Staging"
-    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-    jobs:
-      - job: DeployToStaging
-        displayName: "Deploy to Staging"
-        steps:
-          # Update package.json version
-          - script: |
-              node -e "
-                const fs = require('fs');
-                const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-                pkg.version = '$(Build.BuildId)-rc';
-                fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
-              "
-            displayName: "Update package.json version for staging"
+  # - stage: "DeployToStaging"
+  #   displayName: "Deploy to Staging"
+  #   dependsOn: BuildTest
+  #   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  #   jobs:
+  #     - job: DeployToStaging
+  #       displayName: "Deploy to Staging"
+  #       steps:
+  #         # Update package.json version
+  #         - script: |
+  #             node -e "
+  #               const fs = require('fs');
+  #               const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+  #               pkg.version = '$(Build.BuildId)-rc';
+  #               fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+  #             "
+  #           displayName: "Update package.json version for staging"
 
-          # Build image
-          # Needs separate step because build arguments are not supported in Docker@2 buildAndPush
-          - task: Docker@2
-            displayName: "Build docker image"
-            inputs:
-              containerRegistry: $(container_registry)
-              command: "build"
-              Dockerfile: "./Dockerfile"
-              repository: "scse/search-ui-web"
-              arguments: $(staging_build_arguments)
-              tags: |
-                $(Build.BuildId)-rc
-                test
-          # Push to ACR
-          - task: Docker@2
-            displayName: "Push docker image"
-            inputs:
-              containerRegistry: $(container_registry)
-              command: "push"
-              repository: "scse/search-ui-web"
-              tags: |
-                $(Build.BuildId)-rc
-                test
-          # Deploy step using SSH service connection
-          - task: SSH@0
-            displayName: "Use SSH to connect to PoC server"
-            inputs:
-              sshEndpoint: "ssh_to_staging_server" # Name of the service connection
-              runOptions: inline
-              inline: |
-                sed -i "s/^FRONTEND_TAG=.*/FRONTEND_TAG=$(Build.BuildId)-rc/" services/frontend/.env
-                cd services/frontend && docker compose up -d --remove-orphans 2>&1
+  #         # Build image
+  #         # Needs separate step because build arguments are not supported in Docker@2 buildAndPush
+  #         - task: Docker@2
+  #           displayName: "Build docker image"
+  #           inputs:
+  #             containerRegistry: $(container_registry)
+  #             command: "build"
+  #             Dockerfile: "./Dockerfile"
+  #             repository: "scse/search-ui-web"
+  #             arguments: $(staging_build_arguments)
+  #             tags: |
+  #               $(Build.BuildId)-rc
+  #               test
+  #         # Push to ACR
+  #         - task: Docker@2
+  #           displayName: "Push docker image"
+  #           inputs:
+  #             containerRegistry: $(container_registry)
+  #             command: "push"
+  #             repository: "scse/search-ui-web"
+  #             tags: |
+  #               $(Build.BuildId)-rc
+  #               test
+  #         # Deploy step using SSH service connection
+  #         - task: SSH@0
+  #           displayName: "Use SSH to connect to PoC server"
+  #           inputs:
+  #             sshEndpoint: "ssh_to_staging_server" # Name of the service connection
+  #             runOptions: inline
+  #             inline: |
+  #               sed -i "s/^FRONTEND_TAG=.*/FRONTEND_TAG=$(Build.BuildId)-rc/" services/frontend/.env
+  #               cd services/frontend && docker compose up -d --remove-orphans 2>&1
 
   - stage: "ReleaseToProd"
     displayName: "Release to Production"
-    condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), not(endsWith(variables['Build.SourceBranch'], '-smdv')), not(endsWith(variables['Build.SourceBranch'], '-sinarmas')))
+    dependsOn: BuildTest
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'), not(endsWith(variables['Build.SourceBranch'], '-smdv')), not(endsWith(variables['Build.SourceBranch'], '-sinarmas')))
     jobs:
       - job: DeployToProduction
         displayName: "Deploy to Production"
@@ -261,7 +263,8 @@ stages:
 
   - stage: "ReleaseToSMDV"
     displayName: "Release to SMDV"
-    condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), not(endsWith(variables['Build.SourceBranch'], '-sinarmas')))
+    dependsOn: BuildTest
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'), not(endsWith(variables['Build.SourceBranch'], '-sinarmas')))
     jobs:
       - job: DeployToSMDV
         displayName: "Deploy to SMDV"
@@ -414,7 +417,8 @@ stages:
 
   - stage: "ReleaseToSinarmas"
     displayName: "Release to Sinarmas"
-    condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), not(endsWith(variables['Build.SourceBranch'], '-smdv')))
+    dependsOn: BuildTest
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'), not(endsWith(variables['Build.SourceBranch'], '-smdv')))
     variables:
       - group: scse-sinarmas-wireguard
     jobs:
