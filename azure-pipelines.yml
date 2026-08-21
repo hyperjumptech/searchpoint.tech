@@ -11,9 +11,9 @@ trigger:
 
 parameters:
   - name: useSelfHosted
-    displayName: "Use Self-Hosted Mac Agent (Raosan)"
+    displayName: "Use Self-Hosted Agent (Raosan)"
     type: boolean
-    default: true
+    default: false
 
 variables:
   - group: scse-openvpn
