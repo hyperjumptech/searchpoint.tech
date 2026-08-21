@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 
-const allowedImageDomains = (
-  process.env.ALLOWED_IMAGE_DOMAINS || "graph.microsoft.com,sharepoint.com"
-).split(",");
+const allowedImageDomains = ["graph.microsoft.com", "sharepoint.com"];
 
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
