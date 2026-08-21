@@ -20,9 +20,6 @@ variables:
   - group: scse-wireguard-smdv
   - name: CI
     value: true
-  - ${{ if eq(parameters.useSelfHosted, true) }}:
-    - name: DOCKER_HOST
-      value: unix:///Users/raosan/.orbstack/run/docker.sock
 
 stages:
   - stage: BuildTest
@@ -125,10 +122,7 @@ stages:
       - job: DeployToProduction
         displayName: "Deploy to Production"
         pool:
-          ${{ if eq(parameters.useSelfHosted, true) }}:
-            name: Raosan
-          ${{ else }}:
-            vmImage: ubuntu-latest
+          vmImage: ubuntu-latest
         steps:
           # TODO: Re-enable Playwright tests before production deployment
           # - task: Npm@1
@@ -294,10 +288,7 @@ stages:
       - job: DeployToSMDV
         displayName: "Deploy to SMDV"
         pool:
-          ${{ if eq(parameters.useSelfHosted, true) }}:
-            name: Raosan
-          ${{ else }}:
-            vmImage: ubuntu-latest
+          vmImage: ubuntu-latest
         steps:
           # Strip the 'v' prefix from the tag e.g. v1.0.0-smdv -> 1.0.0-smdv
           - bash: |
@@ -455,10 +446,7 @@ stages:
       - job: DeployToSinarmas
         displayName: "Deploy to Sinarmas"
         pool:
-          ${{ if eq(parameters.useSelfHosted, true) }}:
-            name: Raosan
-          ${{ else }}:
-            vmImage: ubuntu-latest
+          vmImage: ubuntu-latest
         steps:
           # Strip the 'v' prefix from the tag e.g. v1.0.0-sinarmas -> 1.0.0-sinarmas
           - bash: |
