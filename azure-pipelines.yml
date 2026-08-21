@@ -20,6 +20,9 @@ variables:
   - group: scse-wireguard-smdv
   - name: CI
     value: true
+  - ${{ if eq(parameters.useSelfHosted, true) }}:
+    - name: DOCKER_HOST
+      value: unix:///Users/raosan/.orbstack/run/docker.sock
 
 stages:
   - stage: BuildTest
