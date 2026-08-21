@@ -1,7 +1,25 @@
-// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { isLoginBypassEnabled } from "@/lib/is-login-bypass-enabled";
+
+const applySecurityHeaders = (response: NextResponse) => {
+  response.headers.set(
+    "Strict-Transport-Security",
+    "max-age=31536000; includeSubDomains; preload",
+  );
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=()",
+  );
+  response.headers.set(
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://*.sharepoint.com https://*.microsoft.com https://graph.microsoft.com; connect-src 'self' https://*.sharepoint.com https://*.microsoft.com https://graph.microsoft.com;",
+  );
+  return response;
+};
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -12,28 +30,36 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith("/docs/")) {
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-pathname", pathname);
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    });
+    return applySecurityHeaders(
+      NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      }),
+    );
   }
 
   // If accessing /login while authenticated or running locally, redirect to root
   if (pathname === "/login" && (scseId || bypassLogin)) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return applySecurityHeaders(
+      NextResponse.redirect(new URL("/", request.url)),
+    );
   }
 
   // If accessing protected routes without cookie, redirect to login
   if (pathname !== "/login" && !scseId && !bypassLogin) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return applySecurityHeaders(
+      NextResponse.redirect(new URL("/login", request.url)),
+    );
   }
 
   // Redirect empty search query to homepage
   if (pathname === "/search") {
     const q = request.nextUrl.searchParams.get("q") ?? "";
     if (q.trim() === "") {
-      return NextResponse.redirect(new URL("/", request.url));
+      return applySecurityHeaders(
+        NextResponse.redirect(new URL("/", request.url)),
+      );
     }
   }
 
@@ -41,11 +67,13 @@ export function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", pathname);
 
-  return NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  return applySecurityHeaders(
+    NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    }),
+  );
 }
 
 export const config = {
