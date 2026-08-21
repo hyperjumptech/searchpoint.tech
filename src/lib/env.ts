@@ -48,6 +48,15 @@ const schema = z.object({
       return true;
     }, z.boolean())
     .default(true),
+  ENABLE_MICROSOFT_LOGIN: z
+    .preprocess((val) => {
+      if (typeof val === "boolean") return val;
+      if (typeof val === "string") {
+        return val.toLowerCase() === "true" || val === "1";
+      }
+      return false;
+    }, z.boolean())
+    .default(false),
 });
 
 export const env = schema.parse(process.env);

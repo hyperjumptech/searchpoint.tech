@@ -17,20 +17,18 @@ import { UnlockingAnimation } from "@/components/ui/unlocking-animation";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useMagicLink } from "@/hooks/use-magic-link";
 import { resolveMagicLinkUrl } from "@/actions/resolve-magic-link";
-import { companyFromHostname, type Company } from "@/lib/company";
-
 interface LoginClientProps {
   authUrl: string;
   enableMagicLink?: boolean;
+  enableMicrosoftLogin?: boolean;
   isDev?: boolean;
-  company?: Company;
 }
 
 export function LoginClient({
   authUrl,
-  enableMagicLink = false,
+  enableMagicLink = true,
+  enableMicrosoftLogin = false,
   isDev = false,
-  company,
 }: LoginClientProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showMicrosoftModal, setShowMicrosoftModal] = useState(false);
@@ -39,12 +37,8 @@ export function LoginClient({
   const [devError, setDevError] = useState("");
   const [isResolvingDevLink, setIsResolvingDevLink] = useState(false);
 
-  const resolvedCompany =
-    company ??
-    (typeof window !== "undefined"
-      ? companyFromHostname(window.location.hostname)
-      : "hyperjump");
-  const showMicrosoftLogin = resolvedCompany !== "sinarmas";
+  const showMicrosoftLogin = enableMicrosoftLogin;
+  const isMagicLinkEnabled = enableMagicLink;
 
   const {
     magicLinkEmail,
@@ -100,7 +94,7 @@ export function LoginClient({
         </header>
         <article
           className={`flex flex-col items-center justify-center space-y-4 p-8 text-center ${
-            enableMagicLink ? "w-full max-w-md" : ""
+            isMagicLinkEnabled ? "w-full max-w-md" : ""
           }`}>
           <div className="space-y-1">
             <h1 className="text-lg md:text-xl font-bold px-4">SearchPoint</h1>
@@ -109,21 +103,48 @@ export function LoginClient({
             </p>
           </div>
 
-          {!enableMagicLink ? (
-            showMicrosoftLogin && (
-              <Button
-                onClick={() => setShowMicrosoftModal(true)}
-                disabled={isLoading}
-                className="rounded-full space-x-2 w-full py-6">
-                <Image
-                  src="/images/microsoft-logo.svg"
-                  alt="Microsoft"
-                  width={25}
-                  height={25}
-                />
-                <span>Log in with Microsoft Account</span>
-              </Button>
-            )
+          {!isMagicLinkEnabled ? (
+            <>
+              {showMicrosoftLogin && (
+                <Button
+                  onClick={() => setShowMicrosoftModal(true)}
+                  disabled={isLoading}
+                  className="rounded-full space-x-2 w-full py-6">
+                  <Image
+                    src="/images/microsoft-logo.svg"
+                    alt="Microsoft"
+                    width={25}
+                    height={25}
+                  />
+                  <span>Log in with Microsoft Account</span>
+                </Button>
+              )}
+
+              {showMicrosoftLogin && (
+                <>
+                  <div className="relative my-2 w-full">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-border" />
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="bg-background px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Authentication
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-foreground">
+                      Single sign-on via Microsoft Entra ID.
+                    </p>
+                    <p className="text-xs font-normal leading-relaxed text-muted-foreground">
+                      Your organization controls access. No separate password
+                      required.
+                    </p>
+                  </div>
+                </>
+              )}
+            </>
           ) : isMagicLinkSubmitted ? (
             <div className="mt-4 mb-6 flex w-full flex-col items-center text-center">
               <div className="w-full rounded-xl border border-blue-200 bg-blue-50 p-5 shadow-xs dark:border-blue-800 dark:bg-blue-950/50">
@@ -229,6 +250,31 @@ export function LoginClient({
                   {isSendingMagicLink ? "Sending..." : "Send sign-in link"}
                 </Button>
               </form>
+
+              {showMicrosoftLogin && (
+                <>
+                  <div className="relative my-2 w-full">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-border" />
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="bg-background px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Authentication
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-foreground">
+                      Single sign-on via Microsoft Entra ID.
+                    </p>
+                    <p className="text-xs font-normal leading-relaxed text-muted-foreground">
+                      Your organization controls access. No separate password
+                      required.
+                    </p>
+                  </div>
+                </>
+              )}
             </>
           )}
 
