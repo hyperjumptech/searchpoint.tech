@@ -69,9 +69,9 @@ describe("resolveMagicLinkUrl", () => {
     );
   });
 
-  it("resolves HTTP redirect URL when Location header carries session", async () => {
+  it("posts token to confirm endpoint when token parameter is present", async () => {
     // Setup
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(null, {
         status: 302,
         headers: {
@@ -87,6 +87,17 @@ describe("resolveMagicLinkUrl", () => {
 
     // Assert
     expect(result).toEqual({ success: true });
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "https://api.searchpoint.hyperjump.tech/v1/auth/magic-link/confirm",
+      expect.objectContaining({
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "User-Agent": "frontend-dev",
+        },
+        body: "token=plain-token-1",
+      }),
+    );
     expect(mockCookieSet).toHaveBeenCalledWith(
       "SCSE_ID",
       "extracted-token-abc",
@@ -122,6 +133,48 @@ describe("resolveMagicLinkUrl", () => {
     expect(mockCookieSet).toHaveBeenCalledWith(
       "SCSE_ID",
       "cookie-jwt-token-xyz",
+      {
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+        secure: false,
+      },
+    );
+  });
+
+  it("extracts token from interstitial HTML page when token param is not in URL", async () => {
+    // Setup
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementation(async (_url, init) => {
+        if (init?.method === "GET") {
+          return new Response(
+            `<form method="post" action="confirm"><input type="hidden" name="token" value="html-token-789" /><button type="submit">Sign in</button></form>`,
+            { status: 200 },
+          );
+        }
+        if (init?.method === "POST") {
+          return new Response(null, {
+            status: 302,
+            headers: {
+              "set-cookie": "SCSE_ID=jwt-from-html-post; Path=/; HttpOnly",
+            },
+          });
+        }
+        return new Response(null, { status: 404 });
+      });
+
+    // Act
+    const result = await resolveMagicLinkUrl(
+      "http://localhost:3001/v1/auth/magic-link/redirect",
+    );
+
+    // Assert
+    expect(result).toEqual({ success: true });
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    expect(mockCookieSet).toHaveBeenCalledWith(
+      "SCSE_ID",
+      "jwt-from-html-post",
       {
         path: "/",
         httpOnly: true,
@@ -169,6 +222,27 @@ describe("resolveMagicLinkUrl", () => {
     expect(result).toEqual({
       success: false,
       error: "Your email domain is not on the allow list.",
+    });
+    expect(mockCookieSet).not.toHaveBeenCalled();
+  });
+
+  it("handles service unavailable response (503)", async () => {
+    // Setup
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("Service unavailable", {
+        status: 503,
+      }),
+    );
+
+    // Act
+    const result = await resolveMagicLinkUrl(
+      "https://api.searchpoint.hyperjump.tech/v1/auth/magic-link/redirect?token=some-token",
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: "Login service is temporarily unavailable.",
     });
     expect(mockCookieSet).not.toHaveBeenCalled();
   });

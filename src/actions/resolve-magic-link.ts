@@ -43,19 +43,78 @@ export async function resolveMagicLinkUrl(
     }
   }
 
-  // 2. HTTP redirect URL resolution (e.g. GET /v1/auth/magic-link/redirect?token=...)
+  // 2. HTTP redirect URL resolution (e.g. GET /v1/auth/magic-link/redirect?token=... or confirm endpoint)
   if (
     (urlStr.startsWith("http://") || urlStr.startsWith("https://")) &&
-    (urlStr.includes("/magic-link/redirect") || urlStr.includes("token="))
+    (urlStr.includes("/magic-link/redirect") ||
+      urlStr.includes("token=") ||
+      urlStr.includes("/magic-link/confirm"))
   ) {
     try {
-      const res = await fetch(urlStr, {
-        method: "GET",
-        redirect: "manual",
-        headers: {
-          "User-Agent": "frontend-dev",
-        },
-      });
+      const parsedUrl = new URL(urlStr);
+      const token = parsedUrl.searchParams.get("token");
+
+      let res: Response;
+
+      if (token) {
+        const confirmUrl = new URL("confirm", parsedUrl);
+        confirmUrl.search = "";
+
+        const formBody = new URLSearchParams();
+        formBody.set("token", token);
+
+        res = await fetch(confirmUrl.toString(), {
+          method: "POST",
+          redirect: "manual",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "User-Agent": "frontend-dev",
+          },
+          body: formBody.toString(),
+        });
+      } else {
+        res = await fetch(urlStr, {
+          method: "GET",
+          redirect: "manual",
+          headers: {
+            "User-Agent": "frontend-dev",
+          },
+        });
+
+        // If GET returned 200 OK (interstitial page), extract token and submit form
+        if (res.status === 200) {
+          const html = await res.text();
+          const tokenMatch =
+            html.match(/name=["']token["']\s+value=["']([^"']+)["']/) ||
+            html.match(/value=["']([^"']+)["']\s+name=["']token["']/);
+          const formActionMatch = html.match(
+            /<form[^>]*action=["']([^"']+)["']/,
+          );
+
+          if (tokenMatch && tokenMatch[1]) {
+            const extractedToken = tokenMatch[1];
+            const action =
+              formActionMatch && formActionMatch[1]
+                ? formActionMatch[1]
+                : "confirm";
+            const confirmUrl = new URL(action, parsedUrl);
+            confirmUrl.search = "";
+
+            const formBody = new URLSearchParams();
+            formBody.set("token", extractedToken);
+
+            res = await fetch(confirmUrl.toString(), {
+              method: "POST",
+              redirect: "manual",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "User-Agent": "frontend-dev",
+              },
+              body: formBody.toString(),
+            });
+          }
+        }
+      }
 
       // Check Location header for redirect with session query param
       const location = res.headers.get("location");
