@@ -17,14 +17,14 @@ const schema = z.object({
   CURATION_MODEL_FILENAME: z
     .string()
     .optional()
-    .default("SmolLM2-1.7B-Instruct-Q4_K_M.gguf"),
+    .default("Qwen3-0.6B-Q8_0.gguf"),
   CURATION_MODEL_GGUF_SHA256: z
     .string()
     .optional()
     .default(
-      "77665ea4815999596525c636fbeb56ba8b080b46ae85efef4f0d986a139834d7",
+      "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
     ),
-  CURATION_MODEL_SIZE_BYTES: z.string().optional().default("1055609824"),
+  CURATION_MODEL_SIZE_BYTES: z.string().optional().default("639446688"),
   VALKEY_URL: z.preprocess((val) => {
     if (typeof val !== "string") return undefined;
     const trimmed = val.trim();
