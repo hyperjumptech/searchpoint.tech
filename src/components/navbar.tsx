@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Download, LogOut } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Download, LogOut, Menu, X, ExternalLink } from "lucide-react";
 
 import NavbarLogo from "@/components/navbar-logo";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -26,9 +28,32 @@ import { detectOS, osToUpdaterFormat } from "@/lib/detect-os";
 import { useUserStore } from "@/stores/user";
 import { cn } from "@/lib/utils";
 
+interface NavItem {
+  label: string;
+  href: string;
+  isExternal?: boolean;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { label: "Connectors", href: "#sources" },
+  { label: "Features", href: "#features" },
+  { label: "AI Knowledge", href: "#ai-knowledge" },
+  { label: "Comparison", href: "#comparison" },
+  { label: "Security", href: "#security" },
+  { label: "Download", href: "#download" },
+];
+
 export default function Navbar() {
+  const pathname = usePathname();
   const { user, logOut } = useUserStore();
   const [showLinuxModal, setShowLinuxModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  if (pathname === "/login" || pathname?.startsWith("/docs/")) {
+    return null;
+  }
+
+  const isLandingPage = pathname === "/landing";
 
   const handleDownload = async () => {
     // Detect OS from browser
@@ -59,7 +84,7 @@ export default function Navbar() {
             platformKey = "linux-x86_64";
             break;
           default:
-            platformKey = "macOS-download"; // this is a workaround to get the .dmg file instead of the .tar.gz
+            platformKey = "macOS-download";
         }
         const url = data.platforms?.[platformKey]?.url;
         if (url) {
@@ -71,18 +96,57 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="relative z-50 border-b border-border/20 bg-transparent text-foreground">
-        <nav className={cn("mx-auto px-4 py-4 lg:h-16 lg:py-0")}>
-          <div className="flex items-center justify-between lg:py-4 lg:flex-row lg:gap-8 lg:h-full">
-            <NavbarLogo />
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md text-foreground">
+        <nav className={cn("max-w-6xl mx-auto h-16")}>
+          <div className="flex items-center justify-between h-full px-4 sm:px-6">
+            {/* Logo */}
+            <div className="flex items-center gap-8">
+              <NavbarLogo />
 
-            {/* Profile Dropdown */}
-            {user && (
-              <div className="flex justify-end">
+              {/* Desktop Nav Links (Landing page only) */}
+              {isLandingPage && (
+                <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
+                  {NAV_ITEMS.map((item) =>
+                    item.isExternal ? (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="hover:text-foreground transition-colors inline-flex items-center gap-1">
+                        <span>{item.label}</span>
+                        <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                      </Link>
+                    ) : (
+                      <a
+                        key={item.href}
+                        href={item.href}
+                        className="hover:text-foreground transition-colors">
+                        {item.label}
+                      </a>
+                    ),
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Right Actions */}
+            <div className="flex items-center gap-3">
+              {isLandingPage && (
+                <a
+                  href="#download"
+                  className="hidden sm:inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-xl bg-primary/10 text-primary border border-primary/20 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all">
+                  <Download className="h-3.5 w-3.5" />
+                  <span>Get App</span>
+                </a>
+              )}
+
+              {/* Profile Dropdown or Sign In */}
+              {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Avatar className="cursor-pointer w-10 h-10 shadow-xs border">
-                      <AvatarFallback>{user.initialName}</AvatarFallback>
+                    <Avatar className="cursor-pointer w-9 h-9 shadow-xs border border-border">
+                      <AvatarFallback className="text-xs font-semibold">
+                        {user.initialName}
+                      </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
@@ -110,9 +174,63 @@ export default function Navbar() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </div>
-            )}
+              ) : (
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center h-9 px-4 rounded-xl border border-border/80 bg-card/60 text-xs font-semibold text-foreground hover:bg-accent transition-colors">
+                  Sign In
+                </Link>
+              )}
+
+              {/* Mobile Menu Toggle (Landing page only) */}
+              {isLandingPage && (
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  aria-label="Toggle navigation menu"
+                  className="md:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50">
+                  {mobileMenuOpen ? (
+                    <X className="h-5 w-5" />
+                  ) : (
+                    <Menu className="h-5 w-5" />
+                  )}
+                </button>
+              )}
+            </div>
           </div>
+
+          {/* Mobile Dropdown Menu (Landing page only) */}
+          {isLandingPage && mobileMenuOpen && (
+            <div className="md:hidden px-4 sm:px-6 py-4 border-t border-border/40 bg-background/95 backdrop-blur-xl flex flex-col gap-3 text-sm font-medium text-muted-foreground animate-in slide-in-from-top-2 duration-200">
+              {NAV_ITEMS.map((item) =>
+                item.isExternal ? (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-2 py-1.5 hover:text-foreground flex items-center justify-between">
+                    <span>{item.label}</span>
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Link>
+                ) : (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-2 py-1.5 hover:text-foreground">
+                    {item.label}
+                  </a>
+                ),
+              )}
+              {!user && (
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-2 py-1.5 text-primary font-semibold hover:underline">
+                  Sign In
+                </Link>
+              )}
+            </div>
+          )}
         </nav>
       </header>
 

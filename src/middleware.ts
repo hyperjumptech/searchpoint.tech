@@ -25,9 +25,10 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const scseId = request.cookies.get("SCSE_ID");
   const bypassLogin = isLoginBypassEnabled();
+  const isAuthenticated = Boolean(scseId || bypassLogin);
 
   // Allow public routes without authentication
-  if (pathname.startsWith("/docs/")) {
+  if (pathname === "/landing" || pathname.startsWith("/docs/")) {
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-pathname", pathname);
     return applySecurityHeaders(
@@ -40,14 +41,21 @@ export function middleware(request: NextRequest) {
   }
 
   // If accessing /login while authenticated or running locally, redirect to root
-  if (pathname === "/login" && (scseId || bypassLogin)) {
+  if (pathname === "/login" && isAuthenticated) {
     return applySecurityHeaders(
       NextResponse.redirect(new URL("/", request.url)),
     );
   }
 
-  // If accessing protected routes without cookie, redirect to login
-  if (pathname !== "/login" && !scseId && !bypassLogin) {
+  // If accessing root / while not authenticated, redirect to /landing
+  if (pathname === "/" && !isAuthenticated) {
+    return applySecurityHeaders(
+      NextResponse.redirect(new URL("/landing", request.url)),
+    );
+  }
+
+  // If accessing any other protected route without cookie, redirect to login
+  if (pathname !== "/login" && !isAuthenticated) {
     return applySecurityHeaders(
       NextResponse.redirect(new URL("/login", request.url)),
     );
@@ -79,6 +87,7 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/",
+    "/landing",
     "/login",
     "/logout",
     "/search",
