@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
-import { Mail } from "lucide-react";
+import { ChevronLeft, Mail } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -88,7 +89,17 @@ export function LoginClient({
     <>
       <section className="flex-1 w-full flex-col flex items-center justify-between py-16">
         <header>
-          <Image src="/icons/logo.svg" alt="Sinarmas" width={143} height={32} />
+          <Link
+            href="/landing"
+            aria-label="Go to landing page"
+            className="transition-opacity hover:opacity-80">
+            <Image
+              src="/icons/logo.svg"
+              alt="Sinarmas"
+              width={143}
+              height={32}
+            />
+          </Link>
         </header>
         <article
           className={`flex flex-col items-center justify-center space-y-4 p-8 text-center ${
@@ -283,6 +294,15 @@ export function LoginClient({
               className="text-primary font-medium hover:underline">
               Contact admin
             </a>
+          </div>
+
+          <div className="pt-2">
+            <Link
+              href="/landing"
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground hover:underline">
+              <ChevronLeft className="h-3.5 w-3.5" />
+              <span>Back to home</span>
+            </Link>
           </div>
         </article>
         <footer className="text-xs text-muted-foreground">
