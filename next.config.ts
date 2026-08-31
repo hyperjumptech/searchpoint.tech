@@ -1,7 +1,5 @@
 import type { NextConfig } from "next";
 
-const allowedImageDomains = ["graph.microsoft.com", "sharepoint.com"];
-
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
@@ -17,7 +15,7 @@ const securityHeaders = [
   {
     key: "Content-Security-Policy",
     value:
-      "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://*.sharepoint.com https://*.microsoft.com https://graph.microsoft.com; connect-src 'self' https://*.sharepoint.com https://*.microsoft.com https://graph.microsoft.com;",
+      "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://*.microsoft.com; connect-src 'self' https://*.microsoft.com;",
   },
 ];
 
@@ -31,12 +29,6 @@ const nextConfig: NextConfig = {
         headers: securityHeaders,
       },
     ];
-  },
-  images: {
-    remotePatterns: allowedImageDomains.map((domain) => ({
-      protocol: "https",
-      hostname: domain.trim(),
-    })),
   },
 };
 

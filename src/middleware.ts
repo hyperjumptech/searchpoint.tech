@@ -16,7 +16,7 @@ const applySecurityHeaders = (response: NextResponse) => {
   );
   response.headers.set(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://*.sharepoint.com https://*.microsoft.com https://graph.microsoft.com; connect-src 'self' https://*.sharepoint.com https://*.microsoft.com https://graph.microsoft.com;",
+    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://*.microsoft.com; connect-src 'self' https://*.microsoft.com;",
   );
   return response;
 };
