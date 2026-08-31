@@ -205,7 +205,7 @@ export default function SourcesSection({}: SourcesSectionProps) {
               </h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Raw files remain in your local folders, SharePoint, or drives.
-                Only search indexes are stored.
+                Only search indexes are stored securely.
               </p>
             </div>
           </div>

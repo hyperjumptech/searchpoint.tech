@@ -33,11 +33,12 @@ export default function SecuritySection({ onOpenImage }: SecuritySectionProps) {
             <span>Security &amp; Deployment</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
-            Your files stay where you run them.
+            Enterprise-grade security with complete data sovereignty.
           </h2>
           <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
-            We do not warehouse full copies on our side. Everything is indexed
-            with zero-trust permissions and strict data sovereignty.
+            Built for enterprise compliance with zero-warehousing indexing,
+            native permission parity, and flexible on-premise deployment within
+            your own infrastructure.
           </p>
         </div>
 
@@ -53,9 +54,8 @@ export default function SecuritySection({ onOpenImage }: SecuritySectionProps) {
             </h3>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
               We index file metadata and search keywords derived from your
-              content; keywords are sanitized to strip sensitive information
-              under your rules. Full documents and extracted text are not stored
-              on our side—
+              content; keywords are sanitized to strip sensitive information.
+              Full documents and extracted text are not stored on our side—
               <strong className="text-foreground">
                 your files stay where you already keep them
               </strong>
