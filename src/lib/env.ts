@@ -57,6 +57,35 @@ const schema = z.object({
       return false;
     }, z.boolean())
     .default(false),
+  OAUTH_ISSUER: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z.url().optional(),
+  ),
+  MCP_RESOURCE_URL: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z.url().optional(),
+  ),
+  OAUTH_CLIENT_LABEL: z
+    .string()
+    .optional()
+    .default("Open WebUI (StartGPT SMDV)"),
+  OAUTH_REGISTERED_CLIENTS: z.preprocess((val) => {
+    if (typeof val !== "string") return undefined;
+    const trimmed = val.trim();
+    return trimmed === "" ? undefined : trimmed;
+  }, z.string().optional()),
+  OAUTH_SCOPES: z
+    .string()
+    .optional()
+    .default("openid profile email search magic"),
+  OAUTH_CONSENT_ALWAYS: z
+    .preprocess((val) => {
+      if (typeof val === "boolean") return val;
+      if (typeof val === "string")
+        return val.toLowerCase() === "true" || val === "1";
+      return false;
+    }, z.boolean())
+    .default(false),
 });
 
 export const env = schema.parse(process.env);

@@ -27,6 +27,25 @@ export function middleware(request: NextRequest) {
   const bypassLogin = isLoginBypassEnabled();
   const isAuthenticated = Boolean(scseId || bypassLogin);
 
+  // OAuth endpoints are public: discovery, token exchange, and the MCP
+  // resource. Defense-in-depth bypass in case the matcher ever changes.
+  if (
+    pathname.startsWith("/.well-known/") ||
+    pathname.startsWith("/api/oauth/") ||
+    pathname === "/mcp" ||
+    pathname.startsWith("/mcp/")
+  ) {
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-pathname", pathname);
+    return applySecurityHeaders(
+      NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      }),
+    );
+  }
+
   // Allow public routes without authentication
   if (pathname === "/landing" || pathname.startsWith("/docs/")) {
     const requestHeaders = new Headers(request.headers);

@@ -149,15 +149,24 @@ const MANIFEST_LIMIT = {
   maxKeys: 10_000,
 };
 
+const OAUTH_LIMIT = {
+  limit: 60,
+  windowMs: 60_000,
+  maxKeys: 10_000,
+};
+
 export const updaterRateLimiter = createMemoryRateLimiter(UPDATER_LIMIT);
 
 export const curationManifestRateLimiter =
   createMemoryRateLimiter(MANIFEST_LIMIT);
 
+export const oauthRateLimiter = createMemoryRateLimiter(OAUTH_LIMIT);
+
 let valkeyClient: RedisClientType | null = null;
 let valkeyReady: Promise<RedisClientType> | null = null;
 let valkeyUpdater: PublicRateLimiter | null = null;
 let valkeyManifest: PublicRateLimiter | null = null;
+let valkeyOAuth: PublicRateLimiter | null = null;
 
 async function connectedValkey(): Promise<RedisClientType> {
   if (!env.VALKEY_URL) {
@@ -200,12 +209,12 @@ function valkeyStore(): ValkeyStore {
 }
 
 export function limiterForScope(
-  scope: "updater" | "manifest",
+  scope: "updater" | "manifest" | "oauth",
 ): PublicRateLimiter {
   if (!env.VALKEY_URL) {
-    return scope === "updater"
-      ? updaterRateLimiter
-      : curationManifestRateLimiter;
+    if (scope === "updater") return updaterRateLimiter;
+    if (scope === "manifest") return curationManifestRateLimiter;
+    return oauthRateLimiter;
   }
 
   if (scope === "updater") {
@@ -216,11 +225,19 @@ export function limiterForScope(
     return valkeyUpdater;
   }
 
-  valkeyManifest ??= createValkeyRateLimiter(valkeyStore(), {
-    ...MANIFEST_LIMIT,
-    prefix: "rl:manifest",
+  if (scope === "manifest") {
+    valkeyManifest ??= createValkeyRateLimiter(valkeyStore(), {
+      ...MANIFEST_LIMIT,
+      prefix: "rl:manifest",
+    });
+    return valkeyManifest;
+  }
+
+  valkeyOAuth ??= createValkeyRateLimiter(valkeyStore(), {
+    ...OAUTH_LIMIT,
+    prefix: "rl:oauth",
   });
-  return valkeyManifest;
+  return valkeyOAuth;
 }
 
 export async function applyPublicApiRateLimit(
@@ -259,7 +276,7 @@ function lastForwardedForIp(header: string): string | null {
   return null;
 }
 
-export function clientIpFromRequest(request: NextRequest): string {
+export function clientIpFromRequest(request: Request): string {
   // Caddy sets both to {remote_host} and overwrites whatever the browser
   // sent. Prefer X-Real-IP: it is always a single address. X-Forwarded-For
   // is the fallback; if a chain is present, use the rightmost hop.
