@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, ShieldCheck, ShieldX } from "lucide-react";
+import { ChevronLeft, Loader2, ShieldCheck, ShieldX } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { describeScopes } from "@/lib/oauth-consent-ui";
@@ -9,7 +10,6 @@ import { describeScopes } from "@/lib/oauth-consent-ui";
 type ConsentClientProps = {
   state: string;
   clientId: string;
-  clientLabel: string;
   scopes: string;
   userEmail: string;
   ttlDays: number;
@@ -18,7 +18,6 @@ type ConsentClientProps = {
 export function ConsentClient({
   state,
   clientId,
-  clientLabel,
   scopes,
   userEmail,
   ttlDays,
@@ -59,24 +58,31 @@ export function ConsentClient({
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-muted/30 p-6">
-      <div className="w-full max-w-md rounded-xl border bg-card p-8 shadow-sm">
+    <>
+      <div className="space-y-1 text-center">
+        <h1 className="px-4 text-lg font-bold md:text-xl">SearchPoint</h1>
+        <p className="text-sm text-muted-foreground">
+          Secure Corporate Search Engine
+        </p>
+      </div>
+
+      <div className=" w-full space-y-2">
         <div className="flex flex-col items-center text-center">
-          <ShieldCheck className="h-10 w-10 text-primary" />
-          <h1 className="mt-3 text-lg font-bold text-foreground">
-            Izinkan akses?
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{clientLabel}</p>
-          <p className="text-xs text-muted-foreground">{clientId}</p>
+          <h2 className="text-lg text-foreground">
+            <span className="font-semibold">{clientId}</span> wants to access
+            your account
+          </h2>
         </div>
 
-        <div className="mt-4 rounded-lg bg-muted/50 p-3 text-center">
-          <p className="text-sm text-foreground">
-            Masuk sebagai <span className="font-semibold">{userEmail}</span>
-          </p>
+        <div className="space-y-2 flex items-center justify-center w-full">
+          <div className="rounded-lg bg-muted/50 w-max px-4 py-2 text-center">
+            <p className="text-sm text-foreground">
+              <span className="font-semibold">{userEmail}</span>
+            </p>
+          </div>
         </div>
 
-        <ul className="mt-4 space-y-2">
+        <ul className="space-y-2">
           {visible.map((label) => (
             <li
               key={label}
@@ -97,18 +103,18 @@ export function ConsentClient({
         </ul>
 
         {error && (
-          <p role="alert" className="mt-3 text-center text-sm text-destructive">
+          <p role="alert" className="text-center text-sm text-destructive">
             {error}
           </p>
         )}
 
-        <div className="mt-6 flex gap-3">
+        <div className="flex gap-3">
           <Button
             variant="outline"
             className="flex-1"
             onClick={() => handleDecision(true)}
             disabled={submitting !== null}>
-            Tolak
+            Deny
           </Button>
           <Button
             className="flex-1"
@@ -117,16 +123,24 @@ export function ConsentClient({
             {submitting === "allow" ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              "Izinkan"
+              "Allow"
             )}
           </Button>
         </div>
 
-        <p className="mt-4 text-center text-xs text-muted-foreground">
-          {ttlDays} hari · {clientLabel} dapat melihat info ini selama kamu
-          login
+        <p className="text-center text-xs text-muted-foreground">
+          {clientId} can see your info for {ttlDays} days.
         </p>
       </div>
-    </main>
+
+      <div className="pt-2">
+        <Link
+          href="/landing"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground hover:underline">
+          <ChevronLeft className="h-3.5 w-3.5" />
+          <span>Back to home</span>
+        </Link>
+      </div>
+    </>
   );
 }

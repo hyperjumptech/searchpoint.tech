@@ -18,7 +18,6 @@ describe("env", () => {
     vi.unstubAllEnvs();
     const { env } = await import("./env");
     expect(env.OAUTH_SCOPES).toBe("openid profile email search magic");
-    expect(env.OAUTH_CLIENT_LABEL).toBe("Open WebUI (StartGPT SMDV)");
     expect(env.OAUTH_ISSUER).toBeUndefined();
   });
 });

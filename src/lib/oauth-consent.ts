@@ -1,4 +1,3 @@
-import { env } from "@/lib/env";
 import { getJSON, oauthKeys, setWithTTL } from "@/lib/oauth-valkey";
 
 export { describeScopes } from "@/lib/oauth-consent-ui";
@@ -25,8 +24,4 @@ export async function recordConsent(
     { grantedAt: Date.now() },
     CONSENT_TTL_SEC,
   );
-}
-
-export function clientLabel(): string {
-  return env.OAUTH_CLIENT_LABEL;
 }

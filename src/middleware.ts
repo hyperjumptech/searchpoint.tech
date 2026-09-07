@@ -47,7 +47,11 @@ export function middleware(request: NextRequest) {
   }
 
   // Allow public routes without authentication
-  if (pathname === "/landing" || pathname.startsWith("/docs/")) {
+  if (
+    pathname === "/landing" ||
+    pathname.startsWith("/docs/") ||
+    pathname.startsWith("/oauth/")
+  ) {
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-pathname", pathname);
     return applySecurityHeaders(
@@ -108,6 +112,7 @@ export const config = {
     "/",
     "/landing",
     "/login",
+    "/oauth/:path*",
     "/logout",
     "/search",
     "/image",

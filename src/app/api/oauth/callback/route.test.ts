@@ -6,9 +6,8 @@ const { mockTakeJSON, mockSetWithTTL, mockGenerateToken } = vi.hoisted(() => ({
   mockGenerateToken: vi.fn(() => "generated-code-123"),
 }));
 
-const { mockHasConsent, mockClientLabel, mockEnv } = vi.hoisted(() => ({
+const { mockHasConsent, mockEnv } = vi.hoisted(() => ({
   mockHasConsent: vi.fn(async () => true),
-  mockClientLabel: vi.fn(() => "Open WebUI (StartGPT SMDV)"),
   mockEnv: {
     BACKEND_BASE_URL: "https://api.searchpoint.hyperjump.tech",
     OAUTH_ISSUER: undefined as string | undefined,
@@ -20,7 +19,6 @@ const { mockHasConsent, mockClientLabel, mockEnv } = vi.hoisted(() => ({
 
 vi.mock("@/lib/oauth-consent", () => ({
   CONSENT_TTL_SEC: 30 * 24 * 3600,
-  clientLabel: mockClientLabel,
   hasConsent: mockHasConsent,
   describeScopes: vi.fn(() => ({ visible: [], unknown: [] })),
 }));

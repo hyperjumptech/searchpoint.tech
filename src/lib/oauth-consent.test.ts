@@ -20,7 +20,6 @@ vi.mock("@/lib/oauth-valkey", () => ({
 
 vi.mock("@/lib/env", () => ({
   env: {
-    OAUTH_CLIENT_LABEL: "Open WebUI (StartGPT SMDV)",
     OAUTH_ISSUER: undefined as string | undefined,
     AUTH_BASE_URL: "https://api.searchpoint.hyperjump.tech",
     VALKEY_URL: undefined,
@@ -29,7 +28,6 @@ vi.mock("@/lib/env", () => ({
 
 import {
   CONSENT_TTL_SEC,
-  clientLabel,
   consentKey,
   describeScopes,
   hasConsent,
@@ -73,9 +71,9 @@ describe("oauth-consent", () => {
       "openid email profile search magic",
     );
     expect(visible).toEqual([
-      "Lihat alamat email kamu",
-      "Lihat profil kamu (nama, avatar)",
-      "Cari dokumen di akun kamu",
+      "View your email address",
+      "View your profile (name, avatar)",
+      "Search documents in your account",
     ]);
     expect(unknown).toEqual([]);
   });
@@ -84,9 +82,5 @@ describe("oauth-consent", () => {
     const { visible, unknown } = describeScopes("openid foo bar");
     expect(visible).toEqual([]);
     expect(unknown).toEqual(["foo", "bar"]);
-  });
-
-  it("clientLabel returns the configured label", () => {
-    expect(clientLabel()).toBe("Open WebUI (StartGPT SMDV)");
   });
 });

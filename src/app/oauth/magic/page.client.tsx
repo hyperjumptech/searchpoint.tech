@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Mail } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,58 +64,75 @@ export function MagicClient({ state }: MagicClientProps) {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-muted/30 p-6">
-      <div className="w-full max-w-md rounded-xl border bg-card p-8 shadow-sm">
-        <div className="flex flex-col items-center text-center">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-            <Mail className="h-5 w-5 text-primary" />
-          </div>
-          <h1 className="mt-3 text-lg font-bold text-foreground">
-            Sign in to SearchPoint
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {sent
-              ? "Check your email for the magic link"
-              : "Enter your email to receive a magic link"}
-          </p>
-        </div>
+    <>
+      <div className="space-y-1 text-center">
+        <h1 className="px-4 text-lg font-bold md:text-xl">SearchPoint</h1>
+        <p className="text-sm text-muted-foreground">
+          Secure Corporate Search Engine
+        </p>
+      </div>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+      <form onSubmit={handleSubmit} className="w-full space-y-4 text-left">
+        <div className="space-y-1.5">
+          <label htmlFor="oauth-magic-email" className="text-sm font-medium">
+            Email
+          </label>
           <Input
-            type="email"
-            placeholder="you@example.com"
+            id="oauth-magic-email"
+            type="text"
+            placeholder="name@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             autoFocus
             disabled={sent || submitting}
-          />
-          <Button
-            type="submit"
             className="w-full"
-            disabled={submitting || sent}>
-            {submitting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : sent ? (
-              "Check your email"
-            ) : (
-              "Send magic link"
-            )}
-          </Button>
-        </form>
+          />
+        </div>
 
         {error && (
-          <p role="alert" className="mt-3 text-center text-sm text-destructive">
+          <p role="alert" className="text-center text-sm text-destructive">
             {error}
           </p>
         )}
 
-        {sent && !error && (
-          <p className="mt-3 text-center text-sm text-muted-foreground">
-            Didn’t get it? Check spam or try again in a few seconds.
-          </p>
-        )}
+        <Button
+          type="submit"
+          className="w-full rounded-full py-6 text-base font-semibold"
+          disabled={submitting || sent || !email.trim()}>
+          {submitting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : sent ? (
+            "Check your email"
+          ) : (
+            "Send sign-in link"
+          )}
+        </Button>
+      </form>
+
+      {sent && !error && (
+        <p className="text-center text-sm text-muted-foreground">
+          Check your email for the magic link.
+        </p>
+      )}
+
+      <div className="flex space-x-1 pt-2 text-sm">
+        <p className="text-muted-foreground">Having trouble logging in?</p>
+        <a
+          href="mailto:searchpoint@hyperjump.tech"
+          className="font-medium text-primary hover:underline">
+          Contact admin
+        </a>
       </div>
-    </main>
+
+      <div className="pt-2">
+        <Link
+          href="/landing"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground hover:underline">
+          <ChevronLeft className="h-3.5 w-3.5" />
+          <span>Back to home</span>
+        </Link>
+      </div>
+    </>
   );
 }

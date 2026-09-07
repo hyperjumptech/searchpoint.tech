@@ -1,9 +1,9 @@
 const SCOPE_LABELS: Record<string, { label: string; show: boolean }> = {
-  openid: { label: "Lihat identitas akun kamu (OpenID)", show: false },
-  profile: { label: "Lihat profil kamu (nama, avatar)", show: true },
-  email: { label: "Lihat alamat email kamu", show: true },
-  search: { label: "Cari dokumen di akun kamu", show: true },
-  magic: { label: "Masuk lewat magic link", show: false },
+  openid: { label: "View your identity (OpenID)", show: false },
+  profile: { label: "View your profile (name, avatar)", show: true },
+  email: { label: "View your email address", show: true },
+  search: { label: "Search documents in your account", show: true },
+  magic: { label: "Sign in with a magic link", show: false },
 };
 
 export function describeScopes(scope: string): {

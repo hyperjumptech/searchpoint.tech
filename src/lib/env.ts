@@ -65,10 +65,6 @@ const schema = z.object({
     (v) => (v === "" ? undefined : v),
     z.url().optional(),
   ),
-  OAUTH_CLIENT_LABEL: z
-    .string()
-    .optional()
-    .default("Open WebUI (StartGPT SMDV)"),
   OAUTH_REGISTERED_CLIENTS: z.preprocess((val) => {
     if (typeof val !== "string") return undefined;
     const trimmed = val.trim();

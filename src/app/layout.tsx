@@ -33,7 +33,9 @@ export default async function RootLayout({
     <html lang="en" className={inter.className}>
       <body className="min-h-screen bg-background text-foreground relative">
         <UserStoreInitializer user={me} />
-        {pathname === "/login" || pathname.startsWith("/docs/") ? null : (
+        {pathname === "/login" ||
+        pathname.startsWith("/docs/") ||
+        pathname.startsWith("/oauth/") ? null : (
           <Suspense>
             <Navbar />
           </Suspense>
