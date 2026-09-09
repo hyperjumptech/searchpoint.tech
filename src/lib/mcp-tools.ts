@@ -12,6 +12,16 @@ export type ToolOutcome =
 const EXT_RE = /^[a-z0-9]{1,10}$/;
 const BACKEND_TIMEOUT_MS = 15_000;
 
+const KINDS = ["video", "document", "image"] as const;
+export type Kind = (typeof KINDS)[number];
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?Z)?$/;
+const dateStringSchema = z
+  .string()
+  .refine((v) => ISO_DATE_RE.test(v) && !Number.isNaN(Date.parse(v)), {
+    message: "Invalid date, expected YYYY-MM-DD or 2023-01-01T00:00:00Z",
+  });
+
 const SOURCES = [
   "shared folder",
   "apple notes",
@@ -31,12 +41,47 @@ const searchSchema = z.object({
     .describe(
       "Full-text query. Minimal search: only send this. Omit for filter-only browse. Backend requires search OR filter, else returns [].",
     ),
+  type: z
+    .array(z.string().min(1))
+    .optional()
+    .describe(
+      "Filter by type/extension without dot (e.g. pdf, docx). Only include if user explicitly mentions a type. Do NOT send ['*'] — omit for all types. Tool param is `type`, backend filter key is `extension`.",
+    ),
   extension: z
     .array(z.string().min(1))
     .optional()
     .describe(
-      "Filter by extension without dot (e.g. pdf, docx). Only include if user explicitly mentions an extension. Do NOT send ['*'] — omit for all extensions.",
+      "Deprecated alias for `type`. Use `type` instead. Kept for backward compat.",
     ),
+  kind: z
+    .enum(KINDS)
+    .optional()
+    .describe(
+      "Filter by kind (video/document/image). Only include if user explicitly mentions a kind. Omit for all kinds.",
+    ),
+  author: z
+    .string()
+    .trim()
+    .min(1)
+    .optional()
+    .describe(
+      "Filter by author (free text, e.g. 'satriyo' or 'satriyo@hyperjump.tech'). Maps to backend `created_by`. Only include if user explicitly mentions an author.",
+    ),
+  updated_after: dateStringSchema
+    .optional()
+    .describe(
+      "Filter updated_at gte (e.g. 2023-01-01T00:00:00Z or 2023-01-01). Only include if user explicitly mentions a start date.",
+    ),
+  updated_before: dateStringSchema
+    .optional()
+    .describe(
+      "Filter updated_at lte (e.g. 2023-01-01T00:00:00Z or 2023-01-01). Only include if user explicitly mentions an end date.",
+    ),
+  // Aliases for backward compat / alternative param naming (mapped to updated_after/before)
+  updated_at_gte: dateStringSchema.optional(),
+  updated_at_lte: dateStringSchema.optional(),
+  date_gte: dateStringSchema.optional(),
+  date_lte: dateStringSchema.optional(),
   source: z
     .enum(SOURCES)
     .optional()
@@ -101,22 +146,38 @@ async function execSearchFile(
   if (!parsed.success) return invalidParams(parsed.error);
   const a = parsed.data;
 
-  // Normalize extension: ignore wildcard ["*"] (means all), drop empty/*, lowercase
-  const rawExt = a.extension ?? [];
-  const extAll = rawExt.map((e) => e.toLowerCase().trim());
+  // Normalize type (primary) + extension alias: ignore wildcard ["*"] (means all), drop empty/*, lowercase
+  const rawType = a.type ?? a.extension ?? [];
+  const extAll = rawType.map((e) => e.toLowerCase().trim());
   const ext = extAll.filter((e) => e !== "*" && e !== "");
   if (
-    rawExt.length &&
+    rawType.length &&
     extAll.some((e) => e !== "*" && e !== "" && !EXT_RE.test(e))
   )
-    return { status: "invalidParams", message: "extension: invalid extension" };
+    return { status: "invalidParams", message: "type: invalid type" };
 
-  // Minimal filter: only extension + source. Owner is implicit via SCSE_ID.
+  // Minimal filter: type (maps to backend `extension`) + kind + author + source + date. Owner is implicit via SCSE_ID.
   const parts: string[] = [];
-  if (ext.length)
+  if (ext.length === 1) parts.push(`extension eq '${ext[0]}'`);
+  else if (ext.length > 1)
     parts.push(`extension in (${ext.map((e) => `'${e}'`).join(",")})`);
+  if (a.kind) parts.push(`kind eq '${a.kind}'`);
+  if (a.author) {
+    const author = a.author.trim();
+    if (author) parts.push(`created_by eq '${author.replace(/'/g, "''")}'`);
+  }
   // source=unknown is backend placeholder — never filter on it for minimal search
   if (a.source && a.source !== "unknown") parts.push(`source eq '${a.source}'`);
+  const gte =
+    ((a as Record<string, unknown>).updated_after as string | undefined) ??
+    ((a as Record<string, unknown>).updated_at_gte as string | undefined) ??
+    ((a as Record<string, unknown>).date_gte as string | undefined);
+  const lte =
+    ((a as Record<string, unknown>).updated_before as string | undefined) ??
+    ((a as Record<string, unknown>).updated_at_lte as string | undefined) ??
+    ((a as Record<string, unknown>).date_lte as string | undefined);
+  if (gte) parts.push(`updated_at gte '${gte}'`);
+  if (lte) parts.push(`updated_at lte '${lte}'`);
 
   const url = new URL("/v1/files", env.BACKEND_BASE_URL);
   if (a.search) url.searchParams.set("search", a.search);
@@ -182,7 +243,7 @@ type ToolDef = {
 const searchFileTool: ToolDef = {
   name: "search_file",
   description:
-    "Search the user's documents. Minimal: only send {search:'q3'} — owner is implicit via SCSE_ID cookie, no need to send owner_email. Backend needs search OR filter, else []. Optional filters: extension (e.g. ['pdf']), source (shared folder/onedrive/sharepoint/teams/apple notes), mode (broad/exact). Pagination via page (1-based) + limit (default 10). Omit extension ['*'] and source unknown — they mean 'all' and are ignored. Returns JSON hits under value[]._source (use _source.id with get_file) and pagination under meta.pagination.",
+    "Search the user's documents. Minimal: only send {search:'q3'} — owner is implicit via SCSE_ID cookie, no need to send owner_email. Backend needs search OR filter, else []. Optional filters: type (e.g. ['pdf'] alias extension, maps to backend `extension`), kind (video/document/image), author (free text e.g. 'satriyo' or 'satriyo@hyperjump.tech' maps to `created_by`), updated_after/updated_before or updated_at_gte/updated_at_lte/date_gte/date_lte (ISO 2023-01-01T00:00:00Z or YYYY-MM-DD) for updated_at gte/lte, source (shared folder/onedrive/sharepoint/teams/apple notes), mode (broad/exact). Pagination via page (1-based) + limit (default 10). Omit type ['*'] and source unknown — they mean 'all' and are ignored. Backend filter keys: `extension`, `kind`, `created_by`, `updated_at`, `source`. Returns JSON hits under value[]._source (use _source.id with get_file) and pagination under meta.pagination.",
   inputSchema: z.toJSONSchema(searchSchema),
   execute: execSearchFile,
 };

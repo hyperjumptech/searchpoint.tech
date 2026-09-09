@@ -63,7 +63,7 @@ describe("search_file", () => {
       "search_file",
       {
         search: "pajak",
-        extension: ["PDF", "docx"],
+        type: ["PDF", "docx"],
         source: "shared folder",
         mode: "exact",
         limit: 25,

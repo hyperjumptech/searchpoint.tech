@@ -23,6 +23,13 @@ function rpcResult(id: unknown, result: unknown): Json {
 export async function handleMcpRequest(
   raw: string,
   scseId: string,
+  opts?: {
+    kind?: string;
+    author?: string;
+    updated_after?: string;
+    updated_before?: string;
+    type?: string[];
+  },
 ): Promise<McpOutcome> {
   let parsed: unknown;
   try {
@@ -79,7 +86,59 @@ export async function handleMcpRequest(
       const params = (msg.params ?? {}) as Json;
       const name = typeof params.name === "string" ? params.name : "";
       try {
-        const outcome = await callTool(name, params.arguments, scseId);
+        // Merge optional kind/author/date/type from query into search_file args if not already set
+        let args: unknown = params.arguments;
+        const hasDateOpts = Boolean(
+          opts?.updated_after || opts?.updated_before,
+        );
+        const hasTypeOpts = Boolean(opts?.type && opts.type.length);
+        if (
+          name === "search_file" &&
+          (opts?.kind || opts?.author || hasDateOpts || hasTypeOpts)
+        ) {
+          if (args && typeof args === "object" && !Array.isArray(args)) {
+            const rec = args as Record<string, unknown>;
+            const patch: Record<string, unknown> = {};
+            if (opts?.kind && rec.kind === undefined) patch.kind = opts.kind;
+            if (opts?.author && rec.author === undefined)
+              patch.author = opts.author;
+            if (
+              opts?.type &&
+              rec.type === undefined &&
+              rec.extension === undefined
+            )
+              patch.type = opts.type;
+            if (
+              opts?.updated_after &&
+              rec.updated_after === undefined &&
+              rec.updated_at_gte === undefined &&
+              rec.date_gte === undefined
+            )
+              patch.updated_after = opts.updated_after;
+            if (
+              opts?.updated_before &&
+              rec.updated_before === undefined &&
+              rec.updated_at_lte === undefined &&
+              rec.date_lte === undefined
+            )
+              patch.updated_before = opts.updated_before;
+            if (Object.keys(patch).length) args = { ...rec, ...patch };
+          } else if (args === undefined || args === null) {
+            const patch: Record<string, unknown> = {};
+            if (opts?.kind) patch.kind = opts.kind;
+            if (opts?.author) patch.author = opts.author;
+            if (opts?.type) patch.type = opts.type;
+            if (opts?.updated_after) patch.updated_after = opts.updated_after;
+            if (opts?.updated_before)
+              patch.updated_before = opts.updated_before;
+            if (Object.keys(patch).length) args = patch;
+          } else if (typeof args === "object" && Array.isArray(args)) {
+            // no-op: invalid args shape will be rejected by zod
+          } else {
+            // primitive args: wrap with patch if needed (will still fail zod cleanly)
+          }
+        }
+        const outcome = await callTool(name, args, scseId);
         if (outcome.status === "unknownTool")
           return {
             httpStatus: 200,
