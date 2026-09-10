@@ -181,14 +181,6 @@ export default function DownloadSection({
             );
           })}
         </div>
-
-        {/* Enterprise Security Footer Note */}
-        <div className="text-center text-xs text-muted-foreground max-w-xl mx-auto space-y-2">
-          <p className="flex items-center justify-center gap-1.5 font-medium text-foreground">
-            <ShieldCheck className="h-4 w-4 text-emerald-500" />
-            <span>Digitally signed and notarized for macOS and Windows.</span>
-          </p>
-        </div>
       </div>
     </section>
   );
