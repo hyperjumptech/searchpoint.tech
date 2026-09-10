@@ -11,14 +11,14 @@ export const COMPANY_LOGOS: Record<Company, CompanyLogoConfig> = {
   hyperjump: {
     src: "/icons/hyperjump.png",
     alt: "Hyperjump",
-    width: 1411,
-    height: 1080,
+    width: 1024,
+    height: 174,
   },
   smdv: {
     src: "/icons/smdv.png",
     alt: "SMDV",
-    width: 1024,
-    height: 1024,
+    width: 260,
+    height: 71,
   },
   sinarmas: {
     src: "/icons/logo.svg",

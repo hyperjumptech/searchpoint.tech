@@ -62,16 +62,16 @@ describe("getCompanyLogo", () => {
     const logo = getCompanyLogo("hyperjump");
     expect(logo.src).toBe("/icons/hyperjump.png");
     expect(logo.alt).toBe("Hyperjump");
-    expect(logo.width).toBe(1411);
-    expect(logo.height).toBe(1080);
+    expect(logo.width).toBe(1024);
+    expect(logo.height).toBe(174);
   });
 
   it("returns SMDV logo config for smdv", () => {
     const logo = getCompanyLogo("smdv");
     expect(logo.src).toBe("/icons/smdv.png");
     expect(logo.alt).toBe("SMDV");
-    expect(logo.width).toBe(1024);
-    expect(logo.height).toBe(1024);
+    expect(logo.width).toBe(260);
+    expect(logo.height).toBe(71);
   });
 
   it("returns Sinarmas logo config for sinarmas", () => {
