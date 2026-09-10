@@ -8,13 +8,32 @@ import { UserStoreInitializer } from "@/stores/user";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Navbar from "@/components/navbar";
+import CompanyFavicon from "@/components/company-favicon";
 import { headers } from "next/headers";
-import { companyFromHostname } from "@/lib/company";
+import { companyFromHostname, getCompanyFavicon } from "@/lib/company";
 
-export const metadata: Metadata = {
-  title: "SearchPoint",
-  description: "SearchPoint - Secure Corporate Search Engine",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = await headers();
+  const host =
+    headersList.get("x-hostname") ||
+    headersList.get("x-forwarded-host") ||
+    headersList.get("host") ||
+    "";
+  const company = companyFromHostname(host);
+  const favicon = getCompanyFavicon(company);
+
+  return {
+    title: "SearchPoint",
+    description: "SearchPoint - Secure Corporate Search Engine",
+    icons: {
+      icon: [
+        { url: favicon.ico, type: "image/x-icon" },
+        { url: favicon.png, type: "image/png" },
+      ],
+      apple: favicon.png,
+    },
+  };
+}
 
 const inter = Inter({
   subsets: ["latin"],
@@ -40,6 +59,7 @@ export default async function RootLayout({
     <html lang="en" className={inter.className}>
       <body className="min-h-screen bg-background text-foreground relative">
         <UserStoreInitializer user={me} />
+        <CompanyFavicon company={company} />
         {pathname === "/login" ||
         pathname.startsWith("/docs/") ||
         pathname.startsWith("/oauth/") ? null : (

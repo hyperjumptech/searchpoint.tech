@@ -37,10 +37,13 @@ export function middleware(request: NextRequest) {
   ) {
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-pathname", pathname);
-    const host =
+    const rawHost =
       request.headers.get("x-forwarded-host") ||
       request.headers.get("host") ||
       request.nextUrl.host;
+    const host = request.nextUrl.search
+      ? `${rawHost}${request.nextUrl.search}`
+      : rawHost;
     requestHeaders.set("x-hostname", host);
     return applySecurityHeaders(
       NextResponse.next({
@@ -59,10 +62,13 @@ export function middleware(request: NextRequest) {
   ) {
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-pathname", pathname);
-    const host =
+    const rawHost =
       request.headers.get("x-forwarded-host") ||
       request.headers.get("host") ||
       request.nextUrl.host;
+    const host = request.nextUrl.search
+      ? `${rawHost}${request.nextUrl.search}`
+      : rawHost;
     requestHeaders.set("x-hostname", host);
     return applySecurityHeaders(
       NextResponse.next({
@@ -107,10 +113,13 @@ export function middleware(request: NextRequest) {
   // Add pathname to request headers
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", pathname);
-  const host =
+  const rawHost =
     request.headers.get("x-forwarded-host") ||
     request.headers.get("host") ||
     request.nextUrl.host;
+  const host = request.nextUrl.search
+    ? `${rawHost}${request.nextUrl.search}`
+    : rawHost;
   requestHeaders.set("x-hostname", host);
 
   return applySecurityHeaders(

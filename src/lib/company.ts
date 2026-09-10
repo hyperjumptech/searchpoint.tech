@@ -32,6 +32,30 @@ export function getCompanyLogo(company: Company): CompanyLogoConfig {
   return COMPANY_LOGOS[company] ?? COMPANY_LOGOS.hyperjump;
 }
 
+export interface CompanyFaviconConfig {
+  ico: string;
+  png: string;
+}
+
+export const COMPANY_FAVICONS: Record<Company, CompanyFaviconConfig> = {
+  hyperjump: {
+    ico: "/favicons/hyperjump.ico",
+    png: "/favicons/hyperjump.png",
+  },
+  smdv: {
+    ico: "/favicons/smdv.ico",
+    png: "/favicons/smdv.png",
+  },
+  sinarmas: {
+    ico: "/favicons/sinarmas.ico",
+    png: "/favicons/sinarmas.png",
+  },
+};
+
+export function getCompanyFavicon(company: Company): CompanyFaviconConfig {
+  return COMPANY_FAVICONS[company] ?? COMPANY_FAVICONS.hyperjump;
+}
+
 export function companyFromHostname(hostnameOrUrl?: string | null): Company {
   if (!hostnameOrUrl) return "hyperjump";
   let host = hostnameOrUrl.trim().toLowerCase();

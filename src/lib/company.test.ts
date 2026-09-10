@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   companyFromHostname,
   getCompanyAppName,
+  getCompanyFavicon,
   getCompanyLogo,
 } from "./company";
 
@@ -80,6 +81,26 @@ describe("getCompanyLogo", () => {
     expect(logo.alt).toBe("Sinarmas");
     expect(logo.width).toBe(143);
     expect(logo.height).toBe(32);
+  });
+});
+
+describe("getCompanyFavicon", () => {
+  it("returns Hyperjump favicon config for hyperjump", () => {
+    const favicon = getCompanyFavicon("hyperjump");
+    expect(favicon.ico).toBe("/favicons/hyperjump.ico");
+    expect(favicon.png).toBe("/favicons/hyperjump.png");
+  });
+
+  it("returns SMDV favicon config for smdv", () => {
+    const favicon = getCompanyFavicon("smdv");
+    expect(favicon.ico).toBe("/favicons/smdv.ico");
+    expect(favicon.png).toBe("/favicons/smdv.png");
+  });
+
+  it("returns Sinarmas favicon config for sinarmas", () => {
+    const favicon = getCompanyFavicon("sinarmas");
+    expect(favicon.ico).toBe("/favicons/sinarmas.ico");
+    expect(favicon.png).toBe("/favicons/sinarmas.png");
   });
 });
 
