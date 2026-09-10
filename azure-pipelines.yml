@@ -2,9 +2,9 @@ name: "SCSE Web"
 
 trigger:
   batch: true
-  branches:
-    include:
-      - main
+  # branches:
+  #   include:
+  #     - main
   tags:
     include:
       - "*"
