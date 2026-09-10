@@ -1,8 +1,22 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { headers } from "next/headers";
+import NavbarLogo from "@/components/navbar-logo";
+import { companyFromHostname } from "@/lib/company";
 
-export default function OAuthLayout({ children }: { children: ReactNode }) {
+export default async function OAuthLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const headersList = await headers();
+  const host =
+    headersList.get("x-hostname") ||
+    headersList.get("x-forwarded-host") ||
+    headersList.get("host") ||
+    "";
+  const company = companyFromHostname(host);
+
   return (
     <main className="h-screen flex">
       <aside className="hidden md:flex md:flex-2 w-full relative">
@@ -16,17 +30,7 @@ export default function OAuthLayout({ children }: { children: ReactNode }) {
       </aside>
       <section className="flex-1 w-full flex-col flex items-center justify-between py-16">
         <header>
-          <Link
-            href="/landing"
-            aria-label="Go to landing page"
-            className="transition-opacity hover:opacity-80">
-            <Image
-              src="/icons/logo.svg"
-              alt="Sinarmas"
-              width={143}
-              height={32}
-            />
-          </Link>
+          <NavbarLogo company={company} />
         </header>
         <article className="flex w-full max-w-md flex-col items-center justify-center space-y-4 p-8 text-center">
           {children}

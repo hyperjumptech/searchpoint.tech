@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { companyFromHostname, getCompanyAppName } from "./company";
+import {
+  companyFromHostname,
+  getCompanyAppName,
+  getCompanyLogo,
+} from "./company";
 
 describe("companyFromHostname", () => {
   it("defaults to hyperjump when hostname is undefined or empty", () => {
@@ -28,6 +32,54 @@ describe("companyFromHostname", () => {
     expect(companyFromHostname("searchpoint.hyperjump.tech")).toBe("hyperjump");
     expect(companyFromHostname("localhost")).toBe("hyperjump");
     expect(companyFromHostname("localhost:3000")).toBe("hyperjump");
+  });
+
+  it("handles full URLs correctly according to company domain", () => {
+    expect(companyFromHostname("https://searchpoint.hyperjump.tech/")).toBe(
+      "hyperjump",
+    );
+    expect(companyFromHostname("https://searchpoint.smdv.com/")).toBe("smdv");
+    expect(
+      companyFromHostname("https://searchpoint.sinarmas.hyperjump.tech/"),
+    ).toBe("sinarmas");
+  });
+
+  it("supports company query parameter for testing/overrides", () => {
+    expect(companyFromHostname("http://localhost:3000/?company=smdv")).toBe(
+      "smdv",
+    );
+    expect(companyFromHostname("http://localhost:3000/?company=sinarmas")).toBe(
+      "sinarmas",
+    );
+    expect(
+      companyFromHostname("http://localhost:3000/?company=hyperjump"),
+    ).toBe("hyperjump");
+  });
+});
+
+describe("getCompanyLogo", () => {
+  it("returns Hyperjump logo config for hyperjump", () => {
+    const logo = getCompanyLogo("hyperjump");
+    expect(logo.src).toBe("/icons/hyperjump.png");
+    expect(logo.alt).toBe("Hyperjump");
+    expect(logo.width).toBe(1411);
+    expect(logo.height).toBe(1080);
+  });
+
+  it("returns SMDV logo config for smdv", () => {
+    const logo = getCompanyLogo("smdv");
+    expect(logo.src).toBe("/icons/smdv.png");
+    expect(logo.alt).toBe("SMDV");
+    expect(logo.width).toBe(1024);
+    expect(logo.height).toBe(1024);
+  });
+
+  it("returns Sinarmas logo config for sinarmas", () => {
+    const logo = getCompanyLogo("sinarmas");
+    expect(logo.src).toBe("/icons/logo.svg");
+    expect(logo.alt).toBe("Sinarmas");
+    expect(logo.width).toBe(143);
+    expect(logo.height).toBe(32);
   });
 });
 

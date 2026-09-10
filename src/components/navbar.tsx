@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Download, LogOut, Menu, X, ExternalLink } from "lucide-react";
@@ -23,9 +23,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { companyFromHostname } from "@/lib/company";
-import { detectOS, osToUpdaterFormat } from "@/lib/detect-os";
 import { useUserStore } from "@/stores/user";
+import { detectOS, osToUpdaterFormat } from "@/lib/detect-os";
+import { companyFromHostname, type Company } from "@/lib/company";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -43,11 +43,32 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Download", href: "#download" },
 ];
 
-export default function Navbar() {
+export default function Navbar({
+  company: initialCompany,
+}: {
+  company?: Company;
+} = {}) {
   const pathname = usePathname();
   const { user, logOut } = useUserStore();
   const [showLinuxModal, setShowLinuxModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [company, setCompany] = useState<Company>(() => {
+    if (initialCompany) return initialCompany;
+    if (typeof window !== "undefined") {
+      return companyFromHostname(
+        window.location.href || window.location.hostname,
+      );
+    }
+    return "hyperjump";
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCompany(
+        companyFromHostname(window.location.href || window.location.hostname),
+      );
+    }
+  }, []);
 
   if (pathname === "/login" || pathname?.startsWith("/docs/")) {
     return null;
@@ -64,9 +85,6 @@ export default function Navbar() {
     }
 
     const { target, arch } = osToUpdaterFormat(detectedOS);
-    const company = companyFromHostname(
-      typeof window !== "undefined" ? window.location.hostname : "",
-    );
 
     try {
       const res = await fetch(
@@ -101,7 +119,7 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-full px-4 sm:px-6">
             {/* Logo */}
             <div className="flex items-center gap-8">
-              <NavbarLogo />
+              <NavbarLogo company={company} />
 
               {/* Desktop Nav Links (Landing page only) */}
               {isLandingPage && (

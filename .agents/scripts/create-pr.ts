@@ -104,6 +104,27 @@ function getLastCommitMessage(): string {
   return git(["log", "-1", "--pretty=%s"]);
 }
 
+function getBranchTitleFallback(
+  source: string,
+  targetRef: string,
+): string | null {
+  const mergeBase = gitSafe(["merge-base", targetRef, source]);
+  const range = mergeBase
+    ? `${mergeBase}..${source}`
+    : `${targetRef}..${source}`;
+  const firstCommit = gitSafe(["log", "--reverse", "--format=%s", range, "-1"]);
+  return firstCommit || null;
+}
+
+function resolveTargetRef(target: string): string {
+  // Fetch origin to ensure we compare against current remote state
+  gitSafe(["fetch", "origin", target]);
+  if (gitSafe(["rev-parse", "--verify", `origin/${target}`])) {
+    return `origin/${target}`;
+  }
+  return target;
+}
+
 function branchHasRemote(branch: string): boolean {
   try {
     git(["rev-parse", "--abbrev-ref", `${branch}@{upstream}`]);
@@ -143,11 +164,14 @@ function buildChangeSummary(
   title: string,
   source: string,
   target: string,
+  targetRef: string,
 ): string {
-  const mergeBase = gitSafe(["merge-base", target, source]);
-  const range = mergeBase ? `${mergeBase}...${source}` : `${target}..${source}`;
+  const mergeBase = gitSafe(["merge-base", targetRef, source]);
+  const range = mergeBase
+    ? `${mergeBase}..${source}`
+    : `${targetRef}...${source}`;
   const commits =
-    gitSafe(["log", "--oneline", "--no-merges", `${target}..${source}`]) ??
+    gitSafe(["log", "--oneline", "--no-merges", range]) ??
     "(no commits listed)";
   const stat = gitSafe(["diff", "--stat", range]) ?? "";
   let diff = gitSafe(["diff", range]) ?? "";
@@ -160,20 +184,22 @@ function buildChangeSummary(
     "",
     `Title: ${title}`,
     `Branch: ${source} → ${target}`,
+    `Target Comparison: ${targetRef}`,
     "",
-    "## Commits",
+    "## Commits (all commits on this branch against target)",
     commits,
     "",
     "## Changed files",
     stat,
     "",
-    "## Diff",
+    "## Diff (all branch changes against target)",
     diff,
   ].join("\n");
 }
 
 function generateDescription(
   context: string,
+  targetBranch: string,
   agent: string = "opencode",
 ): string | null {
   info(`Spawning agent (${agent}) to analyze branch changes...`);
@@ -182,7 +208,10 @@ function generateDescription(
   const file = join(dir, "changes.md");
   try {
     writeFileSync(file, context);
-    const prompt = `You are creating a pull request description. The attached file contains the PR context, commits, and code diff for the branch being merged.
+    const prompt = `You are creating a pull request description. The attached file contains the PR context, commits, and code diff for the branch being merged into ${targetBranch}.
+
+CRITICAL:
+This branch may contain multiple commits. You MUST review and synthesize ALL commits and the ENTIRE diff across all changed files against ${targetBranch}. Do NOT generate the description based only on the latest commit or a single commit. The description must comprehensively cover all changes in this PR.
 
 Based ONLY on that information, write a PR description that EXACTLY follows this template:
 
@@ -205,9 +234,9 @@ Based ONLY on that information, write a PR description that EXACTLY follows this
 Guidelines:
 - Replace the parenthetical guidance with concrete content grounded in the diff.
 - Keep it SHORT and concise — no long paragraphs, no verbose detail.
-- "What does this PR solve?" — the problem/feature in 1-2 short sentences.
-- "How does this PR solve the problem?" — the key changes in 1-3 short bullets or a brief sentence.
-- "How to test this PR?" — 1-3 concrete steps max, keep each step short.
+- "What does this PR solve?" — the overall problem/feature solved by this PR in 1-2 short sentences covering all branch changes.
+- "How does this PR solve the problem?" — the key changes across all commits in the branch in 1-3 short bullets or a brief sentence.
+- "How to test this PR?" — 1-3 concrete steps max to verify the full set of changes, keep each step short.
 - Output ONLY the markdown description. No preamble, no code fences.`;
 
     const agyPrompt = `${prompt}\n\nHere is the PR context and diff:\n\n${context}`;
@@ -323,7 +352,7 @@ async function ado<T = unknown>(
       `${init.method ?? "GET"} ${url} \u2192 ${res?.status ?? "unknown"}\n${body}`,
     );
   }
-  return res.json() as Promise<T>;
+  return res?.json() as Promise<T>;
 }
 
 // Like ado() but returns null instead of killing the process on failure.
@@ -417,6 +446,8 @@ if (sourceBranch === targetBranch) {
   );
 }
 
+const targetRef = resolveTargetRef(targetBranch);
+
 // Resolve title: explicit arg > work item from branch > last commit
 async function resolveTitle(): Promise<string> {
   if (titleArg) return titleArg;
@@ -430,15 +461,17 @@ async function resolveTitle(): Promise<string> {
       return workItemTitle;
     }
     warn(
-      `Work item ${workItemId} not found or inaccessible — falling back to last commit message`,
+      `Work item ${workItemId} not found or inaccessible — falling back to commit message`,
     );
   } else {
     warn(
-      `No work item ID found in branch "${sourceBranch}" — using last commit message`,
+      `No work item ID found in branch "${sourceBranch}" — using commit message`,
     );
   }
 
-  return getLastCommitMessage();
+  return (
+    getBranchTitleFallback(sourceBranch, targetRef) ?? getLastCommitMessage()
+  );
 }
 
 const title = await resolveTitle();
@@ -446,8 +479,13 @@ const title = await resolveTitle();
 let description = descriptionArg ?? "";
 if (!description) {
   info("No description provided — generating from branch diff...");
-  const context = buildChangeSummary(title, sourceBranch, targetBranch);
-  const generated = generateDescription(context, agentArg);
+  const context = buildChangeSummary(
+    title,
+    sourceBranch,
+    targetBranch,
+    targetRef,
+  );
+  const generated = generateDescription(context, targetBranch, agentArg);
   info(
     `Agent returned: ${generated ? `"${generated.slice(0, 60)}..."` : "null"}`,
   );

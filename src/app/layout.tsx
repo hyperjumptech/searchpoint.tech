@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Navbar from "@/components/navbar";
 import { headers } from "next/headers";
+import { companyFromHostname } from "@/lib/company";
 
 export const metadata: Metadata = {
   title: "SearchPoint",
@@ -28,6 +29,12 @@ export default async function RootLayout({
   const me = await getMe();
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || "";
+  const host =
+    headersList.get("x-hostname") ||
+    headersList.get("x-forwarded-host") ||
+    headersList.get("host") ||
+    "";
+  const company = companyFromHostname(host);
 
   return (
     <html lang="en" className={inter.className}>
@@ -37,7 +44,7 @@ export default async function RootLayout({
         pathname.startsWith("/docs/") ||
         pathname.startsWith("/oauth/") ? null : (
           <Suspense>
-            <Navbar />
+            <Navbar company={company} />
           </Suspense>
         )}
         {children}

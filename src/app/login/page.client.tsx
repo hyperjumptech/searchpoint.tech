@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, Mail } from "lucide-react";
 
+import NavbarLogo from "@/components/navbar-logo";
+import CompanyLogo from "@/components/company-logo";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,11 +19,14 @@ import { UnlockingAnimation } from "@/components/ui/unlocking-animation";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useMagicLink } from "@/hooks/use-magic-link";
 import { resolveMagicLinkUrl } from "@/actions/resolve-magic-link";
+import { companyFromHostname, type Company } from "@/lib/company";
+
 interface LoginClientProps {
   authUrl: string;
   enableMagicLink?: boolean;
   enableMicrosoftLogin?: boolean;
   isDev?: boolean;
+  company?: Company;
 }
 
 export function LoginClient({
@@ -29,8 +34,28 @@ export function LoginClient({
   enableMagicLink = true,
   enableMicrosoftLogin = false,
   isDev = false,
+  company: initialCompany,
 }: LoginClientProps) {
+  const [company, setCompany] = useState<Company>(() => {
+    if (initialCompany) return initialCompany;
+    if (typeof window !== "undefined") {
+      return companyFromHostname(
+        window.location.href || window.location.hostname,
+      );
+    }
+    return "hyperjump";
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCompany(
+        companyFromHostname(window.location.href || window.location.hostname),
+      );
+    }
+  }, []);
+
   const [isLoading, setIsLoading] = useState(false);
+
   const [showDevModal, setShowDevModal] = useState(false);
   const [devCallbackUrl, setDevCallbackUrl] = useState("");
   const [devError, setDevError] = useState("");
@@ -89,17 +114,7 @@ export function LoginClient({
     <>
       <section className="flex-1 w-full flex-col flex items-center justify-between py-16">
         <header>
-          <Link
-            href="/landing"
-            aria-label="Go to landing page"
-            className="transition-opacity hover:opacity-80">
-            <Image
-              src="/icons/logo.svg"
-              alt="Sinarmas"
-              width={143}
-              height={32}
-            />
-          </Link>
+          <NavbarLogo company={company} />
         </header>
         <article
           className={`flex flex-col items-center justify-center space-y-4 p-8 text-center ${
@@ -316,13 +331,12 @@ export function LoginClient({
             <VisuallyHidden>
               <DialogTitle>Authenticating</DialogTitle>
             </VisuallyHidden>
-            <Image
-              src="/icons/logo.svg"
-              alt="Sinarmas"
-              width={143}
-              height={32}
+            <CompanyLogo
+              company={company}
+              className="h-8 w-auto object-contain"
             />
           </DialogHeader>
+
           <div className="flex flex-col items-center justify-center space-y-4 my-8">
             <UnlockingAnimation className="h-16 w-16 text-primary" />
             <p className="text-xl font-bold">
