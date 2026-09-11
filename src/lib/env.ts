@@ -2,6 +2,15 @@ import { z } from "zod";
 
 const schema = z.object({
   APP_NAME: z.string().optional().default("SearchPoint"),
+  // Pins a deployment to one tenant. Unset falls back to hostname matching, so
+  // existing servers keep working until their .env is updated.
+  TENANT: z.preprocess(
+    (val) =>
+      typeof val === "string" && val.trim() !== ""
+        ? val.trim().toLowerCase()
+        : undefined,
+    z.enum(["hyperjump", "smdv", "sinarmas"]).optional(),
+  ),
   BACKEND_BASE_URL: z
     .url()
     .optional()

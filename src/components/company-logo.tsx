@@ -26,14 +26,18 @@ export default function CompanyLogo({
     return "hyperjump";
   });
 
+  // A server-provided company is authoritative: the deployment is pinned to one
+  // tenant via TENANT, which the client cannot see. Only sniff the hostname when
+  // no tenant was passed down.
   useEffect(() => {
+    if (initialCompany) return;
     if (typeof window !== "undefined") {
       const detected = companyFromHostname(
         window.location.href || window.location.hostname,
       );
       setCompany(detected);
     }
-  }, []);
+  }, [initialCompany]);
 
   const logo = getCompanyLogo(company);
 

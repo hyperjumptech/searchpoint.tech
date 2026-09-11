@@ -1,11 +1,22 @@
 "use client";
 
-import { Download, Clock, ShieldCheck } from "lucide-react";
+import { Download, Clock } from "lucide-react";
+
+import type { TenantContent } from "@/lib/tenant";
 
 interface DownloadSectionProps {
   detectedOS: string;
   onDownloadPlatform: (platformKey: string) => void;
+  /** Per-tenant copy. Falls back to the shared defaults when omitted. */
+  content?: TenantContent["download"];
 }
+
+const DEFAULT_DOWNLOAD_CONTENT: TenantContent["download"] = {
+  badge: "Get Started Today",
+  heading: "Download SearchPoint for your desktop.",
+  subheading:
+    "Fast, secure, and native desktop app. Select your operating system below to install SearchPoint.",
+};
 
 function AppleIcon({ className = "h-6 w-6" }: { className?: string }) {
   return (
@@ -78,6 +89,7 @@ const PLATFORMS = [
 export default function DownloadSection({
   detectedOS,
   onDownloadPlatform,
+  content = DEFAULT_DOWNLOAD_CONTENT,
 }: DownloadSectionProps) {
   const getIsCurrentOS = (platformId: string) => {
     if (platformId.startsWith("darwin") && detectedOS.startsWith("darwin"))
@@ -101,14 +113,13 @@ export default function DownloadSection({
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-3">
             <Download className="h-3.5 w-3.5" />
-            <span>Get Started Today</span>
+            <span>{content.badge}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
-            Download SearchPoint for your desktop.
+            {content.heading}
           </h2>
           <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
-            Fast, secure, and native desktop app. Select your operating system
-            below to install SearchPoint.
+            {content.subheading}
           </p>
         </div>
 

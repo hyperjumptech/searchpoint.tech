@@ -112,6 +112,66 @@
   --sidebar-ring: oklch(0.396 0.141 25.723);
 }
 
+/* ---------------------------------------------------------------------------
+ * Per-tenant brand tokens.
+ *
+ * Activated by the data-tenant attribute on <html> (set in src/app/layout.tsx).
+ * Every tenant declares its own block, so nothing inherits a brand color by
+ * accident. Because every landing section already styles itself with the
+ * semantic tokens (bg-primary, text-foreground, bg-card, ...), overriding the
+ * tokens here re-themes the whole page with no component changes.
+ *
+ * All three tenants use real brand values sampled from their logos. Swapping
+ * one needs no component or TypeScript change, only the declarations below.
+ * ------------------------------------------------------------------------- */
+/* Brand blue #3975F4 / rgb(57, 117, 244).
+ * Contrast caveat: white label on this is 4.18:1 — above WCAG AA for large
+ * text (3.0) but below AA for normal text (4.5). White is still the best
+ * available pairing; black only reaches 5.02:1 and reads badly on blue.
+ * To clear AA without leaving the brand hue, darken L to 0.57 (#326DEB,
+ * 4.64:1) — visually near-identical. Left at the exact brand value by
+ * choice, not oversight. */
+:root[data-tenant="hyperjump"] {
+  --primary: oklch(0.595 0.201 262.809);
+  --primary-foreground: oklch(1 0 0);
+  --ring: oklch(0.7 0.165 262.809);
+}
+
+:root[data-tenant="hyperjump"].dark {
+  --primary: oklch(0.65 0.19 262.809);
+  --primary-foreground: oklch(1 0 0);
+  --ring: oklch(0.45 0.15 262.809);
+}
+
+/* Brand red #ED1B24 / rgb(237, 27, 36). */
+:root[data-tenant="sinarmas"] {
+  --primary: oklch(0.603 0.235 26.909);
+  --primary-foreground: oklch(0.971 0.013 26.909);
+  --ring: oklch(0.72 0.185 26.909);
+}
+
+:root[data-tenant="sinarmas"].dark {
+  --primary: oklch(0.66 0.225 26.909);
+  --primary-foreground: oklch(0.971 0.013 26.909);
+  --ring: oklch(0.4 0.14 26.909);
+}
+
+/* Brand navy #02033F / rgb(2, 3, 63). Near-black, so white sits on it at
+ * 19.31:1 — no contrast concern. The ring is lightened to stay visible as a
+ * focus halo, and the dark-mode primary is lightened because the brand value
+ * would disappear against a dark background. */
+:root[data-tenant="smdv"] {
+  --primary: oklch(0.175 0.109 266.55);
+  --primary-foreground: oklch(1 0 0);
+  --ring: oklch(0.45 0.11 266.55);
+}
+
+:root[data-tenant="smdv"].dark {
+  --primary: oklch(0.6 0.109 266.55);
+  --primary-foreground: oklch(1 0 0);
+  --ring: oklch(0.45 0.11 266.55);
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;

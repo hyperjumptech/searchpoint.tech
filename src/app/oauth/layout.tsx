@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import { headers } from "next/headers";
 import NavbarLogo from "@/components/navbar-logo";
-import { companyFromHostname } from "@/lib/company";
+import { env } from "@/lib/env";
+import { getTenantConfig, resolveTenantId } from "@/lib/tenant";
 
 export default async function OAuthLayout({
   children,
@@ -15,7 +16,10 @@ export default async function OAuthLayout({
     headersList.get("x-forwarded-host") ||
     headersList.get("host") ||
     "";
-  const company = companyFromHostname(host);
+  const tenant = getTenantConfig(
+    resolveTenantId(env.TENANT, host),
+    env.APP_NAME,
+  );
 
   return (
     <main className="h-screen flex">
@@ -30,13 +34,14 @@ export default async function OAuthLayout({
       </aside>
       <section className="flex-1 w-full flex-col flex items-center justify-between py-16">
         <header>
-          <NavbarLogo company={company} />
+          <NavbarLogo company={tenant.id} />
         </header>
         <article className="flex w-full max-w-md flex-col items-center justify-center space-y-4 p-8 text-center">
           {children}
         </article>
         <footer className="text-xs text-muted-foreground">
-          Copyright © {new Date().getFullYear()} Sinar Mas. All Right Reserved.
+          Copyright © {new Date().getFullYear()} {tenant.content.legalName}. All
+          Rights Reserved.
         </footer>
       </section>
     </main>

@@ -31,13 +31,24 @@ import {
   OnDeviceFolderIcon,
 } from "@/components/icons/source-icons";
 
+import type { TenantContent } from "@/lib/tenant";
+
 interface HeroSectionProps {
   detectedOS: string;
   isMobile: boolean;
   onDownload: () => void;
   onSelectPlatform?: (os: string) => void;
   downloaded?: boolean;
+  /** Per-tenant copy. Falls back to the shared defaults when omitted. */
+  content?: TenantContent["hero"];
 }
+
+const DEFAULT_HERO_CONTENT: TenantContent["hero"] = {
+  headlineLead: "Unified search for your files and",
+  headlineAccent: "Microsoft 365.",
+  subheadline:
+    "Stop jumping between File Explorer, browser tabs, and SharePoint to find the same document. SearchPoint searches local folders, OneDrive, and site libraries in one place.",
+};
 
 interface SampleResult {
   title: string;
@@ -272,6 +283,7 @@ export default function HeroSection({
   detectedOS,
   isMobile,
   onDownload,
+  content = DEFAULT_HERO_CONTENT,
 }: HeroSectionProps) {
   const { user } = useUserStore();
   const [activeQueryIndex, setActiveQueryIndex] = useState(0);
@@ -298,17 +310,15 @@ export default function HeroSection({
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center">
         {/* Headline */}
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground max-w-4xl leading-[1.15] text-balance animate-in fade-in slide-in-from-bottom-3 duration-700">
-          Unified search for your files and{" "}
+          {content.headlineLead}{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary/90 to-primary/70">
-            Microsoft 365.
+            {content.headlineAccent}
           </span>
         </h1>
         {/* Subtitle */}
         <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl leading-relaxed text-balance animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
           {user?.name ? `Welcome back, ${user.name}. ` : ""}
-          Stop jumping between File Explorer, browser tabs, and SharePoint to
-          find the same document. SearchPoint searches local folders, OneDrive,
-          and site libraries in one place.
+          {content.subheadline}
         </p>
         {/* Action Button & Platform Switcher */}
         <div className="mt-9 flex flex-col items-center gap-4 w-full max-w-md animate-in fade-in slide-in-from-bottom-5 duration-700 delay-150">

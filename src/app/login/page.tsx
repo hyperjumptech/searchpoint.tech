@@ -2,7 +2,7 @@ import Image from "next/image";
 import { headers } from "next/headers";
 import { LoginClient } from "./page.client";
 import { env } from "@/lib/env";
-import { companyFromHostname } from "@/lib/company";
+import { resolveTenantId } from "@/lib/tenant";
 
 export default async function Login() {
   const headersList = await headers();
@@ -11,7 +11,7 @@ export default async function Login() {
     headersList.get("x-forwarded-host") ||
     headersList.get("host") ||
     "";
-  const company = companyFromHostname(host);
+  const company = resolveTenantId(env.TENANT, host);
 
   return (
     <main className="h-screen flex">

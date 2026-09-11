@@ -62,13 +62,17 @@ export default function Navbar({
     return "hyperjump";
   });
 
+  // A server-provided company is authoritative: the deployment is pinned to one
+  // tenant via TENANT, which the client cannot see. Only sniff the hostname when
+  // no tenant was passed down.
   useEffect(() => {
+    if (initialCompany) return;
     if (typeof window !== "undefined") {
       setCompany(
         companyFromHostname(window.location.href || window.location.hostname),
       );
     }
-  }, []);
+  }, [initialCompany]);
 
   if (pathname === "/login" || pathname?.startsWith("/docs/")) {
     return null;

@@ -10,7 +10,9 @@ import { Suspense } from "react";
 import Navbar from "@/components/navbar";
 import CompanyFavicon from "@/components/company-favicon";
 import { headers } from "next/headers";
-import { companyFromHostname, getCompanyFavicon } from "@/lib/company";
+import { getCompanyFavicon } from "@/lib/company";
+import { env } from "@/lib/env";
+import { getTenantConfig, resolveTenantId } from "@/lib/tenant";
 
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = await headers();
@@ -19,12 +21,15 @@ export async function generateMetadata(): Promise<Metadata> {
     headersList.get("x-forwarded-host") ||
     headersList.get("host") ||
     "";
-  const company = companyFromHostname(host);
-  const favicon = getCompanyFavicon(company);
+  const tenant = getTenantConfig(
+    resolveTenantId(env.TENANT, host),
+    env.APP_NAME,
+  );
+  const favicon = getCompanyFavicon(tenant.id);
 
   return {
-    title: "SearchPoint",
-    description: "SearchPoint - Secure Corporate Search Engine",
+    title: tenant.content.meta.title,
+    description: tenant.content.meta.description,
     icons: {
       icon: [
         { url: favicon.ico, type: "image/x-icon" },
@@ -53,18 +58,18 @@ export default async function RootLayout({
     headersList.get("x-forwarded-host") ||
     headersList.get("host") ||
     "";
-  const company = companyFromHostname(host);
+  const tenant = resolveTenantId(env.TENANT, host);
 
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en" data-tenant={tenant} className={inter.className}>
       <body className="min-h-screen bg-background text-foreground relative">
         <UserStoreInitializer user={me} />
-        <CompanyFavicon company={company} />
+        <CompanyFavicon company={tenant} />
         {pathname === "/login" ||
         pathname.startsWith("/docs/") ||
         pathname.startsWith("/oauth/") ? null : (
           <Suspense>
-            <Navbar company={company} />
+            <Navbar company={tenant} />
           </Suspense>
         )}
         {children}

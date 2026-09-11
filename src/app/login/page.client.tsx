@@ -20,6 +20,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useMagicLink } from "@/hooks/use-magic-link";
 import { resolveMagicLinkUrl } from "@/actions/resolve-magic-link";
 import { companyFromHostname, type Company } from "@/lib/company";
+import { getTenantConfig } from "@/lib/tenant";
 
 interface LoginClientProps {
   authUrl: string;
@@ -46,13 +47,17 @@ export function LoginClient({
     return "hyperjump";
   });
 
+  // A server-provided company is authoritative: the deployment is pinned to one
+  // tenant via TENANT, which the client cannot see. Only sniff the hostname when
+  // no tenant was passed down.
   useEffect(() => {
+    if (initialCompany) return;
     if (typeof window !== "undefined") {
       setCompany(
         companyFromHostname(window.location.href || window.location.hostname),
       );
     }
-  }, []);
+  }, [initialCompany]);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -321,7 +326,8 @@ export function LoginClient({
           </div>
         </article>
         <footer className="text-xs text-muted-foreground">
-          Copyright © {new Date().getFullYear()} Sinar Mas. All Right Reserved.
+          Copyright © {new Date().getFullYear()}{" "}
+          {getTenantConfig(company).content.legalName}. All Rights Reserved.
         </footer>
       </section>
 

@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { companyFromHostname } from "@/lib/company";
+import { companyFromHostname, type Company } from "@/lib/company";
 import { osToUpdaterFormat } from "@/lib/detect-os";
 import Image from "next/image";
 import { Clock, Download, Search, ShieldCheck, Lock } from "lucide-react";
@@ -48,10 +48,12 @@ export default function HomePageClient({
   detectedOS,
   isMobile,
   isGoogleChrome,
+  company: initialCompany,
 }: {
   detectedOS: string;
   isMobile: boolean;
   isGoogleChrome: boolean;
+  company?: Company;
 }) {
   const [downloaded, setDownloaded] = useState(false);
   const [fading, setFading] = useState(false);
@@ -72,9 +74,13 @@ export default function HomePageClient({
     }
 
     const { target, arch } = osToUpdaterFormat(detectedOS);
-    const company = companyFromHostname(
-      typeof window !== "undefined" ? window.location.hostname : "",
-    );
+    // The server-resolved tenant wins; hostname sniffing is only a fallback for
+    // deployments that have not set TENANT yet.
+    const company =
+      initialCompany ??
+      companyFromHostname(
+        typeof window !== "undefined" ? window.location.hostname : "",
+      );
 
     try {
       const res = await fetch(

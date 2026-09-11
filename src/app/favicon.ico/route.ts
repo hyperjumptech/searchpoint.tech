@@ -1,24 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { companyFromHostname } from "@/lib/company";
 import fs from "fs";
 import path from "path";
+
+import { env } from "@/lib/env";
+import { resolveTenantId } from "@/lib/tenant";
 
 export function GET(request: NextRequest) {
   const host =
     request.headers.get("x-forwarded-host") ||
     request.headers.get("host") ||
     request.nextUrl.host;
-  const company = companyFromHostname(
-    request.nextUrl.searchParams.get("company")
-      ? `${host}?company=${request.nextUrl.searchParams.get("company")}`
-      : host,
-  );
+  // TENANT pins the deployment. The ?company= override is deliberately gone:
+  // a deployment must not be able to serve another tenant's icon on request.
+  const tenant = resolveTenantId(env.TENANT, host);
 
   const filePath = path.join(
     process.cwd(),
     "public",
     "favicons",
-    `${company}.ico`,
+    `${tenant}.ico`,
   );
 
   try {

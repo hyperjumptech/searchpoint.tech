@@ -13,13 +13,17 @@ import ComparisonSection from "@/components/landing/comparison-section";
 import SecuritySection from "@/components/landing/security-section";
 import DownloadSection from "@/components/landing/download-section";
 
+import type { TenantContent } from "@/lib/tenant";
+
 export default function LandingPageClient({
   detectedOS,
   isMobile,
+  content,
 }: {
   detectedOS: string;
   isMobile: boolean;
   isGoogleChrome: boolean;
+  content: TenantContent;
 }) {
   const router = useRouter();
   const [lightbox, setLightbox] = useState<{
@@ -43,6 +47,7 @@ export default function LandingPageClient({
         detectedOS={detectedOS}
         isMobile={isMobile}
         onDownload={handleGoToLogin}
+        content={content.hero}
       />
 
       {/* 2. Supported Connected Sources & Ecosystems */}
@@ -64,15 +69,18 @@ export default function LandingPageClient({
       <DownloadSection
         detectedOS={detectedOS}
         onDownloadPlatform={handleGoToLogin}
+        content={content.download}
       />
 
       {/* 8. Enterprise Footer */}
       <footer className="w-full border-t border-border/40 bg-card/60 backdrop-blur-sm py-12 px-6">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-muted-foreground">
           <div className="flex flex-col sm:flex-row items-center gap-3">
-            <span className="font-semibold text-foreground">SearchPoint</span>
+            <span className="font-semibold text-foreground">
+              {content.productName}
+            </span>
             <span className="hidden sm:inline">·</span>
-            <span>Search across PCs and Microsoft 365</span>
+            <span>{content.footer.tagline}</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-6">
