@@ -107,9 +107,18 @@ export function LoginClient({
         setDevError(res.error || "Failed to resolve authentication link.");
       }
     } catch (err) {
-      setDevError(
-        err instanceof Error ? err.message : "An unexpected error occurred.",
-      );
+      const message =
+        err instanceof Error ? err.message : "An unexpected error occurred.";
+
+      if (
+        message.includes("Server Action") &&
+        message.includes("was not found")
+      ) {
+        window.location.reload();
+        return;
+      }
+
+      setDevError(message);
     } finally {
       setIsResolvingDevLink(false);
     }

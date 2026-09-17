@@ -19,7 +19,7 @@ const {
   mockGenId: vi.fn(() => "searchpoint-mcp-a1b2c3"),
   mockGenSecret: vi.fn(() => "sekret-abc"),
   mockRegister: vi.fn(async () => {}),
-  mockGetByToken: vi.fn(async (_key?: string): Promise<string[]> => []),
+  mockGetByToken: vi.fn(async (): Promise<string[]> => []),
   mockDeleteClient: vi.fn(async () => {}),
   mockResolveClient: vi.fn(),
 }));

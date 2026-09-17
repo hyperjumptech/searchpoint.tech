@@ -2,7 +2,7 @@ import { createHash } from "crypto";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 const { mockSetWithTTL, mockResolveClient, mockEnv } = vi.hoisted(() => ({
-  mockSetWithTTL: vi.fn(async (..._args: unknown[]) => {}),
+  mockSetWithTTL: vi.fn(async () => {}),
   mockResolveClient: vi.fn(),
   mockEnv: {
     OAUTH_ISSUER: undefined as string | undefined,

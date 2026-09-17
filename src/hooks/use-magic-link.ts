@@ -45,6 +45,15 @@ export function useMagicLink() {
           : err instanceof Error
             ? err.message
             : "Couldn't send the sign-in email. Try again.";
+
+      if (
+        message.includes("Server Action") &&
+        message.includes("was not found")
+      ) {
+        window.location.reload();
+        return;
+      }
+
       setMagicLinkError(
         message || "Couldn't send the sign-in email. Try again.",
       );
