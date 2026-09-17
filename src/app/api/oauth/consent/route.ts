@@ -10,6 +10,7 @@ type StateData = {
   code_challenge: string;
   scope: string;
   resource?: string;
+  credentialVersion?: number;
   email?: string;
   consented?: boolean;
 };
@@ -56,6 +57,7 @@ export async function POST(req: Request) {
       code_challenge: stateData.code_challenge,
       scope: stateData.scope,
       resource: stateData.resource,
+      credentialVersion: stateData.credentialVersion,
       email,
       consented: true,
     },

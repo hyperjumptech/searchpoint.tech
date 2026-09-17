@@ -1,5 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const port = process.env.PLAYWRIGHT_PORT ?? "3000";
+const testDatabaseUrl = process.env.TEST_DATABASE_URL;
+const testValkeyUrl = process.env.TEST_VALKEY_URL;
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -75,9 +79,17 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: "bun run build && bun run start",
-    url: "http://localhost:3000",
+    command: `bun run build && bun run start -- -p ${port}`,
+    url: `http://localhost:${port}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    env: {
+      ...process.env,
+      BYPASS_LOGIN: "true",
+      ...(testDatabaseUrl ? { DATABASE_URL: testDatabaseUrl } : {}),
+      ...(testValkeyUrl ? { VALKEY_URL: testValkeyUrl } : {}),
+      MCP_ADMIN_USERNAME: "task6-admin",
+      MCP_ADMIN_PASSWORD: "task6-password",
+    },
   },
 });

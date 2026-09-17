@@ -13,7 +13,6 @@ export async function GET(req: Request) {
     revocation_endpoint: `${base}/api/oauth/revoke`,
     userinfo_endpoint: `${base}/api/oauth/userinfo`,
     jwks_uri: `${base}/.well-known/jwks.json`,
-    registration_endpoint: `${base}/api/oauth/register`,
     scopes_supported: ["openid", "profile", "email", "search", "magic"],
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code", "refresh_token"],
@@ -21,7 +20,6 @@ export async function GET(req: Request) {
     token_endpoint_auth_methods_supported: [
       "client_secret_basic",
       "client_secret_post",
-      "none",
     ],
     revocation_endpoint_auth_methods_supported: ["client_secret_basic"],
   });

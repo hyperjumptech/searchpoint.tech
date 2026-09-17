@@ -10,9 +10,26 @@ const { mockGetJSON, mockLimiterConsume } = vi.hoisted(() => ({
   })),
 }));
 
+vi.mock("@/lib/mcp-allowlist", () => ({
+  ensureMcpAllowlist: vi.fn(async () => {}),
+  isMcpClientAllowed: vi.fn(async () => true),
+  isGeneratedClientAllowed: vi.fn(async () => true),
+}));
+
 vi.mock("@/lib/rate-limit", () => ({
   limiterForScope: () => ({ consume: mockLimiterConsume }),
   clientIpFromRequest: () => "1.2.3.4",
+}));
+vi.mock("@/lib/oauth-static-client", () => ({
+  getStaticClient: vi.fn(async () => ({
+    clientId: "searchpoint-mcp-static",
+    name: "Test",
+    redirectUri: "https://client.example/callback",
+    scopes: ["search"],
+    enabled: true,
+    revoked: false,
+    credentialVersion: 1,
+  })),
 }));
 
 vi.mock("@/lib/oauth-valkey", () => ({

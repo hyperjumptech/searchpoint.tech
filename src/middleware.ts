@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import {
+  isAdminBasicAuthValid,
+  unauthorizedBasicAuthResponse,
+} from "@/lib/admin-basic-auth";
 import { isLoginBypassEnabled } from "@/lib/is-login-bypass-enabled";
 
-const applySecurityHeaders = (response: NextResponse) => {
+const applySecurityHeaders = (response: Response) => {
   response.headers.set(
     "Strict-Transport-Security",
     "max-age=31536000; includeSubDomains; preload",
@@ -26,6 +30,24 @@ export function middleware(request: NextRequest) {
   const scseId = request.cookies.get("SCSE_ID");
   const bypassLogin = isLoginBypassEnabled();
   const isAuthenticated = Boolean(scseId || bypassLogin);
+
+  if (
+    pathname === "/admin/mcp" ||
+    pathname === "/api/admin/mcp" ||
+    pathname.startsWith("/api/admin/mcp/")
+  ) {
+    if (!isAdminBasicAuthValid(request)) {
+      return applySecurityHeaders(unauthorizedBasicAuthResponse());
+    }
+
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-pathname", pathname);
+    return applySecurityHeaders(
+      NextResponse.next({
+        request: { headers: requestHeaders },
+      }),
+    );
+  }
 
   // OAuth endpoints are public: discovery, token exchange, and the MCP
   // resource. Defense-in-depth bypass in case the matcher ever changes.
@@ -141,6 +163,8 @@ export const config = {
     "/search",
     "/image",
     "/docs/:path*",
+    "/admin/mcp",
+    "/api/admin/mcp/:path*",
     // /api is intentionally omitted. Desktop auto-update and the curation
     // model manifest must stay reachable without a session cookie. Those
     // handlers apply their own per-IP rate limits.

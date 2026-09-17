@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
 
-import {
-  calcTTL,
-  generateToken,
-  pkceVerify,
-  timingSafeEqualStr,
-} from "@/lib/oauth";
-import { hashSecret } from "@/lib/oauth-dcr";
-import { resolveClient } from "@/lib/oauth-dcr-store";
-import { getJSON, oauthKeys, setWithTTL, takeJSON } from "@/lib/oauth-valkey";
+import { calcTTL, generateToken, pkceVerify } from "@/lib/oauth";
+import { verifyStaticClientSecret } from "@/lib/oauth-static-client";
+import { getStaticClient } from "@/lib/oauth-static-client";
+import { oauthKeys, setWithTTL, takeJSON } from "@/lib/oauth-valkey";
 import { clientIpFromRequest, limiterForScope } from "@/lib/rate-limit";
 
 type CodeData = {
@@ -20,6 +15,7 @@ type CodeData = {
   code_challenge: string;
   scope: string;
   resource?: string;
+  credentialVersion: number;
   iss: "entra" | "searchpoint";
 };
 
@@ -30,6 +26,7 @@ type RtData = {
   client_id: string;
   scope: string;
   resource?: string;
+  credentialVersion: number;
 };
 
 export async function POST(req: Request) {
@@ -71,55 +68,36 @@ export async function POST(req: Request) {
     }
   }
 
-  // Public clients (PKCE, e.g. oh-my-pi) may not send client_id at token time.
-  // Fall back to the client_id stored in the code / refresh token.
   if (!client_id) {
-    if (grant === "authorization_code") {
-      const codeParam = p.get("code");
-      if (codeParam) {
-        try {
-          const peek = await getJSON<CodeData>(oauthKeys.code(codeParam));
-          if (peek?.client_id) client_id = peek.client_id;
-        } catch {}
-      }
-    } else if (grant === "refresh_token") {
-      const rtParam = p.get("refresh_token");
-      if (rtParam) {
-        try {
-          const peek = await getJSON<RtData>(oauthKeys.rt(rtParam));
-          if (peek?.client_id) client_id = peek.client_id;
-        } catch {}
-      }
-    }
-  }
-
-  let client = client_id ? await resolveClient(client_id) : null;
-  if (!client && client_id) {
-    // Fallback for synthetic public clients (e.g. oh-my-pi magic flow with no prior DCR)
-    // where client_id is the registration token.
-    const { resolveRegisteredToken } = await import("@/lib/oauth-dcr");
-    const reg = resolveRegisteredToken(client_id);
-    if (reg) {
-      client = {
-        id: reg.token,
-        redirectUris: [reg.redirectUri],
-        scope: "openid profile email search magic",
-        tokenEndpointAuthMethod: "none",
-      } as unknown as NonNullable<Awaited<ReturnType<typeof resolveClient>>>;
-    }
-  }
-  if (!client) {
-    console.log("[token] invalid_client final", { client_id });
     return NextResponse.json({ error: "invalid_client" }, { status: 401 });
   }
-  if (client.tokenEndpointAuthMethod !== "none") {
-    const secretOk =
-      client.secretHash &&
-      timingSafeEqualStr(hashSecret(client_secret ?? ""), client.secretHash);
-    if (!secretOk) {
-      return NextResponse.json({ error: "invalid_client" }, { status: 401 });
-    }
+
+  let client;
+  try {
+    client = client_id ? await getStaticClient(client_id) : null;
+  } catch {
+    return NextResponse.json(
+      { error: "temporarily_unavailable" },
+      { status: 503 },
+    );
   }
+  if (!client) {
+    return NextResponse.json({ error: "invalid_client" }, { status: 401 });
+  }
+  let secretOk = false;
+  try {
+    secretOk = Boolean(
+      client_secret &&
+      (await verifyStaticClientSecret(client_id, client_secret)),
+    );
+  } catch {
+    return NextResponse.json(
+      { error: "temporarily_unavailable" },
+      { status: 503 },
+    );
+  }
+  if (!client.enabled || client.revoked || !secretOk)
+    return NextResponse.json({ error: "invalid_client" }, { status: 401 });
 
   if (grant === "authorization_code") {
     const code = p.get("code");
@@ -133,6 +111,11 @@ export async function POST(req: Request) {
     if (!data) {
       return NextResponse.json({ error: "invalid_grant" }, { status: 400 });
     }
+    if (data.client_id !== client_id) {
+      return NextResponse.json({ error: "invalid_grant" }, { status: 400 });
+    }
+    if ((data.credentialVersion ?? 1) !== client.credentialVersion)
+      return NextResponse.json({ error: "invalid_grant" }, { status: 400 });
     if (!pkceVerify(verifier, data.code_challenge)) {
       return NextResponse.json({ error: "invalid_grant" }, { status: 400 });
     }
@@ -151,6 +134,7 @@ export async function POST(req: Request) {
         client_id: data.client_id,
         scope: data.scope,
         resource: data.resource,
+        credentialVersion: client.credentialVersion,
       },
       atTtl,
     );
@@ -166,6 +150,7 @@ export async function POST(req: Request) {
           user: data.user,
           client_id: data.client_id,
           scope: data.scope,
+          credentialVersion: client.credentialVersion,
         },
         rtTtl,
       );
@@ -189,6 +174,11 @@ export async function POST(req: Request) {
     if (!data) {
       return NextResponse.json({ error: "invalid_grant" }, { status: 400 });
     }
+    if (data.client_id !== client_id) {
+      return NextResponse.json({ error: "invalid_grant" }, { status: 400 });
+    }
+    if ((data.credentialVersion ?? 1) !== client.credentialVersion)
+      return NextResponse.json({ error: "invalid_grant" }, { status: 400 });
     if (data.scseExp < Math.floor(Date.now() / 1000)) {
       return NextResponse.json({ error: "invalid_grant" }, { status: 400 });
     }
@@ -203,6 +193,7 @@ export async function POST(req: Request) {
         client_id: data.client_id,
         scope: data.scope,
         resource: data.resource,
+        credentialVersion: client.credentialVersion,
       },
       atTtl,
     );

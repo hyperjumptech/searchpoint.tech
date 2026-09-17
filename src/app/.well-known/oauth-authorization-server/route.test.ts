@@ -58,21 +58,18 @@ describe("GET /.well-known/oauth-authorization-server", () => {
     expect(j.token_endpoint_auth_methods_supported).toEqual([
       "client_secret_basic",
       "client_secret_post",
-      "none",
     ]);
     expect(j.revocation_endpoint_auth_methods_supported).toEqual([
       "client_secret_basic",
     ]);
   });
 
-  it("advertises registration_endpoint", async () => {
+  it("does not advertise dynamic registration", async () => {
     const res = await GET(
       new Request("https://example.com/.well-known/oauth-authorization-server"),
     );
     const j = (await res.json()) as Record<string, unknown>;
-    expect(j.registration_endpoint).toBe(
-      "https://example.com/api/oauth/register",
-    );
+    expect(j.registration_endpoint).toBeUndefined();
   });
 
   it("strips trailing slash from issuer", async () => {

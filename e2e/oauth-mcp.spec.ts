@@ -14,6 +14,11 @@ test("discovery advertises issuer, S256, no registration_endpoint", async ({
   expect(j).not.toHaveProperty("registration_endpoint");
 });
 
+test("dynamic client registration is disabled", async ({ request }) => {
+  const r = await request.post(`${base}/api/oauth/register`, { data: {} });
+  expect(r.status()).toBe(404);
+});
+
 test("protected resource metadata points at /mcp", async ({ request }) => {
   const r = await request.get(`${base}/.well-known/oauth-protected-resource`);
   expect(r.ok()).toBeTruthy();

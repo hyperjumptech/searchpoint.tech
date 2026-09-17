@@ -12,6 +12,7 @@ type StateData = {
   code_challenge: string;
   scope: string;
   resource?: string;
+  credentialVersion?: number;
   magic?: boolean;
   consented?: boolean;
 };
@@ -161,6 +162,7 @@ export async function GET(req: Request) {
       scope: stateData.scope,
       resource: stateData.resource,
       iss,
+      credentialVersion: stateData.credentialVersion,
     },
     600,
   );

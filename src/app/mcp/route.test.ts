@@ -28,6 +28,19 @@ vi.mock("@/lib/oauth-valkey", () => ({
   },
 }));
 
+vi.mock("@/lib/mcp-allowlist", () => ({}));
+vi.mock("@/lib/oauth-static-client", () => ({
+  getStaticClient: vi.fn(async () => ({
+    clientId: "searchpoint-mcp-static",
+    name: "Test",
+    redirectUri: "https://client.example/callback",
+    scopes: ["search"],
+    enabled: true,
+    revoked: false,
+    credentialVersion: 1,
+  })),
+}));
+
 import { GET, POST } from "@/app/mcp/route";
 
 describe("POST /mcp", () => {

@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 type StateData = {
   client_id: string;
+  client_name?: string;
   redirect_uri: string;
   code_challenge: string;
   scope: string;
@@ -42,6 +43,7 @@ export default async function ConsentPage({
     <ConsentClient
       state={state}
       clientId={stateData.client_id}
+      clientName={stateData.client_name}
       scopes={stateData.scope}
       userEmail={stateData.email}
       ttlDays={ttlDays}

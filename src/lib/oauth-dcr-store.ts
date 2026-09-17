@@ -9,6 +9,7 @@ export type ClientRecord = {
   scope?: string;
   tokenEndpointAuthMethod: string;
   registrationTokenId: string;
+  policyId?: string;
   createdAt: number;
 };
 
@@ -20,6 +21,7 @@ export async function registerClient(input: {
   scope?: string;
   tokenEndpointAuthMethod: string;
   registrationTokenId: string;
+  policyId?: string;
 }): Promise<void> {
   const record: ClientRecord = {
     id: input.id,
@@ -29,6 +31,7 @@ export async function registerClient(input: {
     scope: input.scope,
     tokenEndpointAuthMethod: input.tokenEndpointAuthMethod,
     registrationTokenId: input.registrationTokenId,
+    policyId: input.policyId,
     createdAt: Math.floor(Date.now() / 1000),
   };
   // Non-expiring client record (persistent across restarts).

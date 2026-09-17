@@ -10,6 +10,7 @@ import { describeScopes } from "@/lib/oauth-consent-ui";
 type ConsentClientProps = {
   state: string;
   clientId: string;
+  clientName?: string;
   scopes: string;
   userEmail: string;
   ttlDays: number;
@@ -18,6 +19,7 @@ type ConsentClientProps = {
 export function ConsentClient({
   state,
   clientId,
+  clientName,
   scopes,
   userEmail,
   ttlDays,
@@ -69,8 +71,8 @@ export function ConsentClient({
       <div className=" w-full space-y-2">
         <div className="flex flex-col items-center text-center">
           <h2 className="text-lg text-foreground">
-            <span className="font-semibold">{clientId}</span> wants to access
-            your account
+            <span className="font-semibold">{clientName ?? clientId}</span>{" "}
+            wants to connect to SearchPoint MCP
           </h2>
         </div>
 
@@ -129,7 +131,7 @@ export function ConsentClient({
         </div>
 
         <p className="text-center text-xs text-muted-foreground">
-          {clientId} can see your info for {ttlDays} days.
+          {clientName ?? clientId} can see your info for {ttlDays} days.
         </p>
       </div>
 

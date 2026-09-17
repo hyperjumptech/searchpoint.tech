@@ -18,9 +18,12 @@ export type Kind = (typeof KINDS)[number];
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?Z)?$/;
 const dateStringSchema = z
   .string()
-  .refine((v) => ISO_DATE_RE.test(v) && !Number.isNaN(Date.parse(v)), {
-    message: "Invalid date, expected YYYY-MM-DD or 2023-01-01T00:00:00Z",
-  });
+  .refine(
+    (v) => v === "" || (ISO_DATE_RE.test(v) && !Number.isNaN(Date.parse(v))),
+    {
+      message: "Invalid date, expected YYYY-MM-DD or 2023-01-01T00:00:00Z",
+    },
+  );
 
 const SOURCES = [
   "shared folder",
@@ -37,21 +40,18 @@ const searchSchema = z.object({
   search: z
     .string()
     .min(1)
-    .optional()
-    .describe(
-      "Full-text query. Minimal search: only send this. Omit for filter-only browse. Backend requires search OR filter, else returns [].",
-    ),
+    .describe("Full-text query. This parameter is required."),
   type: z
-    .array(z.string().min(1))
+    .array(z.string())
     .optional()
     .describe(
-      "Filter by type/extension without dot (e.g. pdf, docx). Only include if user explicitly mentions a type. Do NOT send ['*'] — omit for all types. Tool param is `type`, backend filter key is `extension`.",
+      "Optional filter by type/extension without dot (e.g. pdf, docx). Empty values are ignored. Do NOT send ['*'] — omit for all types. Tool param is `type`, backend filter key is `extension`.",
     ),
   extension: z
-    .array(z.string().min(1))
+    .array(z.string())
     .optional()
     .describe(
-      "Deprecated alias for `type`. Use `type` instead. Kept for backward compat.",
+      "Optional deprecated alias for `type`. Use `type` instead. Kept for backward compat.",
     ),
   kind: z
     .enum(KINDS)
@@ -62,10 +62,9 @@ const searchSchema = z.object({
   author: z
     .string()
     .trim()
-    .min(1)
     .optional()
     .describe(
-      "Filter by author (free text, e.g. 'satriyo' or 'satriyo@hyperjump.tech'). Maps to backend `created_by`. Only include if user explicitly mentions an author.",
+      "Optional filter by author (free text, e.g. 'satriyo' or 'satriyo@hyperjump.tech'). Empty values are ignored. Maps to backend `created_by`.",
     ),
   updated_after: dateStringSchema
     .optional()

@@ -295,12 +295,15 @@ describe("mcp-tools bubble sort combinatorial - search is required, others optio
     );
   });
 
-  it("filter-only browse: type + kind without search", async () => {
+  it("requires search even when filters are provided", async () => {
     const fm = stubFetch(200, { status: "ok", value: [] });
-    await callTool("search_file", { type: ["pdf"], kind: "document" }, SCSE);
-    const url = (fm.mock.calls[0] as unknown as [URL])[0];
-    expect(getSearch(url)).toBeNull();
-    expect(getFilter(url)).toBe("extension eq 'pdf' and kind eq 'document'");
+    const result = await callTool(
+      "search_file",
+      { type: ["pdf"], kind: "document" },
+      SCSE,
+    );
+    expect(result.status).toBe("invalidParams");
+    expect(fm).not.toHaveBeenCalled();
   });
 
   it("order is fixed regardless of input order", async () => {

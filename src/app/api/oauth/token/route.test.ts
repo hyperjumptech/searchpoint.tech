@@ -39,6 +39,27 @@ const {
 vi.mock("@/lib/oauth-dcr-store", () => ({
   resolveClient: mockResolveClient,
 }));
+vi.mock("@/lib/oauth-static-client", () => ({
+  getStaticClient: vi.fn(async (id: string) => {
+    const c = await mockResolveClient(id);
+    if (!c) return null;
+    return {
+      clientId: c.id ?? id,
+      name: c.name ?? id,
+      redirectUri:
+        c.redirectUris?.[0] ??
+        c.redirectUri ??
+        "https://client.example/callback",
+      scopes: (c.scope ?? "search").split(/[\s,]+/),
+      enabled: true,
+      revoked: false,
+      credentialVersion: 1,
+    };
+  }),
+  verifyStaticClientSecret: vi.fn(
+    async (_id: string, secret: string) => secret === "secret123",
+  ),
+}));
 
 vi.mock("@/lib/oauth-dcr", () => ({
   hashSecret: mockHashSecret,
@@ -79,6 +100,8 @@ vi.mock("@/lib/rate-limit", () => ({
   limiterForScope: vi.fn(() => ({ consume: mockLimiterConsume })),
   clientIpFromRequest: vi.fn(() => "1.2.3.4"),
 }));
+
+vi.mock("@/lib/mcp-allowlist", () => ({}));
 
 import { POST } from "@/app/api/oauth/token/route";
 
@@ -437,7 +460,9 @@ describe("POST /api/oauth/token", () => {
     // Assert
     expect(res.status).toBe(200);
     expect(j.access_token).toBe("at-post-123");
-    expect(mockHashSecret).toHaveBeenCalledWith(CLIENT_SECRET);
+    expect(
+      (await import("@/lib/oauth-static-client")).verifyStaticClientSecret,
+    ).toHaveBeenCalledWith(CLIENT_ID, CLIENT_SECRET);
   });
 
   it("rejects unknown client", async () => {
@@ -469,6 +494,61 @@ describe("POST /api/oauth/token", () => {
     expect(j.error).toBe("invalid_client");
   });
 
+  it("rejects an authorization code belonging to a different client after consuming it", async () => {
+    // Setup
+    const verifier = "verifier123";
+    const codeData = makeCodeData({
+      code_challenge: makeChallenge(verifier),
+      client_id: "different-client",
+    });
+    mockTakeJSON.mockResolvedValue(codeData as unknown as never);
+    const body = new URLSearchParams({
+      grant_type: "authorization_code",
+      code: "c-mismatch",
+      code_verifier: verifier,
+      client_id: CLIENT_ID,
+      redirect_uri: "https://cb.example/cb",
+    });
+    const req = new Request("https://example.com/api/oauth/token", {
+      method: "POST",
+      body,
+      headers: { authorization: basicAuthHeader(CLIENT_ID, CLIENT_SECRET) },
+    });
+
+    // Act
+    const res = await POST(req);
+    const j = (await res.json()) as Record<string, unknown>;
+
+    // Assert
+    expect(res.status).toBe(400);
+    expect(j.error).toBe("invalid_grant");
+    expect(mockTakeJSON).toHaveBeenCalledWith("oauth:code:c-mismatch");
+    expect(mockSetWithTTL).not.toHaveBeenCalled();
+  });
+
+  it("rejects a token request without client_id", async () => {
+    // Setup
+    const body = new URLSearchParams({
+      grant_type: "authorization_code",
+      code: "c123",
+      code_verifier: "verifier",
+      redirect_uri: "https://cb.example/cb",
+    });
+    const req = new Request("https://example.com/api/oauth/token", {
+      method: "POST",
+      body,
+    });
+
+    // Act
+    const res = await POST(req);
+    const j = (await res.json()) as Record<string, unknown>;
+
+    // Assert
+    expect(res.status).toBe(401);
+    expect(j.error).toBe("invalid_client");
+    expect(mockResolveClient).not.toHaveBeenCalled();
+  });
+
   it("rejects wrong client_secret", async () => {
     // Setup
     mockResolveClient.mockResolvedValue({
@@ -491,7 +571,7 @@ describe("POST /api/oauth/token", () => {
       body,
       headers: {
         "content-type": "application/x-www-form-urlencoded",
-        authorization: basicAuthHeader(CLIENT_ID, CLIENT_SECRET),
+        authorization: basicAuthHeader(CLIENT_ID, "wrong-secret"),
       },
     });
 
@@ -554,7 +634,7 @@ describe("POST /api/oauth/token", () => {
       body,
       headers: {
         "content-type": "application/x-www-form-urlencoded",
-        authorization: basicAuthHeader(CLIENT_ID, "wrong-secret"),
+        authorization: basicAuthHeader(CLIENT_ID, "CLIENT_SECRET"),
       },
     });
 
@@ -612,6 +692,38 @@ describe("POST /api/oauth/token", () => {
       expect.objectContaining({ scseId: rtData.scseId }),
       3600,
     );
+  });
+
+  it("rejects a refresh token belonging to a different client after consuming it", async () => {
+    // Setup
+    const rtData = {
+      scseId: "scse-jwt-rt",
+      scseExp: Math.floor(Date.now() / 1000) + 3600,
+      user: { email: "a@b.com" },
+      client_id: "different-client",
+      scope: "openid",
+    };
+    mockTakeJSON.mockResolvedValue(rtData as unknown as never);
+    const body = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: "rt-mismatch",
+      client_id: CLIENT_ID,
+    });
+    const req = new Request("https://example.com/api/oauth/token", {
+      method: "POST",
+      body,
+      headers: { authorization: basicAuthHeader(CLIENT_ID, CLIENT_SECRET) },
+    });
+
+    // Act
+    const res = await POST(req);
+    const j = (await res.json()) as Record<string, unknown>;
+
+    // Assert
+    expect(res.status).toBe(400);
+    expect(j.error).toBe("invalid_grant");
+    expect(mockTakeJSON).toHaveBeenCalledWith("oauth:rt:rt-mismatch");
+    expect(mockSetWithTTL).not.toHaveBeenCalled();
   });
 
   it("rejects invalid refresh_token", async () => {

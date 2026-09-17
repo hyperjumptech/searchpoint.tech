@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 
 import { env } from "@/lib/env";
 import { deriveIssuer } from "@/lib/oauth";
-import { redirectUriMatches } from "@/lib/oauth-dcr";
-import { resolveClient } from "@/lib/oauth-dcr-store";
+import { getStaticClient } from "@/lib/oauth-static-client";
 import { oauthKeys, setWithTTL } from "@/lib/oauth-valkey";
 
 export async function GET(req: Request) {
@@ -14,7 +13,7 @@ export async function GET(req: Request) {
   const code_challenge = url.searchParams.get("code_challenge");
   const code_challenge_method = url.searchParams.get("code_challenge_method");
   const state = url.searchParams.get("state");
-  const scope = url.searchParams.get("scope") ?? "openid";
+  const scope = url.searchParams.get("scope") ?? "search";
   const resource = url.searchParams.get("resource");
 
   if (response_type !== "code")
@@ -47,44 +46,20 @@ export async function GET(req: Request) {
   )
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
 
-  let client: Awaited<ReturnType<typeof resolveClient>> | null = null;
-  let effectiveClientId: string | null = client_id;
-  if (client_id) {
-    client = await resolveClient(client_id);
-    if (!client) {
-      return NextResponse.json({ error: "invalid_client" }, { status: 401 });
-    }
-  } else {
-    // No client_id — try to resolve via redirect_uri (e.g. oh-my-pi magic flow
-    // with ephemeral loopback port and no prior DCR).
-    if (!redirect_uri) {
-      return NextResponse.json({ error: "invalid_client" }, { status: 401 });
-    }
-    const { resolveRegisteredByRedirectUri } = await import("@/lib/oauth-dcr");
-    const registered = resolveRegisteredByRedirectUri(redirect_uri);
-    if (!registered) {
-      return NextResponse.json({ error: "invalid_client" }, { status: 401 });
-    }
-    const { getClientByTokenRegistration } =
-      await import("@/lib/oauth-dcr-store");
-    const existingIds = await getClientByTokenRegistration(registered.token);
-    if (existingIds.length > 0) {
-      client = await resolveClient(existingIds[0]);
-    }
-    if (!client) {
-      // No existing DCR client yet — use the allowlist entry as a synthetic public client
-      client = {
-        id: registered.token,
-        redirectUris: [registered.redirectUri],
-        scope: "openid profile email search magic",
-        tokenEndpointAuthMethod: "none",
-      } as unknown as NonNullable<Awaited<ReturnType<typeof resolveClient>>>;
-      effectiveClientId = registered.token;
-    }
+  if (!client_id || !redirect_uri)
+    return NextResponse.json({ error: "invalid_client" }, { status: 401 });
+  let client;
+  try {
+    client = await getStaticClient(client_id);
+  } catch {
+    return NextResponse.json(
+      { error: "temporarily_unavailable" },
+      { status: 503 },
+    );
   }
-  if (
-    !client.redirectUris.some((u) => redirectUriMatches(u, redirect_uri ?? ""))
-  ) {
+  if (!client || !client.enabled || client.revoked)
+    return NextResponse.json({ error: "invalid_client" }, { status: 401 });
+  if (client.redirectUri !== redirect_uri) {
     return NextResponse.json(
       {
         error: "invalid_request",
@@ -95,9 +70,7 @@ export async function GET(req: Request) {
   }
 
   const requestedScope = scope.split(/[\s,]+/).filter(Boolean);
-  const allowedScope = (client.scope ?? "openid search")
-    .split(/[\s,]+/)
-    .filter(Boolean);
+  const allowedScope = client.scopes;
   if (requestedScope.some((s) => !allowedScope.includes(s))) {
     return NextResponse.json({ error: "invalid_scope" }, { status: 400 });
   }
@@ -113,13 +86,15 @@ export async function GET(req: Request) {
   await setWithTTL(
     oauthKeys.state(state),
     {
-      client_id: effectiveClientId,
+      client_id,
+      client_name: client.name,
       redirect_uri,
       code_challenge,
       scope,
       resource,
       magic: isMagic || undefined,
       createdAt: Date.now(),
+      credentialVersion: client.credentialVersion,
     },
     600,
   );

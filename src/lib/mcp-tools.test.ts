@@ -113,23 +113,25 @@ describe("search_file", () => {
 
   it("maps backend 401/400/5xx and network failure to isError", async () => {
     stubFetch(401, {});
-    expect(await callTool("search_file", {}, SCSE)).toEqual({
+    expect(await callTool("search_file", { search: "test" }, SCSE)).toEqual({
       status: "isError",
       text: "Session expired — please re-authenticate.",
     });
     stubFetch(400, { message: "bad filter" });
-    const bad = await callTool("search_file", {}, SCSE);
+    const bad = await callTool("search_file", { search: "test" }, SCSE);
     expect(bad.status).toBe("isError");
     if (bad.status === "isError") expect(bad.text).toContain("bad filter");
     stubFetch(503, {});
-    expect((await callTool("search_file", {}, SCSE)).status).toBe("isError");
+    expect(
+      (await callTool("search_file", { search: "test" }, SCSE)).status,
+    ).toBe("isError");
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => {
         throw new Error("refused");
       }),
     );
-    const net = await callTool("search_file", {}, SCSE);
+    const net = await callTool("search_file", { search: "test" }, SCSE);
     expect(net).toEqual({ status: "isError", text: "Backend unavailable." });
   });
 
@@ -139,7 +141,7 @@ describe("search_file", () => {
       value: [{ _source: { id: "d1", name: "a.pdf" } }],
       meta: { pagination: { limit: 10, offset: 0, total: 1 } },
     });
-    const res = await callTool("search_file", {}, SCSE);
+    const res = await callTool("search_file", { search: "test" }, SCSE);
     expect(res.status).toBe("ok");
     if (res.status === "ok") {
       const parsed = JSON.parse(res.text) as { meta: unknown };

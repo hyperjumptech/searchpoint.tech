@@ -75,25 +75,62 @@ The provided Dockerfile already includes commented instructions where these line
 
 Uncomment and duplicate these lines for each `NEXT_PUBLIC_` variable needed.
 
+## MCP allowlist deployment
+
+The MCP application allowlist is stored in PostgreSQL. Deployments must provide
+these server-only variables:
+
+- `DATABASE_URL`: connection string for the external, persistent PostgreSQL database.
+- `MCP_ADMIN_USERNAME`: Basic Auth username for `/admin/mcp` and `/api/admin/mcp/*`.
+- `MCP_ADMIN_PASSWORD`: Basic Auth password for `/admin/mcp` and `/api/admin/mcp/*`.
+
+On the first protected authorization or MCP request, the application creates the
+static-client table and index in a transaction. Keep PostgreSQL outside the web
+container: it is the persistent database, so no Docker volume is required or
+expected here.
+
+Create clients as an administrator at `/admin/mcp`; Dynamic Client Registration
+(DCR) is disabled. Each client has one exact redirect URI and an administrator-
+selected set of scopes. The generated client secret is displayed exactly once,
+when the client is created or its secret is rotated. Store it immediately; it
+cannot be recovered later. Rotation invalidates the previous secret and any
+tokens issued with it. Disabling a client prevents new authorization/token
+requests and rejects existing MCP tokens; revoking a client is permanent and
+also invalidates its credentials and existing tokens.
+
+Allowlist checks fail closed. A missing/expired token, disabled or unknown client,
+or unavailable PostgreSQL database cannot access MCP. Database failures return a
+safe service/authentication error rather than allowing the request through.
+
+OpenCode can use a loopback redirect such as
+`http://127.0.0.1:19876/callback`. Configure the returned client ID and secret
+in OpenCode, then complete the authorization-code flow with PKCE.
+
 ## OAuth 2.1 / MCP
 
-SearchPoint exposes a lightweight OAuth 2.1 provider for MCP clients at `/mcp`, with RFC 8414 discovery under `/.well-known/`, plus Dynamic Client Registration (RFC 7591) at `POST /api/oauth/register`.
+SearchPoint exposes a lightweight OAuth 2.1 provider for MCP clients at `/mcp`, with RFC 8414 discovery under `/.well-known/`. Clients are provisioned administratively; Dynamic Client Registration (RFC 7591) is disabled.
 
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `OAUTH_ISSUER` | request origin | Issuer/base URL used in discovery & tokens |
-| `MCP_RESOURCE_URL` | `${OAUTH_ISSUER}/mcp` | RFC 9728 `resource` advertised to clients |
-| `OAUTH_REGISTERED_CLIENTS` | _(none → registration disabled)_ | Apps allowed to register via DCR; `;`-separated entries of `name\|token\|redirect_uri` |
-| `OAUTH_SCOPES` | `openid search` | Scopes clients may request |
-| `OAUTH_CLIENT_LABEL` | `Open WebUI (StartGPT SMDV)` | App label shown on the consent screen |
-| `OAUTH_CONSENT_ALWAYS` | `false` | `true` = show consent screen on every interactive flow (dev/testing only) |
-| `VALKEY_URL` | _(none → in-memory store)_ | Backing store for `oauth:*` state/code/token keys (required for multi-replica oauth storage) |
+| Variable                   | Default                      | Purpose                                                                                      |
+| -------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------- |
+| `OAUTH_ISSUER`             | request origin               | Issuer/base URL used in discovery & tokens                                                   |
+| `MCP_RESOURCE_URL`         | `${OAUTH_ISSUER}/mcp`        | RFC 9728 `resource` advertised to clients                                                    |
+| `OAUTH_REGISTERED_CLIENTS` | _(optional, deprecated)_    | One-time migration seed for legacy DCR records; `;`-separated `name\|token\|redirect_uri` entries |
+| `OAUTH_SCOPES`             | `openid search`              | Scopes clients may request                                                                   |
+| `OAUTH_CLIENT_LABEL`       | `Open WebUI (StartGPT SMDV)` | App label shown on the consent screen                                                        |
+| `OAUTH_CONSENT_ALWAYS`     | `false`                      | `true` = show consent screen on every interactive flow (dev/testing only)                    |
+| `VALKEY_URL`               | _(none → in-memory store)_   | Backing store for `oauth:*` state/code/token keys (required for multi-replica oauth storage) |
 
-Optional in local dev — defaults work with in-memory OAuth storage. In production set `OAUTH_REGISTERED_CLIENTS` and `VALKEY_URL` (multi-replica).
+`OAUTH_REGISTERED_CLIENTS` is deprecated legacy/DCR seed data only; it is not
+imported into static OAuth client rows and is not a client-management API.
+Existing DCR clients must be recreated in the static-client UI at
+`/admin/mcp` (there is no automatic migration). Remove the variable after
+recreating legacy clients. Set `VALKEY_URL` for durable OAuth state across
+replicas, plus the required PostgreSQL and admin variables above.
 
-> **Note:** DCR client registration requires `VALKEY_URL` set; without it the in-memory fallback loses registered clients on restart.
+> **Note:** `POST /api/oauth/register` is intentionally disabled and returns
+> `404`. There is no `registration_endpoint` in discovery.
 
-- `GET /.well-known/oauth-authorization-server` → authorization code flow with PKCE (S256)
+- `GET /.well-known/oauth-authorization-server` → authorization code flow with PKCE (S256), without DCR
 - `GET /api/oauth/authorize` → 302 to Entra login or magic-link UI
 - `POST /api/oauth/token` exchanges `code` (or `refresh_token`) for an access token
 - `POST /mcp` speaks JSON-RPC 2.0 (MCP Streamable HTTP, stateless, POST-only; `GET` → 405): supports `initialize`, `ping`, `tools/list`, `tools/call`

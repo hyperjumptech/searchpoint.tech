@@ -10,12 +10,30 @@ const { mockSetWithTTL, mockResolveClient, mockEnv } = vi.hoisted(() => ({
   },
 }));
 
+vi.mock("@/lib/mcp-allowlist", () => ({}));
+
 vi.mock("@/lib/oauth-dcr", () => ({
   redirectUriMatches: vi.fn((a: string, b: string) => a === b),
 }));
 
 vi.mock("@/lib/oauth-dcr-store", () => ({
   resolveClient: mockResolveClient,
+}));
+
+vi.mock("@/lib/oauth-static-client", () => ({
+  getStaticClient: vi.fn(async (id: string) => {
+    const c = await mockResolveClient(id);
+    if (!c) return null;
+    return {
+      clientId: c.id ?? id,
+      name: c.name ?? id,
+      redirectUri: c.redirectUris?.at(-1) ?? c.redirectUri,
+      scopes: (c.scope ?? "search").split(/[\s,]+/),
+      enabled: true,
+      revoked: false,
+      credentialVersion: 1,
+    };
+  }),
 }));
 
 vi.mock("@/lib/oauth-valkey", () => ({
@@ -71,6 +89,7 @@ describe("GET /api/oauth/authorize", () => {
     mockResolveClient.mockReset();
     mockResolveClient.mockResolvedValue({
       id: "searchpoint-mcp-a1b2c3",
+      name: "Open WebUI",
       redirectUris: ["https://cb.example/cb"],
       tokenEndpointAuthMethod: "client_secret_post",
       scope: "openid search magic",
@@ -90,6 +109,19 @@ describe("GET /api/oauth/authorize", () => {
     );
     const res = await GET(req as unknown as Request);
     expect(res.status).toBe(401);
+  });
+
+  it("defaults an omitted scope to search", async () => {
+    const qs = baseParams({ scope: undefined });
+    const res = await GET(
+      new Request(`https://example.com/api/oauth/authorize?${qs}`),
+    );
+    expect(res.status).toBe(302);
+    expect(mockSetWithTTL).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ scope: "search" }),
+      600,
+    );
   });
 
   it("rejects redirect_uri not in client registry", async () => {
@@ -119,6 +151,23 @@ describe("GET /api/oauth/authorize", () => {
     expect(res.status).toBe(401);
     expect(j.error).toBe("invalid_client");
     expect(mockResolveClient).toHaveBeenCalledWith("bad");
+  });
+
+  it("stores the registered client name in consent state", async () => {
+    const qs = baseParams();
+    const req = new Request(`https://example.com/api/oauth/authorize?${qs}`);
+
+    const res = await GET(req as unknown as Request);
+
+    expect(res.status).toBe(302);
+    expect(mockSetWithTTL).toHaveBeenCalledWith(
+      "oauth:state:s1",
+      expect.objectContaining({
+        client_id: CLIENT_ID,
+        client_name: "Open WebUI",
+      }),
+      600,
+    );
   });
 
   it("rejects unsupported response_type", async () => {

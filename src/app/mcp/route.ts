@@ -5,6 +5,7 @@ import { handleMcpRequest } from "@/lib/mcp-protocol";
 import { deriveIssuer } from "@/lib/oauth";
 import { clientIpFromRequest, limiterForScope } from "@/lib/rate-limit";
 import { getJSON, oauthKeys } from "@/lib/oauth-valkey";
+import { getStaticClient } from "@/lib/oauth-static-client";
 
 const ALLOWED_KINDS = new Set(["video", "document", "image"] as const);
 export type McpKind = "video" | "document" | "image";
@@ -178,11 +179,14 @@ export async function POST(req: Request) {
     new NextResponse(null, {
       status: 401,
       headers: {
-        "WWW-Authenticate": `Bearer error="${reason}", resource_metadata="${issuer}/.well-known/oauth-protected-resource"`,
+        "WWW-Authenticate": `Bearer error="${reason}", scope="search", resource_metadata="${issuer}/.well-known/oauth-protected-resource"`,
       },
     });
 
-  if (!at) return challenge("invalid_request");
+  // RFC 6750 uses invalid_token to signal that the client must obtain a
+  // bearer token. Some MCP clients do not start the OAuth discovery flow for
+  // a missing-token invalid_request challenge.
+  if (!at) return challenge("invalid_token");
   const data = await getJSON<{
     scseId: string;
     scseExp: number;
@@ -190,14 +194,29 @@ export async function POST(req: Request) {
     client_id: string;
     scope: string;
     resource?: string;
+    credentialVersion: number;
   }>(oauthKeys.at(at));
   if (
     !data ||
     !data.scseId ||
+    !data.client_id ||
     typeof data.scseExp !== "number" ||
     data.scseExp < Math.floor(Date.now() / 1000)
   )
     return challenge("invalid_token");
+
+  try {
+    const client = await getStaticClient(data.client_id);
+    if (
+      !client ||
+      !client.enabled ||
+      client.revoked ||
+      (data.credentialVersion ?? 1) !== client.credentialVersion
+    )
+      return challenge("invalid_token");
+  } catch {
+    return challenge("invalid_token");
+  }
 
   const parsedQuery = parseQuery(req);
   if ("error" in parsedQuery) return parsedQuery.error;

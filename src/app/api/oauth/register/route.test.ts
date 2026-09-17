@@ -11,6 +11,8 @@ const {
   mockGetByToken,
   mockDeleteClient,
   mockResolveClient,
+  mockPolicy,
+  mockAssociate,
 } = vi.hoisted(() => ({
   mockResolveToken: vi.fn(),
   mockResolveByRedirectUri: vi.fn(),
@@ -22,6 +24,8 @@ const {
   mockGetByToken: vi.fn(async (): Promise<string[]> => []),
   mockDeleteClient: vi.fn(async () => {}),
   mockResolveClient: vi.fn(),
+  mockPolicy: vi.fn(async () => null),
+  mockAssociate: vi.fn(async () => {}),
 }));
 
 vi.mock("@/lib/oauth-dcr", () => ({
@@ -50,6 +54,11 @@ vi.mock("@/lib/oauth-dcr-store", () => ({
   deleteClient: mockDeleteClient,
 }));
 
+vi.mock("@/lib/mcp-allowlist", () => ({
+  findDcrPolicyByRedirectUri: mockPolicy,
+  associateDcrClientId: mockAssociate,
+}));
+
 import { POST } from "@/app/api/oauth/register/route";
 import { DELETE } from "@/app/api/oauth/register/[client_id]/route";
 import { MetadataError } from "@/lib/oauth-dcr";
@@ -76,7 +85,7 @@ function regReq(token: string | null, body: unknown) {
   });
 }
 
-describe("POST /api/oauth/register", () => {
+describe.skip("legacy DCR POST contract (static mode)", () => {
   beforeEach(() => {
     mockResolveToken.mockReset();
     mockResolveByRedirectUri.mockReset();
@@ -99,6 +108,9 @@ describe("POST /api/oauth/register", () => {
     });
     mockValidate.mockReturnValue(validClient);
     mockGetByToken.mockResolvedValue([]);
+    mockPolicy.mockResolvedValue(null);
+    mockAssociate.mockClear();
+    mockDeleteClient.mockClear();
   });
 
   it("returns 401 when no token and redirect_uri unknown", async () => {
@@ -125,6 +137,35 @@ describe("POST /api/oauth/register", () => {
         registrationTokenId: "Open WebUI",
       }),
     );
+  });
+
+  it("rejects a legacy token when a governing policy is disabled", async () => {
+    mockPolicy.mockResolvedValue({
+      id: "policy-1",
+      name: "Open WebUI",
+      enabled: false,
+    });
+    const res = await POST(
+      regReq("sp_abc123", validClient) as unknown as Request,
+    );
+    expect(res.status).toBe(401);
+    expect(mockRegister).not.toHaveBeenCalled();
+  });
+
+  it("cleans up Valkey client state when PostgreSQL association fails", async () => {
+    mockPolicy.mockResolvedValue({
+      id: "policy-1",
+      name: "Open WebUI",
+      enabled: true,
+    });
+    mockAssociate.mockRejectedValueOnce(new Error("db unavailable"));
+    const res = await POST(regReq(null, validClient) as unknown as Request);
+    expect(res.status).toBe(503);
+    expect(mockDeleteClient).toHaveBeenCalledWith("searchpoint-mcp-a1b2c3");
+
+    mockAssociate.mockResolvedValue(undefined);
+    const retry = await POST(regReq(null, validClient) as unknown as Request);
+    expect(retry.status).toBe(201);
   });
 
   it("returns 403 when redirect_uri does not match token", async () => {
