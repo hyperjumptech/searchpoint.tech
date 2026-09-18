@@ -5,6 +5,13 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { McpAdminClient } from "./page.client";
 
+vi.mock("./logo", () => ({
+  fileToPng32DataUrl: vi.fn(async () => "data:image/png;base64,FROMFILE"),
+}));
+
+const TINY_PNG =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+
 const client = {
   clientId: "searchpoint-mcp-1",
   name: "OpenCode",
@@ -15,6 +22,7 @@ const client = {
   createdAt: "2026-09-15T12:34:00.000Z",
   updatedAt: "2026-09-15T12:34:00.000Z",
   clientSecret: "hidden-secret",
+  logoDataUrl: null,
 };
 const response = (body: unknown, status = 200) =>
   Promise.resolve(new Response(JSON.stringify(body), { status }));
@@ -127,6 +135,69 @@ describe("static OAuth client admin UI", () => {
       expect(fetchMock).toHaveBeenLastCalledWith(
         expect.stringContaining("/api/admin/mcp/clients/"),
         expect.objectContaining({ body: JSON.stringify({ enabled: true }) }),
+      ),
+    );
+  });
+
+  it("sends logoDataUrl when a logo file is attached on create", async () => {
+    const user = userEvent.setup(),
+      fetchMock = vi.mocked(fetch);
+    render(createElement(McpAdminClient));
+    await user.click(
+      await screen.findByRole("button", { name: /add oauth client/i }),
+    );
+    await user.type(screen.getByLabelText("Name"), "OpenCode");
+    await user.type(screen.getByLabelText("Redirect URI"), client.redirectUri);
+    const file = new File(["x"], "logo.png", { type: "image/png" });
+    await user.upload(screen.getByLabelText("Logo"), file);
+    fetchMock.mockReturnValueOnce(
+      response({ client, clientSecret: "one-time-secret" }, 201),
+    );
+    await user.click(screen.getByRole("button", { name: /create client/i }));
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/admin/mcp/clients",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({
+            name: "OpenCode",
+            redirectUri: client.redirectUri,
+            scopes: ["search"],
+            logoDataUrl: "data:image/png;base64,FROMFILE",
+          }),
+        }),
+      ),
+    );
+  });
+
+  it("sends logoDataUrl null when removing a logo on edit", async () => {
+    const user = userEvent.setup(),
+      fetchMock = vi.mocked(fetch);
+    const clientWithLogo = { ...client, logoDataUrl: TINY_PNG };
+    fetchMock.mockReturnValueOnce(
+      response({ clients: [clientWithLogo], allowedScopes: ["search"] }),
+    );
+    render(createElement(McpAdminClient));
+    await user.click(
+      await screen.findByRole("button", { name: "Edit OpenCode" }),
+    );
+    await user.click(screen.getByRole("button", { name: /remove logo/i }));
+    fetchMock.mockReturnValueOnce(
+      response({ client: { ...clientWithLogo, logoDataUrl: null } }),
+    );
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenLastCalledWith(
+        "/api/admin/mcp/clients/searchpoint-mcp-1",
+        expect.objectContaining({
+          method: "PATCH",
+          body: JSON.stringify({
+            name: "OpenCode",
+            redirectUri: client.redirectUri,
+            scopes: ["search"],
+            logoDataUrl: null,
+          }),
+        }),
       ),
     );
   });

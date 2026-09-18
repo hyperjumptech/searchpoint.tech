@@ -5,6 +5,7 @@ import { ChevronLeft, Loader2, ShieldCheck, ShieldX } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { clientInitial } from "@/lib/mcp-client-logo";
 import { describeScopes } from "@/lib/oauth-consent-ui";
 
 type ConsentClientProps = {
@@ -14,7 +15,21 @@ type ConsentClientProps = {
   scopes: string;
   userEmail: string;
   ttlDays: number;
+  logoDataUrl: string | null;
+  resourceName: string;
+  tenantLogo: { src: string; alt: string };
+  redirectUri: string;
 };
+
+function isLoopbackRedirectUri(redirectUri: string): boolean {
+  try {
+    const url = new URL(redirectUri);
+    if (url.protocol !== "http:") return false;
+    return ["localhost", "127.0.0.1", "[::1]", "::1"].includes(url.hostname);
+  } catch {
+    return false;
+  }
+}
 
 export function ConsentClient({
   state,
@@ -23,11 +38,17 @@ export function ConsentClient({
   scopes,
   userEmail,
   ttlDays,
+  logoDataUrl,
+  resourceName,
+  tenantLogo,
+  redirectUri,
 }: ConsentClientProps) {
   const [submitting, setSubmitting] = useState<"allow" | "deny" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const { visible, unknown } = describeScopes(scopes);
+  const displayName = clientName ?? clientId;
+  const showLocalhostHint = isLoopbackRedirectUri(redirectUri);
 
   const handleDecision = async (deny: boolean) => {
     setSubmitting(deny ? "deny" : "allow");
@@ -61,48 +82,71 @@ export function ConsentClient({
 
   return (
     <>
-      <div className="space-y-1 text-center">
-        <h1 className="px-4 text-lg font-bold md:text-xl">SearchPoint</h1>
-        <p className="text-sm text-muted-foreground">
-          Secure Corporate Search Engine
-        </p>
+      <div className="flex w-full items-center justify-center gap-2">
+        {logoDataUrl ? (
+          <img
+            src={logoDataUrl}
+            alt=""
+            width={32}
+            height={32}
+            className="h-8 w-8 rounded-full object-cover"
+          />
+        ) : (
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-sm font-semibold">
+            {clientInitial(displayName)}
+          </div>
+        )}
+        <span className="text-muted-foreground">···</span>
+        <img
+          src={tenantLogo.src}
+          alt={tenantLogo.alt}
+          width={32}
+          height={32}
+          className="h-8 w-8 object-contain"
+        />
       </div>
 
-      <div className=" w-full space-y-2">
-        <div className="flex flex-col items-center text-center">
-          <h2 className="text-lg text-foreground">
-            <span className="font-semibold">{clientName ?? clientId}</span>{" "}
-            wants to connect to SearchPoint MCP
+      <div className="w-full space-y-4">
+        <div className="flex flex-col items-center text-center space-y-4">
+          <h2 className="text-lg font-semibold text-foreground">
+            {displayName}
           </h2>
+          <p className="text-sm text-muted-foreground">
+            wants to access {resourceName} on behalf of {userEmail}
+          </p>
         </div>
 
-        <div className="space-y-2 flex items-center justify-center w-full">
-          <div className="rounded-lg bg-muted/50 w-max px-4 py-2 text-center">
-            <p className="text-sm text-foreground">
-              <span className="font-semibold">{userEmail}</span>
-            </p>
-          </div>
-        </div>
+        {showLocalhostHint && (
+          <p className="text-center text-sm text-muted-foreground">
+            Make sure that you trust {displayName}. You may be sharing sensitive
+            data with this site or app.
+          </p>
+        )}
 
-        <ul className="space-y-2">
-          {visible.map((label) => (
-            <li
-              key={label}
-              className="flex items-start gap-2 rounded-md border p-2.5 text-sm text-foreground">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-              <span>{label}</span>
-            </li>
-          ))}
-          {unknown.length > 0 && (
-            <li className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/5 p-2.5 text-sm text-amber-700 dark:text-amber-300">
-              <ShieldX className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
-              <span>
-                Akses tambahan:{" "}
-                <span className="font-medium">{unknown.join(", ")}</span>
-              </span>
-            </li>
-          )}
-        </ul>
+        <div className="rounded-lg border p-4">
+          <h3 className="mb-2 text-sm font-medium text-foreground">
+            This will allow access to:
+          </h3>
+          <ul className="space-y-2">
+            {visible.map((label) => (
+              <li
+                key={label}
+                className="flex items-start gap-2 rounded-md border p-2.5 text-sm text-foreground">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span>{label}</span>
+              </li>
+            ))}
+            {unknown.length > 0 && (
+              <li className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/5 p-2.5 text-sm text-amber-700 dark:text-amber-300">
+                <ShieldX className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                <span>
+                  Akses tambahan:{" "}
+                  <span className="font-medium">{unknown.join(", ")}</span>
+                </span>
+              </li>
+            )}
+          </ul>
+        </div>
 
         {error && (
           <p role="alert" className="text-center text-sm text-destructive">
@@ -131,7 +175,7 @@ export function ConsentClient({
         </div>
 
         <p className="text-center text-xs text-muted-foreground">
-          {clientName ?? clientId} can see your info for {ttlDays} days.
+          {displayName} can see your info for {ttlDays} days.
         </p>
       </div>
 

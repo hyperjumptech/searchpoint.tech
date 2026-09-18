@@ -2,7 +2,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 const query = vi.fn();
 vi.mock("./postgres", () => ({ getPostgresPool: () => ({ query }) }));
-import { createStaticClient } from "./oauth-static-client";
+import { createStaticClient, updateStaticClient } from "./oauth-static-client";
+
+const TINY_PNG =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
 
 describe("static OAuth clients", () => {
   beforeEach(() => {
@@ -212,5 +215,64 @@ describe("static OAuth clients", () => {
     await expect(
       createStaticClient({ name: "app", redirectUri: "https://example.com" }),
     ).rejects.toThrow("database down");
+  });
+  it("stores a logo data URL on create and maps it on the client", async () => {
+    query.mockResolvedValueOnce({
+      rows: [
+        {
+          client_id: "id",
+          name: "app",
+          redirect_uri: "https://example.com",
+          scopes: ["search"],
+          enabled: true,
+          revoked: false,
+          logo_data_url: TINY_PNG,
+        },
+      ],
+    });
+    const result = await createStaticClient({
+      name: "app",
+      redirectUri: "https://example.com",
+      logoDataUrl: TINY_PNG,
+    });
+    expect(result.client.logoDataUrl).toBe(TINY_PNG);
+    expect(query.mock.calls.at(-1)?.[1]).toContain(TINY_PNG);
+  });
+  it("rejects an invalid logo before insert", async () => {
+    await expect(
+      createStaticClient({
+        name: "app",
+        redirectUri: "https://example.com",
+        logoDataUrl: "data:image/jpeg;base64,xx",
+      }),
+    ).rejects.toThrow("invalid logo");
+    expect(query).not.toHaveBeenCalled();
+  });
+  it("clears, sets, and omits logo on update", async () => {
+    const current = {
+      client_id: "id",
+      name: "app",
+      redirect_uri: "https://example.com",
+      scopes: ["search"],
+      enabled: true,
+      revoked: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      revoked_at: null,
+      logo_data_url: TINY_PNG,
+    };
+    query.mockResolvedValue({ rows: [current] });
+    await updateStaticClient("id", { logoDataUrl: null });
+    const clearSql = String(query.mock.calls.at(-1)?.[0]);
+    expect(clearSql).toMatch(/logo_data_url/);
+    expect(query.mock.calls.at(-1)?.[1]).toContain(null);
+
+    query.mockClear();
+    query.mockResolvedValue({
+      rows: [{ ...current, logo_data_url: TINY_PNG }],
+    });
+    await updateStaticClient("id", { name: "app2" });
+    const omitSql = String(query.mock.calls.at(-1)?.[0]);
+    expect(omitSql).not.toMatch(/logo_data_url/);
   });
 });

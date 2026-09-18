@@ -17,12 +17,23 @@ import {
 } from "../../applications/admin-api";
 
 const idSchema = z.string().trim().min(1).max(255);
+const logoDataUrlSchema = z
+  .string()
+  .max(20_000)
+  .nullable()
+  .optional()
+  .refine(
+    (value) => value == null || value.startsWith("data:image/png;base64,"),
+    "invalid logo",
+  );
+
 const updateSchema = z
   .object({
     name: z.string().trim().min(1).max(200).optional(),
     redirectUri: z.string().trim().min(1).max(2048).optional(),
     scopes: z.array(z.string().trim().min(1)).min(1).optional(),
     enabled: z.boolean().optional(),
+    logoDataUrl: logoDataUrlSchema,
   })
   .strict()
   .refine((value) => Object.keys(value).length > 0);

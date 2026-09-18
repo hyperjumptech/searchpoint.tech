@@ -1,7 +1,11 @@
+import { headers } from "next/headers";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { ConsentClient } from "./page.client";
+import { env } from "@/lib/env";
+import { getStaticClient } from "@/lib/oauth-static-client";
 import { getJSON, oauthKeys } from "@/lib/oauth-valkey";
+import { getTenantConfig, resolveTenantId } from "@/lib/tenant";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +42,17 @@ export default async function ConsentPage({
   }
 
   const ttlDays = Math.round((30 * 24 * 3600) / 86400);
+  const client = await getStaticClient(stateData.client_id);
+  const headersList = await headers();
+  const host =
+    headersList.get("x-hostname") ||
+    headersList.get("x-forwarded-host") ||
+    headersList.get("host") ||
+    "";
+  const tenant = getTenantConfig(
+    resolveTenantId(env.TENANT, host),
+    env.APP_NAME,
+  );
 
   return (
     <ConsentClient
@@ -47,6 +62,10 @@ export default async function ConsentPage({
       scopes={stateData.scope}
       userEmail={stateData.email}
       ttlDays={ttlDays}
+      logoDataUrl={client?.logoDataUrl ?? null}
+      resourceName={tenant.content.productName}
+      tenantLogo={{ src: tenant.logo.src, alt: tenant.logo.alt }}
+      redirectUri={stateData.redirect_uri}
     />
   );
 }

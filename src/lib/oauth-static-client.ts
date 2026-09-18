@@ -1,5 +1,6 @@
 import { randomBytes, createHash, timingSafeEqual } from "crypto";
 import { env } from "./env";
+import { validateLogoDataUrl } from "./mcp-client-logo";
 
 async function getPostgresPool() {
   return (await import("./postgres")).getPostgresPool();
@@ -16,6 +17,7 @@ export type StaticClient = {
   updatedAt: Date;
   revokedAt: Date | null;
   credentialVersion: number;
+  logoDataUrl: string | null;
 };
 
 export type StaticClientInput = {
@@ -23,6 +25,7 @@ export type StaticClientInput = {
   redirectUri: string;
   scopes?: string[];
   enabled?: boolean;
+  logoDataUrl?: string | null;
 };
 export class StaticClientValidationError extends Error {}
 export class StaticClientNotFoundError extends Error {}
@@ -43,10 +46,14 @@ export async function ensureStaticClientSchema(): Promise<void> {
     // The second statement is an idempotent migration for tables created before
     // credential versioning. Keep the guard for lightweight unit-test clients
     // whose schema mock intentionally returns no query result.
-    if (result && "rowCount" in result)
+    if (result && "rowCount" in result) {
       await pool.query(
         "ALTER TABLE mcp_static_oauth_clients ADD COLUMN IF NOT EXISTS credential_version INTEGER NOT NULL DEFAULT 1",
       );
+      await pool.query(
+        "ALTER TABLE mcp_static_oauth_clients ADD COLUMN IF NOT EXISTS logo_data_url TEXT",
+      );
+    }
   })().catch((error) => {
     schemaReady = undefined;
     throw error;
@@ -91,6 +98,13 @@ function validate(input: StaticClientInput) {
   )
     throw new StaticClientValidationError("invalid redirect URI");
   allowedScopes(input.scopes ?? ["search"]);
+  if (typeof input.logoDataUrl === "string") {
+    try {
+      validateLogoDataUrl(input.logoDataUrl);
+    } catch {
+      throw new StaticClientValidationError("invalid logo");
+    }
+  }
 }
 type StaticClientRow = {
   client_id: string;
@@ -103,6 +117,7 @@ type StaticClientRow = {
   updated_at: Date;
   revoked_at: Date | null;
   credential_version?: number | string | null;
+  logo_data_url?: string | null;
 };
 
 function rowToClient(row: StaticClientRow): StaticClient {
@@ -117,6 +132,7 @@ function rowToClient(row: StaticClientRow): StaticClient {
     updatedAt: row.updated_at,
     revokedAt: row.revoked_at,
     credentialVersion: Number(row.credential_version ?? 1),
+    logoDataUrl: row.logo_data_url ?? null,
   };
 }
 
@@ -131,7 +147,7 @@ export async function createStaticClient(input: StaticClientInput) {
       const result = await (
         await getPostgresPool()
       ).query(
-        `INSERT INTO mcp_static_oauth_clients (client_id, client_secret_hash, name, redirect_uri, scopes, enabled) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+        `INSERT INTO mcp_static_oauth_clients (client_id, client_secret_hash, name, redirect_uri, scopes, enabled, logo_data_url) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
         [
           clientId,
           hashStaticClientSecret(clientSecret),
@@ -139,6 +155,7 @@ export async function createStaticClient(input: StaticClientInput) {
           input.redirectUri.trim(),
           scopes,
           input.enabled ?? true,
+          input.logoDataUrl ?? null,
         ],
       );
       return { client: rowToClient(result.rows[0]), clientSecret };
@@ -197,6 +214,15 @@ export async function updateStaticClient(
 ) {
   const current = await getStaticClient(clientId);
   if (!current) return null;
+  if (input.logoDataUrl !== undefined) {
+    if (input.logoDataUrl !== null) {
+      try {
+        validateLogoDataUrl(input.logoDataUrl);
+      } catch {
+        throw new StaticClientValidationError("invalid logo");
+      }
+    }
+  }
   const next = {
     name: input.name?.trim() ?? current.name,
     redirectUri: input.redirectUri?.trim() ?? current.redirectUri,
@@ -204,12 +230,24 @@ export async function updateStaticClient(
     enabled: input.enabled ?? current.enabled,
   };
   validate(next);
-  const r = await (
-    await getPostgresPool()
-  ).query(
-    `UPDATE mcp_static_oauth_clients SET name=$2, redirect_uri=$3, scopes=$4, enabled=$5, updated_at=now() WHERE client_id=$1 RETURNING *`,
-    [clientId, next.name, next.redirectUri, next.scopes, next.enabled],
-  );
+  const pool = await getPostgresPool();
+  const r =
+    "logoDataUrl" in input
+      ? await pool.query(
+          `UPDATE mcp_static_oauth_clients SET name=$2, redirect_uri=$3, scopes=$4, enabled=$5, logo_data_url=$6, updated_at=now() WHERE client_id=$1 RETURNING *`,
+          [
+            clientId,
+            next.name,
+            next.redirectUri,
+            next.scopes,
+            next.enabled,
+            input.logoDataUrl,
+          ],
+        )
+      : await pool.query(
+          `UPDATE mcp_static_oauth_clients SET name=$2, redirect_uri=$3, scopes=$4, enabled=$5, updated_at=now() WHERE client_id=$1 RETURNING *`,
+          [clientId, next.name, next.redirectUri, next.scopes, next.enabled],
+        );
   return rowToClient(r.rows[0]);
 }
 export async function listStaticClients() {

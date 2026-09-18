@@ -21,11 +21,22 @@ function allowedScopes() {
   return configured.includes("search") ? configured : ["search", ...configured];
 }
 
+const logoDataUrlSchema = z
+  .string()
+  .max(20_000)
+  .nullable()
+  .optional()
+  .refine(
+    (value) => value == null || value.startsWith("data:image/png;base64,"),
+    "invalid logo",
+  );
+
 const inputSchema = z
   .object({
     name: z.string().trim().min(1).max(200),
     redirectUri: z.string().trim().min(1).max(2048),
     scopes: z.array(z.string().trim().min(1)).min(1).optional(),
+    logoDataUrl: logoDataUrlSchema,
   })
   .strict();
 

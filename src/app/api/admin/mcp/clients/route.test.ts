@@ -30,6 +30,8 @@ import {
   DELETE,
 } from "@/app/api/admin/mcp/clients/[id]/route";
 import { POST as rotate } from "@/app/api/admin/mcp/clients/[id]/rotate-secret/route";
+const TINY_PNG =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
 const client = {
   clientId: "c1",
   name: "App",
@@ -125,5 +127,35 @@ describe("static client admin routes", () => {
     const response = await GET(req(undefined, "GET"));
     expect(response.status).toBe(503);
     expect(await response.json()).toEqual({ error: "Service unavailable" });
+  });
+  it("creates with a logo data URL", async () => {
+    mocks.create.mockResolvedValue({
+      client: { ...client, logoDataUrl: TINY_PNG },
+      clientSecret: "secret",
+    });
+    const response = await POST(
+      req({
+        name: "App",
+        redirectUri: client.redirectUri,
+        logoDataUrl: TINY_PNG,
+      }),
+    );
+    expect(response.status).toBe(201);
+    expect(mocks.create).toHaveBeenCalledWith(
+      expect.objectContaining({ logoDataUrl: TINY_PNG }),
+    );
+  });
+  it("patches null to clear a logo and rejects jpeg data URLs", async () => {
+    mocks.update.mockResolvedValue({ ...client, logoDataUrl: null });
+    expect((await PATCH(req({ logoDataUrl: null }), ctx)).status).toBe(200);
+    expect(mocks.update).toHaveBeenCalledWith(
+      "c1",
+      expect.objectContaining({ logoDataUrl: null }),
+    );
+    expect(
+      (await PATCH(req({ logoDataUrl: "data:image/jpeg;base64,xx" }), ctx))
+        .status,
+    ).toBe(400);
+    expect(mocks.update).toHaveBeenCalledTimes(1);
   });
 });

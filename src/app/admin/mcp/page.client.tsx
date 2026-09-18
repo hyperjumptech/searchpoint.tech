@@ -1,5 +1,5 @@
 "use client";
-import { FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import {
   Copy,
   Edit3,
@@ -19,10 +19,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { fileToPng32DataUrl } from "./logo";
 import {
   buildClientPayload,
   formatDateTime,
   getApiError,
+  logoFileError,
   replaceClient,
   validateRedirectUri,
 } from "./page.helpers";
@@ -37,9 +39,25 @@ export type McpClient = {
   createdAt: string;
   updatedAt: string;
   revokedAt?: string | null;
+  logoDataUrl: string | null;
 };
 type FormMode = { kind: "create" } | { kind: "edit"; client: McpClient };
-const empty = { name: "", redirectUri: "", scopes: ["search"] };
+type FormValues = {
+  name: string;
+  redirectUri: string;
+  scopes: string[];
+  logoFile: File | null;
+  removeLogo: boolean;
+  previewUrl: string | null;
+};
+const empty: FormValues = {
+  name: "",
+  redirectUri: "",
+  scopes: ["search"],
+  logoFile: null,
+  removeLogo: false,
+  previewUrl: null,
+};
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, { ...init, credentials: "same-origin" });
   const body = await response.json().catch(() => undefined);
@@ -81,30 +99,87 @@ export function McpAdminClient() {
       )
       .finally(() => setLoading(false));
   }, []);
+  const revokePreviewUrl = (url: string | null) => {
+    if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+  };
+  useEffect(
+    () => () => revokePreviewUrl(values.previewUrl),
+    [values.previewUrl],
+  );
   const openCreate = () => {
+    revokePreviewUrl(values.previewUrl);
     setMode({ kind: "create" });
     setValues({
       ...empty,
       scopes: allowedScopes.includes("search")
         ? ["search"]
         : allowedScopes.slice(0, 1),
+      logoFile: null,
+      removeLogo: false,
+      previewUrl: null,
     });
     setFormError("");
   };
   const openEdit = (client: McpClient) => {
+    revokePreviewUrl(values.previewUrl);
     setMode({ kind: "edit", client });
     setValues({
       name: client.name,
       redirectUri: client.redirectUri,
       scopes: client.scopes ?? ["search"],
+      logoFile: null,
+      removeLogo: false,
+      previewUrl: client.logoDataUrl,
     });
     setFormError("");
+  };
+  const handleLogoChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    revokePreviewUrl(values.previewUrl);
+    if (file) {
+      setValues({
+        ...values,
+        logoFile: file,
+        removeLogo: false,
+        previewUrl: URL.createObjectURL(file),
+      });
+    } else {
+      setValues({
+        ...values,
+        logoFile: null,
+        previewUrl:
+          mode?.kind === "edit" && !values.removeLogo
+            ? mode.client.logoDataUrl
+            : null,
+      });
+    }
+  };
+  const handleRemoveLogo = () => {
+    revokePreviewUrl(values.previewUrl);
+    setValues({
+      ...values,
+      logoFile: null,
+      removeLogo: true,
+      previewUrl: null,
+    });
   };
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!mode || saving) return;
     const uriError = validateRedirectUri(values.redirectUri);
     if (uriError) return setFormError(uriError);
+    const sizeError = values.logoFile ? logoFileError(values.logoFile) : null;
+    if (sizeError) return setFormError(sizeError);
+    let logo: { logoDataUrl: string | null } | "omit" = "omit";
+    if (values.logoFile) {
+      try {
+        logo = { logoDataUrl: await fileToPng32DataUrl(values.logoFile) };
+      } catch {
+        return setFormError("Could not read the image.");
+      }
+    } else if (mode.kind === "edit" && values.removeLogo) {
+      logo = { logoDataUrl: null };
+    }
     setSaving(true);
     try {
       const result = await requestJson<{
@@ -117,7 +192,7 @@ export function McpAdminClient() {
         {
           method: mode.kind === "create" ? "POST" : "PATCH",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify(buildClientPayload(values, allowedScopes)),
+          body: JSON.stringify(buildClientPayload(values, allowedScopes, logo)),
         },
       );
       setClients((current) =>
@@ -356,6 +431,28 @@ export function McpAdminClient() {
                 </label>
               ))}
             </fieldset>
+            <label className="block text-sm font-medium">
+              Logo
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                aria-label="Logo"
+                onChange={handleLogoChange}
+              />
+            </label>
+            {values.previewUrl && (
+              <img alt="" width={32} height={32} src={values.previewUrl} />
+            )}
+            {mode?.kind === "edit" &&
+              (mode.client.logoDataUrl || values.logoFile) &&
+              !values.removeLogo && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleRemoveLogo}>
+                  Remove logo
+                </Button>
+              )}
             {formError && (
               <p role="alert" className="text-sm text-red-600">
                 {formError}

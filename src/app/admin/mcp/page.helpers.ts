@@ -37,15 +37,31 @@ export function validateRedirectUri(value: string): string | null {
   return null;
 }
 export const ALLOWED_SCOPES = ["search"] as const;
+export const MAX_LOGO_FILE_BYTES = 2 * 1024 * 1024;
+
+export function logoFileError(file: File): string | null {
+  return file.size > MAX_LOGO_FILE_BYTES
+    ? "Logo must be 2MB or smaller."
+    : null;
+}
+
 export function buildClientPayload(
   values: { name: string; redirectUri: string; scopes: string[] },
   allowed: readonly string[] = ALLOWED_SCOPES,
+  logo: { logoDataUrl: string | null } | "omit" = "omit",
 ) {
-  return {
+  const payload: {
+    name: string;
+    redirectUri: string;
+    scopes: string[];
+    logoDataUrl?: string | null;
+  } = {
     name: values.name.trim(),
     redirectUri: values.redirectUri.trim(),
     scopes: values.scopes.filter((scope) => allowed.includes(scope)),
   };
+  if (logo !== "omit") payload.logoDataUrl = logo.logoDataUrl;
+  return payload;
 }
 export function replaceClient<T extends { clientId: string }>(
   items: T[],
