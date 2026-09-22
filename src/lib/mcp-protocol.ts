@@ -1,10 +1,12 @@
 // src/lib/mcp-protocol.ts
+import protocol from "@/contracts/mcp/protocol.json";
 import { callTool, toolsList } from "@/lib/mcp-tools";
 
-const SUPPORTED_PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
-const LATEST_PROTOCOL_VERSION = "2025-06-18";
-const SERVER_NAME = "searchpoint-mcp";
-const SERVER_VERSION = "0.1.0";
+const SUPPORTED_PROTOCOL_VERSIONS = protocol.supportedProtocolVersions;
+const LATEST_PROTOCOL_VERSION = protocol.latestProtocolVersion;
+const SERVER_NAME = protocol.serverInfo.name;
+const SERVER_VERSION = protocol.serverInfo.version;
+const RPC = protocol.errors;
 
 type Json = Record<string, unknown>;
 
@@ -35,7 +37,7 @@ export async function handleMcpRequest(
   try {
     parsed = JSON.parse(raw);
   } catch {
-    return { httpStatus: 200, body: rpcError(null, -32700, "Parse error") };
+    return { httpStatus: 200, body: rpcError(null, RPC.parse, "Parse error") };
   }
 
   if (
@@ -52,7 +54,10 @@ export async function handleMcpRequest(
       "id" in (parsed as Json)
         ? (parsed as Json).id
         : null;
-    return { httpStatus: 200, body: rpcError(id, -32600, "Invalid Request") };
+    return {
+      httpStatus: 200,
+      body: rpcError(id, RPC.invalidRequest, "Invalid Request"),
+    };
   }
 
   const msg = parsed as Json;
@@ -102,25 +107,10 @@ export async function handleMcpRequest(
             if (opts?.kind && rec.kind === undefined) patch.kind = opts.kind;
             if (opts?.author && rec.author === undefined)
               patch.author = opts.author;
-            if (
-              opts?.type &&
-              rec.type === undefined &&
-              rec.extension === undefined
-            )
-              patch.type = opts.type;
-            if (
-              opts?.updated_after &&
-              rec.updated_after === undefined &&
-              rec.updated_at_gte === undefined &&
-              rec.date_gte === undefined
-            )
+            if (opts?.type && rec.type === undefined) patch.type = opts.type;
+            if (opts?.updated_after && rec.updated_after === undefined)
               patch.updated_after = opts.updated_after;
-            if (
-              opts?.updated_before &&
-              rec.updated_before === undefined &&
-              rec.updated_at_lte === undefined &&
-              rec.date_lte === undefined
-            )
+            if (opts?.updated_before && rec.updated_before === undefined)
               patch.updated_before = opts.updated_before;
             if (Object.keys(patch).length) args = { ...rec, ...patch };
           } else if (args === undefined || args === null) {
@@ -142,12 +132,12 @@ export async function handleMcpRequest(
         if (outcome.status === "unknownTool")
           return {
             httpStatus: 200,
-            body: rpcError(id, -32602, `Unknown tool: ${name}`),
+            body: rpcError(id, RPC.unknownTool, `Unknown tool: ${name}`),
           };
         if (outcome.status === "invalidParams")
           return {
             httpStatus: 200,
-            body: rpcError(id, -32602, outcome.message),
+            body: rpcError(id, RPC.invalidParams, outcome.message),
           };
         return {
           httpStatus: 200,
@@ -159,14 +149,14 @@ export async function handleMcpRequest(
       } catch {
         return {
           httpStatus: 200,
-          body: rpcError(id, -32603, "Internal error"),
+          body: rpcError(id, RPC.internal, "Internal error"),
         };
       }
     }
     default:
       return {
         httpStatus: 200,
-        body: rpcError(id, -32601, "Method not found"),
+        body: rpcError(id, RPC.methodNotFound, "Method not found"),
       };
   }
 }

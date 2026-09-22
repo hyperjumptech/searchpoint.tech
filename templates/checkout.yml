@@ -1,0 +1,26 @@
+# Checkout web sources and pin mcp-contract files to the submodule gitlink SHA.
+# Submodule clone is not used: the job token cannot read mcp-contract that way.
+steps:
+  - checkout: self
+    displayName: Checkout poc-search-ui-web
+    path: s
+
+  - checkout: mcpContract
+    displayName: Checkout mcp-contract
+    path: mcp-src
+    fetchDepth: 0
+
+  - bash: |
+      set -euo pipefail
+      WEB="$(Build.SourcesDirectory)"
+      CONTRACT="$(Pipeline.Workspace)/mcp-src"
+      SHA="$(git -C "$WEB" rev-parse HEAD:src/contracts/mcp)"
+      echo "Pinning mcp-contract to $SHA"
+      git -C "$CONTRACT" checkout --force "$SHA"
+      rm -rf "$WEB/src/contracts/mcp"
+      mkdir -p "$WEB/src/contracts/mcp"
+      cp -a "$CONTRACT/." "$WEB/src/contracts/mcp/"
+      rm -rf "$WEB/src/contracts/mcp/.git"
+      test -f "$WEB/src/contracts/mcp/catalog.json"
+      test -f "$WEB/src/contracts/mcp/protocol.json"
+    displayName: Pin mcp-contract to submodule SHA

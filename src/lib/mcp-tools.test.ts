@@ -81,27 +81,30 @@ describe("search_file", () => {
     expect(url.searchParams.get("offset")).toBe("50");
   });
 
-  it("rejects hostile extension and bad pagination with invalidParams", async () => {
+  it("rejects extra keys, hostile type, and bad pagination with invalidParams", async () => {
     for (const args of [
-      { extension: ["pdf') or ('"] },
-      { extension: ["*invalid!"] },
-      { limit: 51 },
-      { limit: 0 },
-      { page: 0 },
-      { page: -1 },
+      { search: "q", extension: ["pdf"] },
+      { search: "q", updated_at_gte: "2023-01-01" },
+      { search: "q", owner_email: "a@b.co" },
+      { search: "q", type: ["pdf') or ('"] },
+      { search: "q", type: ["*invalid!"] },
+      { search: "q", limit: 51 },
+      { search: "q", limit: 0 },
+      { search: "q", page: 0 },
+      { search: "q", page: -1 },
     ]) {
       const res = await callTool("search_file", args, SCSE);
       expect(res.status).toBe("invalidParams");
     }
   });
 
-  it("strips sentinels: unknown source and wildcard extension are ignored", async () => {
+  it("strips sentinels: unknown source and wildcard type are ignored", async () => {
     const fetchMock = stubFetch(200, { status: "ok", value: [] });
     await callTool(
       "search_file",
       {
         search: "q3",
-        extension: ["*"],
+        type: ["*"],
         source: "unknown",
       },
       SCSE,

@@ -1,5 +1,11 @@
 name: "SCSE Web"
 
+resources:
+  repositories:
+    - repository: mcpContract
+      type: git
+      name: Secure Search Engine/mcp-contract
+
 trigger:
   batch: true
   # branches:
@@ -36,6 +42,8 @@ stages:
             vmImage: ubuntu-latest
 
         steps:
+          - template: templates/checkout.yml
+
           - task: Npm@1
             displayName: Install Bun
             inputs:
@@ -124,6 +132,8 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+          - template: templates/checkout.yml
+
           # TODO: Re-enable Playwright tests before production deployment
           # - task: Npm@1
           #   displayName: Install Bun
@@ -290,6 +300,8 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+          - template: templates/checkout.yml
+
           # Strip the 'v' prefix from the tag e.g. v1.0.0-smdv -> 1.0.0-smdv
           - bash: |
               TAG=$(Build.SourceBranchName)
@@ -448,6 +460,8 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+          - template: templates/checkout.yml
+
           # Strip the 'v' prefix from the tag e.g. v1.0.0-sinarmas -> 1.0.0-sinarmas
           - bash: |
               TAG=$(Build.SourceBranchName)

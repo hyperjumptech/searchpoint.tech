@@ -1,0 +1,3 @@
+[submodule "mcp"]
+	path = src/contracts/mcp
+	url = https://dev.azure.com/parsec2018/Secure%20Search%20Engine/_git/mcp-contract

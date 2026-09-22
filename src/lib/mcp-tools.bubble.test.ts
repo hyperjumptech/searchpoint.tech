@@ -176,14 +176,14 @@ describe("mcp-tools bubble sort combinatorial - search is required, others optio
     );
   });
 
-  it("search + updated (both) via aliases", async () => {
+  it("search + updated (both)", async () => {
     const fm = stubFetch(200, { status: "ok", value: [] });
     await callTool(
       "search_file",
       {
         search: "hello",
-        updated_at_gte: "2023-01-01T00:00:00Z",
-        date_lte: "2023-12-31T00:00:00Z",
+        updated_after: "2023-01-01T00:00:00Z",
+        updated_before: "2023-12-31T00:00:00Z",
       },
       SCSE,
     );

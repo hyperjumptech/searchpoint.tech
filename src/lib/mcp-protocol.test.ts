@@ -120,7 +120,7 @@ describe("handleMcpRequest", () => {
     expect((res.body.result as { isError: boolean }).isError).toBe(true);
   });
 
-  it("unknown tool name is a -32602 protocol error", async () => {
+  it("unknown tool name is a -32601 protocol error", async () => {
     mockCallTool.mockResolvedValueOnce({ status: "unknownTool" });
     const res = await handle(
       JSON.stringify({
@@ -130,7 +130,7 @@ describe("handleMcpRequest", () => {
         params: { name: "rm_rf", arguments: {} },
       }),
     );
-    expect(res.body.error).toMatchObject({ code: -32602 });
+    expect(res.body.error).toMatchObject({ code: -32601 });
     expect((res.body.error as { message: string }).message).toContain("rm_rf");
   });
 

@@ -2,6 +2,7 @@
 import { z } from "zod";
 
 import { env } from "@/lib/env";
+import { sharedToolDefs } from "@/lib/mcp-contract";
 
 export type ToolOutcome =
   | { status: "ok"; text: string }
@@ -36,79 +37,70 @@ const SOURCES = [
   "unknown",
 ] as const;
 
-const searchSchema = z.object({
-  search: z
-    .string()
-    .min(1)
-    .describe("Full-text query. This parameter is required."),
-  type: z
-    .array(z.string())
-    .optional()
-    .describe(
-      "Optional filter by type/extension without dot (e.g. pdf, docx). Empty values are ignored. Do NOT send ['*'] — omit for all types. Tool param is `type`, backend filter key is `extension`.",
-    ),
-  extension: z
-    .array(z.string())
-    .optional()
-    .describe(
-      "Optional deprecated alias for `type`. Use `type` instead. Kept for backward compat.",
-    ),
-  kind: z
-    .enum(KINDS)
-    .optional()
-    .describe(
-      "Filter by kind (video/document/image). Only include if user explicitly mentions a kind. Omit for all kinds.",
-    ),
-  author: z
-    .string()
-    .trim()
-    .optional()
-    .describe(
-      "Optional filter by author (free text, e.g. 'satriyo' or 'satriyo@hyperjump.tech'). Empty values are ignored. Maps to backend `created_by`.",
-    ),
-  updated_after: dateStringSchema
-    .optional()
-    .describe(
-      "Filter updated_at gte (e.g. 2023-01-01T00:00:00Z or 2023-01-01). Only include if user explicitly mentions a start date.",
-    ),
-  updated_before: dateStringSchema
-    .optional()
-    .describe(
-      "Filter updated_at lte (e.g. 2023-01-01T00:00:00Z or 2023-01-01). Only include if user explicitly mentions an end date.",
-    ),
-  // Aliases for backward compat / alternative param naming (mapped to updated_after/before)
-  updated_at_gte: dateStringSchema.optional(),
-  updated_at_lte: dateStringSchema.optional(),
-  date_gte: dateStringSchema.optional(),
-  date_lte: dateStringSchema.optional(),
-  source: z
-    .enum(SOURCES)
-    .optional()
-    .describe(
-      "Filter by source (shared folder/onedrive/sharepoint/teams/apple notes). Only include if user explicitly mentions a source. Omit for minimal search — do NOT default to 'unknown'.",
-    ),
-  mode: z
-    .enum(["broad", "exact"])
-    .optional()
-    .describe("Search mode: broad (default, typo-tolerant) or exact."),
-  page: z
-    .number()
-    .int()
-    .min(1)
-    .optional()
-    .describe(
-      "Page number starting at 1. Converted to offset=(page-1)*limit. Omit for first page.",
-    ),
-  limit: z
-    .number()
-    .int()
-    .min(1)
-    .max(50)
-    .optional()
-    .describe("Max results, default 10."),
-});
+const searchSchema = z
+  .object({
+    search: z
+      .string()
+      .min(1)
+      .describe("Full-text query. This parameter is required."),
+    type: z
+      .array(z.string())
+      .optional()
+      .describe(
+        "Optional filter by type/extension without dot (e.g. pdf, docx). Empty values are ignored. Do NOT send ['*'] — omit for all types. Tool param is `type`, backend filter key is `extension`.",
+      ),
+    kind: z
+      .enum(KINDS)
+      .optional()
+      .describe(
+        "Filter by kind (video/document/image). Only include if user explicitly mentions a kind. Omit for all kinds.",
+      ),
+    author: z
+      .string()
+      .trim()
+      .optional()
+      .describe(
+        "Optional filter by author (free text, e.g. 'satriyo' or 'satriyo@hyperjump.tech'). Empty values are ignored. Maps to backend `created_by`.",
+      ),
+    updated_after: dateStringSchema
+      .optional()
+      .describe(
+        "Filter updated_at gte (e.g. 2023-01-01T00:00:00Z or 2023-01-01). Only include if user explicitly mentions a start date.",
+      ),
+    updated_before: dateStringSchema
+      .optional()
+      .describe(
+        "Filter updated_at lte (e.g. 2023-01-01T00:00:00Z or 2023-01-01). Only include if user explicitly mentions an end date.",
+      ),
+    source: z
+      .enum(SOURCES)
+      .optional()
+      .describe(
+        "Filter by source (shared folder/onedrive/sharepoint/teams/apple notes). Only include if user explicitly mentions a source. Omit for minimal search — do NOT default to 'unknown'.",
+      ),
+    mode: z
+      .enum(["broad", "exact"])
+      .optional()
+      .describe("Search mode: broad (default, typo-tolerant) or exact."),
+    page: z
+      .number()
+      .int()
+      .min(1)
+      .optional()
+      .describe(
+        "Page number starting at 1. Converted to offset=(page-1)*limit. Omit for first page.",
+      ),
+    limit: z
+      .number()
+      .int()
+      .min(1)
+      .max(50)
+      .optional()
+      .describe("Max results, default 10."),
+  })
+  .strict();
 
-const getSchema = z.object({ id: z.string().min(1) });
+const getSchema = z.object({ id: z.string().min(1) }).strict();
 
 function invalidParams(error: z.ZodError): ToolOutcome {
   const issue = error.issues[0];
@@ -145,8 +137,7 @@ async function execSearchFile(
   if (!parsed.success) return invalidParams(parsed.error);
   const a = parsed.data;
 
-  // Normalize type (primary) + extension alias: ignore wildcard ["*"] (means all), drop empty/*, lowercase
-  const rawType = a.type ?? a.extension ?? [];
+  const rawType = a.type ?? [];
   const extAll = rawType.map((e) => e.toLowerCase().trim());
   const ext = extAll.filter((e) => e !== "*" && e !== "");
   if (
@@ -167,14 +158,8 @@ async function execSearchFile(
   }
   // source=unknown is backend placeholder — never filter on it for minimal search
   if (a.source && a.source !== "unknown") parts.push(`source eq '${a.source}'`);
-  const gte =
-    ((a as Record<string, unknown>).updated_after as string | undefined) ??
-    ((a as Record<string, unknown>).updated_at_gte as string | undefined) ??
-    ((a as Record<string, unknown>).date_gte as string | undefined);
-  const lte =
-    ((a as Record<string, unknown>).updated_before as string | undefined) ??
-    ((a as Record<string, unknown>).updated_at_lte as string | undefined) ??
-    ((a as Record<string, unknown>).date_lte as string | undefined);
+  const gte = a.updated_after;
+  const lte = a.updated_before;
   if (gte) parts.push(`updated_at gte '${gte}'`);
   if (lte) parts.push(`updated_at lte '${lte}'`);
 
@@ -239,34 +224,25 @@ type ToolDef = {
   execute: (args: unknown, scseId: string) => Promise<ToolOutcome>;
 };
 
-const searchFileTool: ToolDef = {
-  name: "search_file",
-  description:
-    "Search the user's documents. Minimal: only send {search:'q3'} — owner is implicit via SCSE_ID cookie, no need to send owner_email. Backend needs search OR filter, else []. Optional filters: type (e.g. ['pdf'] alias extension, maps to backend `extension`), kind (video/document/image), author (free text e.g. 'satriyo' or 'satriyo@hyperjump.tech' maps to `created_by`), updated_after/updated_before or updated_at_gte/updated_at_lte/date_gte/date_lte (ISO 2023-01-01T00:00:00Z or YYYY-MM-DD) for updated_at gte/lte, source (shared folder/onedrive/sharepoint/teams/apple notes), mode (broad/exact). Pagination via page (1-based) + limit (default 10). Omit type ['*'] and source unknown — they mean 'all' and are ignored. Backend filter keys: `extension`, `kind`, `created_by`, `updated_at`, `source`. Returns JSON hits under value[]._source (use _source.id with get_file) and pagination under meta.pagination.",
-  inputSchema: z.toJSONSchema(searchSchema),
-  execute: execSearchFile,
+const TOOL_EXECUTORS: Record<
+  string,
+  (args: unknown, scseId: string) => Promise<ToolOutcome>
+> = {
+  search_file: execSearchFile,
+  get_file: execGetFile,
 };
 
-const getFileTool: ToolDef = {
-  name: "get_file",
-  description:
-    "Get full metadata for one document by ID. Use an `id` from search_file results. Returns a not-found error if the file does not exist or you lack access.",
-  inputSchema: z.toJSONSchema(getSchema),
-  execute: execGetFile,
-};
-
-export const MCP_TOOLS: ToolDef[] = [searchFileTool, getFileTool];
+export const MCP_TOOLS: ToolDef[] = sharedToolDefs().map((def) => ({
+  ...def,
+  execute: TOOL_EXECUTORS[def.name],
+}));
 
 export function toolsList(): Array<{
   name: string;
   description: string;
   inputSchema: object;
 }> {
-  return MCP_TOOLS.map(({ name, description, inputSchema }) => ({
-    name,
-    description,
-    inputSchema,
-  }));
+  return sharedToolDefs();
 }
 
 export async function callTool(
