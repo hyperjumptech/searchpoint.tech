@@ -8,7 +8,7 @@ export type SharedToolDef = {
 
 export function sharedToolDefs(): SharedToolDef[] {
   return catalog.tools
-    .filter((t) => t.visibility === "shared")
+    .filter((t) => t.clients.includes("web"))
     .map(({ name, description, inputSchema }) => ({
       name,
       description,
