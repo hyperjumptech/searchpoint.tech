@@ -47,6 +47,23 @@ it("add_local_source is unknown on web", async () => {
   });
 });
 
+it("add_favorite is unknown on web", async () => {
+  const res = await handleMcpRequest(
+    JSON.stringify({
+      jsonrpc: "2.0",
+      id: 10,
+      method: "tools/call",
+      params: {
+        name: "add_favorite",
+        arguments: { id: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d" },
+      },
+    }),
+    "scse-10",
+  );
+  expect(res.httpStatus).toBe(200);
+  expect(res.body).toMatchObject({ error: { code: -32601 } });
+});
+
 it("initialize matches contract fixture", async () => {
   const res = await handleMcpRequest(
     JSON.stringify(initializeFixture.request),
