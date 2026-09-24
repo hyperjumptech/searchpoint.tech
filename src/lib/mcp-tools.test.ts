@@ -170,6 +170,22 @@ describe("get_file", () => {
     expect(init.headers.Cookie).toBe(`SCSE_ID=${SCSE}`);
   });
 
+  it("leaves @ literal in crawler document ids", async () => {
+    // Setup
+    const fetchMock = stubFetch(200, { status: "ok", value: {} });
+    const id =
+      "denny.pradipta@smdv.com_onedrive-business_01U22WNE5YB6YFPBQUCFD3JDUMN5RDQWXG";
+
+    // Act
+    const res = await callTool("get_file", { id }, SCSE);
+
+    // Assert
+    expect(res.status).toBe("ok");
+    const [url] = fetchMock.mock.calls[0] as unknown as [URL];
+    expect(url.pathname).toBe(`/v1/files/${id}`);
+    expect(url.pathname).not.toContain("%40");
+  });
+
   it("maps 404 to fixed anti-enumeration message", async () => {
     stubFetch(404, {});
     const res = await callTool("get_file", { id: "nope" }, SCSE);

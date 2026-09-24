@@ -194,12 +194,15 @@ async function execGetFile(
   const parsed = getSchema.safeParse(args);
   if (!parsed.success) return invalidParams(parsed.error);
 
-  // _source.id from search is already URL-encoded (e.g. shared%2Fiseng%2Ffile.pdf).
-  // It contains %2F for slashes and literal @. new URL() preserves existing % encodings,
-  // so pass it raw to avoid double-encoding %2F → %252F. Only encode ids that have
-  // no existing % encodings (e.g. "d 1" → "d%201").
+  // _source.id from search is already URL-encoded when the path contains
+  // reserved characters (e.g. shared%2Fiseng%2Ffile.pdf). Pass those through
+  // so %2F is not encoded again as %252F. Fresh ids still need encoding for
+  // spaces, but @ must stay literal: encodeURIComponent turns it into %40,
+  // chi keeps that in the route param, and the stored document id uses @.
   const rawId = parsed.data.id;
-  const encodedId = rawId.includes("%") ? rawId : encodeURIComponent(rawId);
+  const encodedId = rawId.includes("%")
+    ? rawId
+    : encodeURIComponent(rawId).replaceAll("%40", "@");
   const url = new URL(`/v1/files/${encodedId}`, env.BACKEND_BASE_URL);
   const res = await backendFetch(url, scseId);
   if (!res) return { status: "isError", text: "Backend unavailable." };
