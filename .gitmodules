@@ -1,3 +1,6 @@
 [submodule "mcp"]
 	path = src/contracts/mcp
 	url = https://dev.azure.com/parsec2018/Secure%20Search%20Engine/_git/mcp-contract
+[submodule "infra"]
+	path = infra
+	url = git@ssh.dev.azure.com:v3/parsec2018/Secure%20Search%20Engine/ansible
