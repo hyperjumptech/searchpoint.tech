@@ -94,7 +94,7 @@ const schema = z.object({
   CHANGELOG_GITHUB_REPO: z
     .string()
     .optional()
-    .default("hyperjumptech/searchpoint"),
+    .default("hyperjumptech/searchpoint-changelog"),
   CHANGELOG_GITHUB_BRANCH: z.string().optional().default("main"),
   CHANGELOG_GITHUB_DIR: z.string().optional().default("changelog"),
   CHANGELOG_GITHUB_TOKEN: z.preprocess(
