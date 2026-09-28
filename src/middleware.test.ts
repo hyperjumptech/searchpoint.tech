@@ -65,6 +65,21 @@ describe("middleware oauth bypass", () => {
     const res = middleware(requestFor("/mcp-notes"));
     expect(isLoginRedirect(res)).toBe(true);
   });
+
+  it("allows /changelog without SCSE_ID", () => {
+    const res = middleware(requestFor("/changelog"));
+    expect(isLoginRedirect(res)).toBe(false);
+  });
+
+  it("allows /changelog subpaths without SCSE_ID", () => {
+    const res = middleware(requestFor("/changelog/0.29.0"));
+    expect(isLoginRedirect(res)).toBe(false);
+  });
+
+  it("allows /api/changelog subpaths without SCSE_ID", () => {
+    const res = middleware(requestFor("/api/changelog/media?path=demo.mp4"));
+    expect(isLoginRedirect(res)).toBe(false);
+  });
 });
 
 describe("middleware admin basic auth", () => {

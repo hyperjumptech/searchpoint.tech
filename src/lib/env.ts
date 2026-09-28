@@ -91,6 +91,22 @@ const schema = z.object({
       return false;
     }, z.boolean())
     .default(false),
+  CHANGELOG_GITHUB_REPO: z
+    .string()
+    .optional()
+    .default("hyperjumptech/searchpoint"),
+  CHANGELOG_GITHUB_BRANCH: z.string().optional().default("main"),
+  CHANGELOG_GITHUB_DIR: z.string().optional().default("changelog"),
+  CHANGELOG_GITHUB_TOKEN: z.preprocess(
+    (val) =>
+      typeof val === "string" && val.trim() !== "" ? val.trim() : undefined,
+    z.string().optional(),
+  ),
+  CHANGELOG_REVALIDATE_SECONDS: z.preprocess(
+    (val) => (val === undefined || val === "" ? 60 : Number(val)),
+    z.number().int().positive().default(60),
+  ),
+  REVALIDATION_SECRET: z.string().optional(),
 });
 
 export const env = schema.parse(process.env);

@@ -20,7 +20,7 @@ const applySecurityHeaders = (response: Response) => {
   );
   response.headers.set(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://*.microsoft.com; connect-src 'self' https://*.microsoft.com;",
+    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://*.microsoft.com; media-src 'self' blob: data: https:; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://*.microsoft.com;",
   );
   return response;
 };
@@ -80,6 +80,10 @@ export function middleware(request: NextRequest) {
   if (
     pathname === "/landing" ||
     pathname.startsWith("/docs/") ||
+    pathname === "/changelog" ||
+    pathname.startsWith("/changelog/") ||
+    pathname.startsWith("/api/changelog/") ||
+    pathname.startsWith("/videos/") ||
     pathname.startsWith("/oauth/")
   ) {
     const requestHeaders = new Headers(request.headers);
@@ -165,6 +169,8 @@ export const config = {
     "/docs/:path*",
     "/admin/mcp",
     "/api/admin/mcp/:path*",
+    "/changelog",
+    "/changelog/:path*",
     // /api is intentionally omitted. Desktop auto-update and the curation
     // model manifest must stay reachable without a session cookie. Those
     // handlers apply their own per-IP rate limits.

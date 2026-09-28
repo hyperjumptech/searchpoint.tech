@@ -67,6 +67,7 @@ export default async function RootLayout({
         <CompanyFavicon company={tenant} />
         {pathname === "/login" ||
         pathname.startsWith("/docs/") ||
+        pathname.startsWith("/changelog") ||
         pathname.startsWith("/oauth/") ? null : (
           <Suspense>
             <Navbar company={tenant} />
