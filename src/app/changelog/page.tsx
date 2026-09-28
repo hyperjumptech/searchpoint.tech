@@ -97,16 +97,18 @@ export default async function ChangelogPage() {
                           {post.version}
                         </Link>
 
-                        {post.badge && (
-                          <span
-                            className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                              isFirst
-                                ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 dark:text-emerald-400"
-                                : "bg-muted text-muted-foreground"
-                            }`}>
-                            {post.badge}
+                        {isFirst && (
+                          <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                            Latest
                           </span>
                         )}
+
+                        {post.badge &&
+                          post.badge.toLowerCase() !== "latest" && (
+                            <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                              {post.badge}
+                            </span>
+                          )}
                       </div>
                     </div>
                   </div>

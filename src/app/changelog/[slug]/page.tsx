@@ -67,6 +67,10 @@ export default async function ChangelogDetailPage({ params }: Props) {
     notFound();
   }
 
+  const posts = await fetchChangelogPosts();
+  const isLatest =
+    posts.length > 0 &&
+    (posts[0].slug === post.slug || posts[0].version === post.version);
   const formattedDate = formatDate(post.date);
 
   return (
@@ -106,8 +110,14 @@ export default async function ChangelogDetailPage({ params }: Props) {
                 <Tag className="h-3 w-3 text-muted-foreground" />v{post.version}
               </span>
 
-              {post.badge && (
-                <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-xs font-medium text-primary">
+              {isLatest && (
+                <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                  Latest
+                </span>
+              )}
+
+              {post.badge && post.badge.toLowerCase() !== "latest" && (
+                <span className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
                   {post.badge}
                 </span>
               )}
