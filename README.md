@@ -167,6 +167,45 @@ bun run test:e2e:ui
 
 View the latest test report
 
-```
+```bash
 bun run test:e2e:report
 ```
+
+---
+
+## Deployment & Release Tagging
+
+Deployments to production and tenant environments are automated via Azure Pipelines (`azure-pipelines.yml`) triggered by Git tags. Pushing a tag will automatically build the Docker image, push it to Azure Container Registry (ACR), and deploy to the corresponding server(s).
+
+### Tagging Matrix
+
+| Tag Pattern | Target Server(s) | Network / Connection | Notes |
+| :--- | :--- | :--- | :--- |
+| `v*` (e.g. `v1.9.6`) | **All 3 Servers**<br>• Hyperjump (Production)<br>• SMDV<br>• Sinarmas | • Hyperjump: OpenVPN<br>• SMDV: WireGuard<br>• Sinarmas: WireGuard | Any tag **without** `-smdv` or `-sinarmas` suffix triggers parallel deployments to all three environments. |
+| `v*-smdv` (e.g. `v1.9.6-smdv`) | **SMDV only** | WireGuard | Targets only the SMDV server; skipped on Hyperjump and Sinarmas. |
+| `v*-sinarmas` (e.g. `v1.9.6-sinarmas`) | **Sinarmas only** | WireGuard | Targets only the Sinarmas server; skipped on Hyperjump and SMDV. |
+
+### How to Release via Git Tag
+
+1. **Deploy to all three servers (Hyperjump, SMDV, Sinarmas):**
+   ```bash
+   git tag v1.9.6
+   git push origin v1.9.6
+   ```
+
+2. **Deploy only to SMDV:**
+   ```bash
+   git tag v1.9.6-smdv
+   git push origin v1.9.6-smdv
+   ```
+
+3. **Deploy only to Sinarmas:**
+   ```bash
+   git tag v1.9.6-sinarmas
+   git push origin v1.9.6-sinarmas
+   ```
+
+> **Note:**
+> - The pipeline strips the leading `v` from the tag (e.g. `v1.9.6` → `1.9.6`, `v1.9.6-smdv` → `1.9.6-smdv`) to update `package.json` and tag the Docker image in ACR (`scse/search-ui-web`).
+> - The production (Hyperjump) deployment pushes both `{version}` and `latest` tags, while tenant deployments (SMDV, Sinarmas) push `{version}` only to avoid clobbering production.
+> - The deployment updates `FRONTEND_TAG` in `services/frontend/.env` on the target host and restarts the container via Docker Compose.
