@@ -50,6 +50,21 @@ function parseRange(
   return { start, end };
 }
 
+const corsHeaders: Record<string, string> = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+  "Access-Control-Allow-Headers": "Range, Content-Type, Authorization",
+  "Access-Control-Expose-Headers":
+    "Content-Range, Content-Length, Accept-Ranges",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
+
 function createMediaResponse(
   buffer: Buffer,
   contentType: string,
@@ -66,6 +81,7 @@ function createMediaResponse(
       return new Response(new Uint8Array(chunk), {
         status: 206,
         headers: {
+          ...corsHeaders,
           "Content-Type": contentType,
           "Content-Range": `bytes ${start}-${end}/${totalSize}`,
           "Accept-Ranges": "bytes",
@@ -80,6 +96,7 @@ function createMediaResponse(
   return new Response(new Uint8Array(buffer), {
     status: 200,
     headers: {
+      ...corsHeaders,
       "Content-Type": contentType,
       "Accept-Ranges": "bytes",
       "Content-Length": String(totalSize),

@@ -80,6 +80,11 @@ describe("middleware oauth bypass", () => {
     const res = middleware(requestFor("/api/changelog/media?path=demo.mp4"));
     expect(isLoginRedirect(res)).toBe(false);
   });
+
+  it("allows /api/changelog without SCSE_ID", () => {
+    const res = middleware(requestFor("/api/changelog"));
+    expect(isLoginRedirect(res)).toBe(false);
+  });
 });
 
 describe("middleware admin basic auth", () => {

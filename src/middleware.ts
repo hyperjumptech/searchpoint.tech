@@ -82,6 +82,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/docs/") ||
     pathname === "/changelog" ||
     pathname.startsWith("/changelog/") ||
+    pathname === "/api/changelog" ||
     pathname.startsWith("/api/changelog/") ||
     pathname.startsWith("/videos/") ||
     pathname.startsWith("/oauth/")
