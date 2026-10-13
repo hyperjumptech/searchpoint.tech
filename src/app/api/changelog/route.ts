@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { fetchChangelogPosts } from "@/lib/changelog";
+import { env } from "@/lib/env";
+import { resolveTenantId } from "@/lib/tenant";
 
 export const dynamic = "force-dynamic";
 
@@ -16,9 +18,33 @@ export async function OPTIONS() {
   });
 }
 
-export async function GET() {
+function resolveRequestHostOrUrl(request?: Request): string {
+  if (!request) return "";
+  const forwardedHost =
+    request.headers?.get("x-hostname") ||
+    request.headers?.get("x-forwarded-host") ||
+    request.headers?.get("host") ||
+    "";
+  if (request.url) {
+    try {
+      const parsed = new URL(request.url);
+      if (parsed.search) {
+        return `${forwardedHost || parsed.host}${parsed.search}`;
+      }
+      return forwardedHost || parsed.host;
+    } catch {
+      return forwardedHost || request.url;
+    }
+  }
+  return forwardedHost;
+}
+
+export async function GET(request?: Request) {
   try {
-    const posts = await fetchChangelogPosts();
+    const variant = request
+      ? resolveTenantId(env.TENANT, resolveRequestHostOrUrl(request))
+      : undefined;
+    const posts = await fetchChangelogPosts(variant);
     const latest = posts.length > 0 ? posts[0] : null;
 
     return NextResponse.json(

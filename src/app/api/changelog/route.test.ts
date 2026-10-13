@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { GET, OPTIONS } from "./route";
 import * as changelogLib from "@/lib/changelog";
 
@@ -7,14 +7,22 @@ describe("/api/changelog", () => {
     vi.restoreAllMocks();
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("handles OPTIONS preflight with CORS headers", async () => {
+    // Act
     const res = await OPTIONS();
+
+    // Assert
     expect(res.status).toBe(204);
     expect(res.headers.get("Access-Control-Allow-Origin")).toBe("*");
     expect(res.headers.get("Access-Control-Allow-Methods")).toContain("GET");
   });
 
   it("returns latest and posts array with CORS headers when posts exist", async () => {
+    // Setup
     const mockPosts: changelogLib.ChangelogPost[] = [
       {
         slug: "0.29.0",
@@ -38,7 +46,10 @@ describe("/api/changelog", () => {
       mockPosts,
     );
 
+    // Act
     const res = await GET();
+
+    // Assert
     expect(res.status).toBe(200);
     expect(res.headers.get("Access-Control-Allow-Origin")).toBe("*");
 
@@ -47,10 +58,31 @@ describe("/api/changelog", () => {
     expect(data.posts).toEqual(mockPosts);
   });
 
+  it("passes resolved tenant variant from request query or host to fetchChangelogPosts", async () => {
+    // Setup
+    const fetchSpy = vi
+      .spyOn(changelogLib, "fetchChangelogPosts")
+      .mockResolvedValueOnce([]);
+    const req = new Request(
+      "https://searchpoint.sinarmas.hyperjump.tech/api/changelog",
+    );
+
+    // Act
+    const res = await GET(req);
+
+    // Assert
+    expect(res.status).toBe(200);
+    expect(fetchSpy).toHaveBeenCalledWith("sinarmas");
+  });
+
   it("handles empty posts list gracefully with CORS headers", async () => {
+    // Setup
     vi.spyOn(changelogLib, "fetchChangelogPosts").mockResolvedValueOnce([]);
 
+    // Act
     const res = await GET();
+
+    // Assert
     expect(res.status).toBe(200);
     expect(res.headers.get("Access-Control-Allow-Origin")).toBe("*");
 
@@ -60,11 +92,15 @@ describe("/api/changelog", () => {
   });
 
   it("returns 500 with CORS headers when fetchChangelogPosts throws an error", async () => {
+    // Setup
     vi.spyOn(changelogLib, "fetchChangelogPosts").mockRejectedValueOnce(
       new Error("Fetch failed"),
     );
 
+    // Act
     const res = await GET();
+
+    // Assert
     expect(res.status).toBe(500);
     expect(res.headers.get("Access-Control-Allow-Origin")).toBe("*");
 
