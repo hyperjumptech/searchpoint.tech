@@ -134,11 +134,18 @@ export default function DownloadSection({
                 key={platform.id}
                 className={`p-7 rounded-2xl border transition-all duration-300 flex flex-col justify-between relative ${
                   isCurrent
-                    ? "border-primary/50 bg-card/90 shadow-xl shadow-primary/5 ring-1 ring-primary/20"
+                    ? platform.isComingSoon
+                      ? "border-border/80 bg-card/80 shadow-md ring-1 ring-border"
+                      : "border-primary/50 bg-card/90 shadow-xl shadow-primary/5 ring-1 ring-primary/20"
                     : "border-border/70 bg-card/70 backdrop-blur-sm hover:border-border"
                 }`}>
                 {isCurrent && (
-                  <span className="absolute -top-3 left-6 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary text-primary-foreground shadow-xs">
+                  <span
+                    className={`absolute -top-3 left-6 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-xs ${
+                      platform.isComingSoon
+                        ? "bg-muted text-muted-foreground border border-border"
+                        : "bg-primary text-primary-foreground"
+                    }`}>
                     Your System
                   </span>
                 )}

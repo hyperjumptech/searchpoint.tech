@@ -5,6 +5,9 @@ export interface CompanyLogoConfig {
   alt: string;
   width: number;
   height: number;
+  darkSrc?: string;
+  darkWidth?: number;
+  darkHeight?: number;
 }
 
 export const COMPANY_LOGOS: Record<Company, CompanyLogoConfig> = {
@@ -13,12 +16,18 @@ export const COMPANY_LOGOS: Record<Company, CompanyLogoConfig> = {
     alt: "Hyperjump",
     width: 1024,
     height: 174,
+    darkSrc: "/icons/hyperjump-white.png",
+    darkWidth: 1664,
+    darkHeight: 284,
   },
   smdv: {
     src: "/icons/smdv.png",
     alt: "SMDV",
     width: 260,
     height: 71,
+    darkSrc: "/icons/smdv-white.png",
+    darkWidth: 1934,
+    darkHeight: 528,
   },
   sinarmas: {
     src: "/icons/logo.svg",
@@ -28,8 +37,23 @@ export const COMPANY_LOGOS: Record<Company, CompanyLogoConfig> = {
   },
 };
 
-export function getCompanyLogo(company: Company): CompanyLogoConfig {
-  return COMPANY_LOGOS[company] ?? COMPANY_LOGOS.hyperjump;
+export function getCompanyLogo(
+  company: Company,
+  theme?: "light" | "dark",
+): CompanyLogoConfig {
+  const config = COMPANY_LOGOS[company] ?? COMPANY_LOGOS.hyperjump;
+  if (theme === "dark" && config.darkSrc) {
+    return {
+      src: config.darkSrc,
+      alt: config.alt,
+      width: config.darkWidth ?? config.width,
+      height: config.darkHeight ?? config.height,
+      darkSrc: config.darkSrc,
+      darkWidth: config.darkWidth,
+      darkHeight: config.darkHeight,
+    };
+  }
+  return config;
 }
 
 export interface CompanyFaviconConfig {

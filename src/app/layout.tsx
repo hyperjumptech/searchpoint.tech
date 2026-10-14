@@ -13,6 +13,7 @@ import { headers } from "next/headers";
 import { getCompanyFavicon } from "@/lib/company";
 import { env } from "@/lib/env";
 import { getTenantConfig, resolveTenantId } from "@/lib/tenant";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = await headers();
@@ -61,19 +62,29 @@ export default async function RootLayout({
   const tenant = resolveTenantId(env.TENANT, host);
 
   return (
-    <html lang="en" data-tenant={tenant} className={inter.className}>
-      <body className="min-h-screen bg-background text-foreground relative">
-        <UserStoreInitializer user={me} />
-        <CompanyFavicon company={tenant} />
-        {pathname === "/login" ||
-        pathname.startsWith("/docs/") ||
-        pathname.startsWith("/changelog") ||
-        pathname.startsWith("/oauth/") ? null : (
-          <Suspense>
-            <Navbar company={tenant} />
-          </Suspense>
-        )}
-        {children}
+    <html
+      lang="en"
+      data-tenant={tenant}
+      className={inter.className}
+      suppressHydrationWarning>
+      <body className="min-h-screen bg-background text-foreground relative transition-colors duration-200">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange>
+          <UserStoreInitializer user={me} />
+          <CompanyFavicon company={tenant} />
+          {pathname === "/login" ||
+          pathname.startsWith("/docs/") ||
+          pathname.startsWith("/changelog") ||
+          pathname.startsWith("/oauth/") ? null : (
+            <Suspense>
+              <Navbar company={tenant} />
+            </Suspense>
+          )}
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -27,6 +27,7 @@ export default async function LandingPage() {
       isMobile={isMobile}
       isGoogleChrome={isGoogleChrome}
       content={tenant.content}
+      company={tenant.id}
     />
   );
 }

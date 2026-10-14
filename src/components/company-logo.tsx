@@ -41,6 +41,32 @@ export default function CompanyLogo({
 
   const logo = getCompanyLogo(company);
 
+  if (logo.darkSrc && logo.darkSrc !== logo.src) {
+    return (
+      <>
+        <Image
+          src={logo.src}
+          alt={logo.alt}
+          width={logo.width}
+          height={logo.height}
+          priority={priority}
+          className={cn("h-8 w-auto object-contain dark:hidden", className)}
+        />
+        <Image
+          src={logo.darkSrc}
+          alt={logo.alt}
+          width={logo.darkWidth ?? logo.width}
+          height={logo.darkHeight ?? logo.height}
+          priority={priority}
+          className={cn(
+            "h-8 w-auto object-contain hidden dark:block",
+            className,
+          )}
+        />
+      </>
+    );
+  }
+
   return (
     <Image
       src={logo.src}

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Download, LogOut, Menu, X, ExternalLink } from "lucide-react";
 
 import NavbarLogo from "@/components/navbar-logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,10 +36,9 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Connectors", href: "#sources" },
-  { label: "Features", href: "#features" },
-  { label: "AI Knowledge", href: "#ai-knowledge" },
-  { label: "Comparison", href: "#comparison" },
+  { label: "Knowledge Layer", href: "#knowledge-layer" },
+  { label: "Unified Search", href: "#features" },
+  { label: "AI Organization", href: "#smart-rename" },
   { label: "Security", href: "#security" },
   { label: "Download", href: "#download" },
 ];
@@ -119,15 +119,21 @@ export default function Navbar({
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md text-foreground">
-        <nav className={cn("max-w-6xl mx-auto h-16")}>
-          <div className="flex items-center justify-between h-full px-4 sm:px-6">
+        <nav
+          className={cn(
+            "h-16 w-full",
+            isLandingPage
+              ? "px-4 sm:px-8 lg:px-12"
+              : "max-w-6xl mx-auto px-4 sm:px-6",
+          )}>
+          <div className="flex items-center justify-between h-full">
             {/* Logo */}
             <div className="flex items-center gap-8">
               <NavbarLogo company={company} />
 
               {/* Desktop Nav Links (Landing page only) */}
               {isLandingPage && (
-                <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
+                <div className="hidden lg:flex items-center gap-6 text-sm font-medium text-muted-foreground">
                   {NAV_ITEMS.map((item) =>
                     item.isExternal ? (
                       <Link
@@ -160,6 +166,8 @@ export default function Navbar({
                   <span>Get App</span>
                 </a>
               )}
+
+              <ThemeToggle />
 
               {/* Profile Dropdown or Sign In */}
               {user ? (
@@ -204,12 +212,12 @@ export default function Navbar({
                 </Link>
               )}
 
-              {/* Mobile Menu Toggle (Landing page only) */}
+              {/* Mobile & Tablet Menu Toggle (Landing page only) */}
               {isLandingPage && (
                 <button
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                   aria-label="Toggle navigation menu"
-                  className="md:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50">
+                  className="lg:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50">
                   {mobileMenuOpen ? (
                     <X className="h-5 w-5" />
                   ) : (
@@ -220,9 +228,9 @@ export default function Navbar({
             </div>
           </div>
 
-          {/* Mobile Dropdown Menu (Landing page only) */}
+          {/* Mobile & Tablet Dropdown Menu (Landing page only) */}
           {isLandingPage && mobileMenuOpen && (
-            <div className="md:hidden px-4 sm:px-6 py-4 border-t border-border/40 bg-background/95 backdrop-blur-xl flex flex-col gap-3 text-sm font-medium text-muted-foreground animate-in slide-in-from-top-2 duration-200">
+            <div className="lg:hidden px-4 sm:px-6 py-4 border-t border-border/40 bg-background/95 backdrop-blur-xl flex flex-col gap-3 text-sm font-medium text-muted-foreground animate-in slide-in-from-top-2 duration-200">
               {NAV_ITEMS.map((item) =>
                 item.isExternal ? (
                   <Link

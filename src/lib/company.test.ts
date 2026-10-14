@@ -59,20 +59,32 @@ describe("companyFromHostname", () => {
 });
 
 describe("getCompanyLogo", () => {
-  it("returns Hyperjump logo config for hyperjump", () => {
+  it("returns Hyperjump logo config for hyperjump (light & dark)", () => {
     const logo = getCompanyLogo("hyperjump");
     expect(logo.src).toBe("/icons/hyperjump.png");
+    expect(logo.darkSrc).toBe("/icons/hyperjump-white.png");
     expect(logo.alt).toBe("Hyperjump");
     expect(logo.width).toBe(1024);
     expect(logo.height).toBe(174);
+    expect(logo.darkWidth).toBe(1664);
+    expect(logo.darkHeight).toBe(284);
+
+    const darkLogo = getCompanyLogo("hyperjump", "dark");
+    expect(darkLogo.src).toBe("/icons/hyperjump-white.png");
   });
 
-  it("returns SMDV logo config for smdv", () => {
+  it("returns SMDV logo config for smdv (light & dark)", () => {
     const logo = getCompanyLogo("smdv");
     expect(logo.src).toBe("/icons/smdv.png");
+    expect(logo.darkSrc).toBe("/icons/smdv-white.png");
     expect(logo.alt).toBe("SMDV");
     expect(logo.width).toBe(260);
     expect(logo.height).toBe(71);
+    expect(logo.darkWidth).toBe(1934);
+    expect(logo.darkHeight).toBe(528);
+
+    const darkLogo = getCompanyLogo("smdv", "dark");
+    expect(darkLogo.src).toBe("/icons/smdv-white.png");
   });
 
   it("returns Sinarmas logo config for sinarmas", () => {
@@ -81,6 +93,9 @@ describe("getCompanyLogo", () => {
     expect(logo.alt).toBe("Sinarmas");
     expect(logo.width).toBe(143);
     expect(logo.height).toBe(32);
+
+    const darkLogo = getCompanyLogo("sinarmas", "dark");
+    expect(darkLogo.src).toBe("/icons/logo.svg");
   });
 });
 
