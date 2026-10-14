@@ -247,7 +247,8 @@ export default function HeroSection({
 
         {/* Headline */}
         <h1 className="text-[clamp(40px,6.8vw,80px)] font-bold tracking-[-0.045em] text-foreground max-w-[19ch] leading-[1.04] mx-auto animate-in fade-in slide-in-from-bottom-3 duration-700">
-          Grounded knowledge for your AI.
+          Grounded knowledge{" "}
+          <span className="text-primary block sm:inline">for your AI.</span>
         </h1>
         {/* Subtitle */}
         <p className="mt-8 text-base sm:text-xl lg:text-[21px] text-muted-foreground max-w-3xl leading-relaxed text-balance animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
@@ -342,7 +343,7 @@ export default function HeroSection({
                 <kbd className="hidden sm:inline-flex items-center gap-1 rounded border border-border/80 bg-background px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
                   Ctrl + Space
                 </kbd>
-                <div className="h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-[9px] sm:text-[10px] font-bold flex items-center justify-center">
+                <div className="h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-primary/20 border border-primary/30 text-primary text-[9px] sm:text-[10px] font-bold flex items-center justify-center">
                   SP
                 </div>
                 <Settings className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground" />
@@ -365,8 +366,8 @@ export default function HeroSection({
                         <Layers className="h-3.5 w-3.5 text-muted-foreground" />
                         <span>All sources</span>
                       </div>
-                      <div className="flex items-center gap-2 px-2 py-1.5 rounded text-foreground font-semibold bg-red-500/10 dark:bg-red-500/15 border-l-[3px] border-red-500 pl-[6px] cursor-pointer">
-                        <span className="h-2 w-2 rounded-full bg-red-500" />
+                      <div className="flex items-center gap-2 px-2 py-1.5 rounded text-foreground font-semibold bg-primary/10 border-l-[3px] border-primary pl-[6px] cursor-pointer">
+                        <span className="h-2 w-2 rounded-full bg-primary" />
                         <span>On Device</span>
                       </div>
                       <div className="flex items-center gap-2 px-2 py-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted/40 cursor-pointer">
@@ -390,8 +391,8 @@ export default function HeroSection({
                         <FileText className="h-3.5 w-3.5" />
                         <span>Document</span>
                       </div>
-                      <div className="flex items-center gap-2 px-2 py-1 rounded text-red-600 dark:text-red-400 font-semibold bg-red-500/10 dark:bg-red-500/15 border-l-[3px] border-red-500 pl-[6px] cursor-pointer">
-                        <FileText className="h-3.5 w-3.5 text-red-500" />
+                      <div className="flex items-center gap-2 px-2 py-1 rounded text-primary font-semibold bg-primary/10 border-l-[3px] border-primary pl-[6px] cursor-pointer">
+                        <FileText className="h-3.5 w-3.5 text-primary" />
                         <span>PDF</span>
                       </div>
                       <div className="flex items-center gap-2 px-2 py-1 rounded hover:text-foreground hover:bg-muted/40 cursor-pointer">
@@ -459,7 +460,7 @@ export default function HeroSection({
                 {/* Search Bar & Mode Switcher */}
                 <div className="p-2.5 sm:p-3.5 border-b border-border/60 bg-background">
                   <div className="flex items-center gap-2 sm:gap-2.5 p-1.5 sm:p-2 rounded-xl border border-border/80 bg-muted/30">
-                    <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-500 shrink-0" />
+                    <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
                     <input
                       type="text"
                       readOnly
@@ -485,7 +486,7 @@ export default function HeroSection({
                       </strong>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 font-medium">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-medium">
                         Type: pdf ✕
                       </span>
                       <span className="hidden sm:inline-block text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
@@ -517,7 +518,7 @@ export default function HeroSection({
                           }}
                           className={`group p-2 rounded-xl border transition-all cursor-pointer flex items-start gap-2.5 ${
                             isSelected
-                              ? "bg-red-500/5 border-red-500/40 shadow-xs border-l-4 border-l-red-500"
+                              ? "bg-primary/5 border-primary/40 shadow-xs border-l-4 border-l-primary"
                               : "bg-card/40 border-transparent hover:bg-muted/40 hover:border-border/60"
                           }`}>
                           <div
@@ -526,7 +527,7 @@ export default function HeroSection({
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center justify-between gap-1">
-                              <h4 className="text-xs font-semibold text-foreground truncate group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
+                              <h4 className="text-xs font-semibold text-foreground truncate group-hover:text-primary transition-colors">
                                 {item.title}
                               </h4>
                               <span className="text-[10px] text-muted-foreground shrink-0 font-medium">
@@ -584,7 +585,7 @@ export default function HeroSection({
 
                         {/* Open File / Open Folder buttons: equal width */}
                         <div className="flex items-center gap-2 pt-1">
-                          <button className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer">
+                          <button className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold shadow-xs hover:bg-primary/90 transition-colors cursor-pointer">
                             <SquareArrowOutUpRight className="h-3 w-3" />
                             <span>Open File</span>
                           </button>
@@ -596,8 +597,8 @@ export default function HeroSection({
                       </div>
 
                       {/* AI Filename Recommendations Box (from Redesign v2 & Screenshot) */}
-                      <div className="p-2.5 rounded-xl border border-red-500/20 bg-red-500/5 space-y-2">
-                        <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider uppercase text-red-600 dark:text-red-400">
+                      <div className="p-2.5 rounded-xl border border-primary/20 bg-primary/5 space-y-2">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider uppercase text-primary">
                           <Sparkles className="h-3 w-3" />
                           <span>Filename Recommendations</span>
                         </div>
@@ -670,7 +671,7 @@ export default function HeroSection({
                           ↵ Enter
                         </kbd>
                       </span>
-                      <span className="text-red-600 dark:text-red-400 font-medium">
+                      <span className="text-primary font-medium">
                         Instant Preview
                       </span>
                     </div>

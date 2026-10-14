@@ -16,7 +16,7 @@ export default function KnowledgeLayerSection() {
           </div>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
             Grounded AI answers.{" "}
-            <span className="text-muted-foreground block sm:inline">
+            <span className="text-primary block sm:inline">
               Zero hallucinations.
             </span>
           </h2>

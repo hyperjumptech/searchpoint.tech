@@ -40,9 +40,7 @@ export default function UnifiedSearchSection() {
           </div>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
             Search all sources at once.{" "}
-            <span className="text-muted-foreground block sm:inline">
-              Instantly.
-            </span>
+            <span className="text-primary block sm:inline">Instantly.</span>
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
             Stop switching between File Explorer, browser tabs, and cloud

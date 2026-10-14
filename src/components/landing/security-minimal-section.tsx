@@ -8,7 +8,7 @@ export default function SecurityMinimalSection() {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 space-y-16">
         <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.1] max-w-3xl">
           Your files stay where they are.{" "}
-          <span className="text-muted-foreground block sm:inline">
+          <span className="text-primary block sm:inline">
             Permissions intact.
           </span>
         </h2>

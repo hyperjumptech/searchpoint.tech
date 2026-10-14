@@ -35,7 +35,7 @@ export default function SmartRenameSection() {
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.15]">
             Turn chaotic downloads{" "}
-            <span className="text-muted-foreground block sm:inline">
+            <span className="text-primary block sm:inline">
               into structured archives.
             </span>
           </h2>
