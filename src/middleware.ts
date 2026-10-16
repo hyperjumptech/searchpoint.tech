@@ -5,6 +5,7 @@ import {
   unauthorizedBasicAuthResponse,
 } from "@/lib/admin-basic-auth";
 import { isLoginBypassEnabled } from "@/lib/is-login-bypass-enabled";
+import { isSafeRedirectPath } from "@/lib/safe-redirect";
 
 const applySecurityHeaders = (response: Response) => {
   response.headers.set(
@@ -106,8 +107,14 @@ export function middleware(request: NextRequest) {
     );
   }
 
-  // If accessing /login while authenticated or running locally, redirect to root
+  // If accessing /login while authenticated or running locally, redirect to root or return_to
   if (pathname === "/login" && isAuthenticated) {
+    const returnTo = request.nextUrl.searchParams.get("return_to");
+    if (isSafeRedirectPath(returnTo)) {
+      return applySecurityHeaders(
+        NextResponse.redirect(new URL(returnTo, request.url)),
+      );
+    }
     return applySecurityHeaders(
       NextResponse.redirect(new URL("/", request.url)),
     );
@@ -122,9 +129,11 @@ export function middleware(request: NextRequest) {
 
   // If accessing any other protected route without cookie, redirect to login
   if (pathname !== "/login" && !isAuthenticated) {
-    return applySecurityHeaders(
-      NextResponse.redirect(new URL("/login", request.url)),
-    );
+    const loginUrl = new URL("/login", request.url);
+    if (pathname.startsWith("/settings")) {
+      loginUrl.searchParams.set("return_to", pathname + request.nextUrl.search);
+    }
+    return applySecurityHeaders(NextResponse.redirect(loginUrl));
   }
 
   // Redirect empty search query to homepage
@@ -172,6 +181,7 @@ export const config = {
     "/api/admin/mcp/:path*",
     "/changelog",
     "/changelog/:path*",
+    "/settings/:path*",
     // /api is intentionally omitted. Desktop auto-update and the curation
     // model manifest must stay reachable without a session cookie. Those
     // handlers apply their own per-IP rate limits.

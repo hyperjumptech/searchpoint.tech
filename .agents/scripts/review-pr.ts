@@ -332,8 +332,8 @@ if (postComment) {
 // ── Helpers ─────────────────────────────────────────────────
 function runAI(promptText: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const child = spawn(backend.cmd, [...backend.args, "--print"], {
-      stdio: ["pipe", "pipe", "inherit"],
+    const child = spawn(backend.cmd, [...backend.args, promptText], {
+      stdio: ["ignore", "pipe", "inherit"],
       // Run outside the project dir so local files don't bleed into the review
       cwd: tmpdir(),
     });
@@ -345,6 +345,5 @@ function runAI(promptText: string): Promise<string> {
         ? resolve(out.trim())
         : reject(new Error(`${backend.cmd} exited ${code}`)),
     );
-    child.stdin.end(promptText);
   });
 }

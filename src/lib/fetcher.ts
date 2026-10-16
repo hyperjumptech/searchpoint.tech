@@ -2,7 +2,12 @@ import { cookies } from "next/headers";
 
 import { env } from "@/lib/env";
 
-const ALLOWED_PATH_PREFIXES = ["/v1/auth/", "/v1/files/"];
+const ALLOWED_PATH_PREFIXES = [
+  "/v1/auth/",
+  "/v1/files/",
+  "/v1/preferences",
+  "/v1/onedrive/",
+];
 
 function resolveBackendUrl(path: string) {
   if (!path.startsWith("/") || path.startsWith("//")) {
@@ -17,8 +22,12 @@ function resolveBackendUrl(path: string) {
   }
 
   // Checked against the normalized pathname so traversal cannot escape a prefix.
-  const isAllowed = ALLOWED_PATH_PREFIXES.some((prefix) =>
-    url.pathname.startsWith(prefix),
+  const isAllowed = ALLOWED_PATH_PREFIXES.some(
+    (prefix) =>
+      url.pathname === prefix ||
+      (prefix.endsWith("/")
+        ? url.pathname.startsWith(prefix)
+        : url.pathname.startsWith(`${prefix}/`)),
   );
 
   if (!isAllowed) {

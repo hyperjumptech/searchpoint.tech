@@ -191,6 +191,13 @@ export default function Navbar({
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/settings/onedrive"
+                        className="flex items-center">
+                        <span>OneDrive Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleDownload}>
                       <Download className="mr-2 h-4 w-4" />
                       <span>Download desktop app</span>

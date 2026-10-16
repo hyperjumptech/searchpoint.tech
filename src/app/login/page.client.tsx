@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, Mail } from "lucide-react";
+import { isSafeRedirectPath } from "@/lib/safe-redirect";
 
 import NavbarLogo from "@/components/navbar-logo";
 import CompanyLogo from "@/components/company-logo";
@@ -80,10 +81,30 @@ export function LoginClient({
     handleUseDifferentEmail,
   } = useMagicLink();
 
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimerRef.current) {
+        clearTimeout(redirectTimerRef.current);
+      }
+    };
+  }, []);
+
   const handleLogin = () => {
     setIsLoading(true);
-    setTimeout(() => {
-      window.location.href = authUrl;
+    let targetAuthUrl = authUrl;
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnTo = urlParams.get("return_to");
+      if (isSafeRedirectPath(returnTo)) {
+        const fullReturnTo = `${window.location.origin}${returnTo}`;
+        const separator = targetAuthUrl.includes("?") ? "&" : "?";
+        targetAuthUrl = `${targetAuthUrl}${separator}return_to=${encodeURIComponent(fullReturnTo)}`;
+      }
+    }
+    redirectTimerRef.current = setTimeout(() => {
+      window.location.href = targetAuthUrl;
     }, 1200);
   };
 
@@ -100,8 +121,16 @@ export function LoginClient({
       if (res.success) {
         setShowDevModal(false);
         setIsLoading(true);
-        setTimeout(() => {
-          window.location.href = "/";
+        let destination = "/";
+        if (typeof window !== "undefined") {
+          const urlParams = new URLSearchParams(window.location.search);
+          const returnTo = urlParams.get("return_to");
+          if (isSafeRedirectPath(returnTo)) {
+            destination = returnTo;
+          }
+        }
+        redirectTimerRef.current = setTimeout(() => {
+          window.location.href = destination;
         }, 1200);
       } else {
         setDevError(res.error || "Failed to resolve authentication link.");

@@ -248,9 +248,9 @@ Guidelines:
             "--print",
             agyPrompt,
             "--model",
-            "gemini-3.6-flash",
+            "gemini-3.8-flash",
             "--effort",
-            "low",
+            "medium",
             "--dangerously-skip-permissions",
           ]
         : [

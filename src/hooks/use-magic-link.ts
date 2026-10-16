@@ -2,8 +2,9 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { sendMagicLink } from "@/actions/send-magic-link";
+import { isSafeRedirectPath } from "@/lib/safe-redirect";
 
-export function useMagicLink() {
+export function useMagicLink(initialReturnTo?: string) {
   const [magicLinkEmail, setMagicLinkEmail] = useState("");
   const [isMagicLinkSubmitted, setIsMagicLinkSubmitted] = useState(false);
   const [isSendingMagicLink, setIsSendingMagicLink] = useState(false);
@@ -26,10 +27,22 @@ export function useMagicLink() {
     try {
       setIsSendingMagicLink(true);
       setMagicLinkError("");
-      const returnTo =
-        typeof window !== "undefined" && window.location.origin
-          ? window.location.origin
-          : undefined;
+      let returnTo: string | undefined = initialReturnTo;
+      if (typeof window !== "undefined") {
+        if (isSafeRedirectPath(returnTo)) {
+          returnTo = `${window.location.origin}${returnTo}`;
+        } else if (!returnTo) {
+          const urlParams = new URLSearchParams(window.location.search);
+          const fromParam = urlParams.get("return_to");
+          if (isSafeRedirectPath(fromParam)) {
+            returnTo = `${window.location.origin}${fromParam}`;
+          } else {
+            returnTo = window.location.origin;
+          }
+        } else {
+          returnTo = window.location.origin;
+        }
+      }
       const res = await sendMagicLink(email, returnTo);
       if (res.success) {
         setIsMagicLinkSubmitted(true);

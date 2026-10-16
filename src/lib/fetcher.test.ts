@@ -90,4 +90,23 @@ describe("fetcher", () => {
     await expect(call).rejects.toThrow("fetcher path is not on the allowlist");
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it("allows exact /v1/preferences path", async () => {
+    // Act
+    await fetcher("/v1/preferences");
+
+    // Assert
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url] = fetchMock.mock.calls[0];
+    expect((url as URL).toString()).toBe(`${BACKEND_BASE_URL}/v1/preferences`);
+  });
+
+  it("rejects loose prefix match on /v1/preferences (e.g. /v1/preferences_evil)", async () => {
+    // Act
+    const call = fetcher("/v1/preferences_evil");
+
+    // Assert
+    await expect(call).rejects.toThrow("fetcher path is not on the allowlist");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
 });

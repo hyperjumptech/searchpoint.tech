@@ -145,3 +145,61 @@ describe("middleware admin basic auth", () => {
     expect(middleware(requestFor("/api/oauth/token")).status).toBe(200);
   });
 });
+
+describe("middleware return_to and protected route redirection", () => {
+  it("redirects unauthenticated /settings/onedrive to /login with return_to", () => {
+    const res = middleware(requestFor("/settings/onedrive"));
+    expect(res.status).toBe(307);
+    const location = res.headers.get("location");
+    expect(location).toBe(
+      "https://example.com/login?return_to=%2Fsettings%2Fonedrive",
+    );
+  });
+
+  it("preserves query params in return_to when redirecting to /login", () => {
+    const res = middleware(requestFor("/settings/onedrive?tab=general"));
+    expect(res.status).toBe(307);
+    const location = res.headers.get("location");
+    expect(location).toBe(
+      "https://example.com/login?return_to=%2Fsettings%2Fonedrive%3Ftab%3Dgeneral",
+    );
+  });
+
+  it("redirects authenticated user on /login to safe return_to", () => {
+    const req = new NextRequest(
+      "https://example.com/login?return_to=/settings/onedrive",
+      {
+        headers: { cookie: "SCSE_ID=valid-session" },
+      },
+    );
+    const res = middleware(req);
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe(
+      "https://example.com/settings/onedrive",
+    );
+  });
+
+  it("rejects protocol-relative open redirect on /login and redirects to /", () => {
+    const req = new NextRequest(
+      "https://example.com/login?return_to=//malicious.com",
+      {
+        headers: { cookie: "SCSE_ID=valid-session" },
+      },
+    );
+    const res = middleware(req);
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("https://example.com/");
+  });
+
+  it("rejects backslash open redirect on /login and redirects to /", () => {
+    const req = new NextRequest(
+      "https://example.com/login?return_to=/\\evil.com",
+      {
+        headers: { cookie: "SCSE_ID=valid-session" },
+      },
+    );
+    const res = middleware(req);
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("https://example.com/");
+  });
+});
