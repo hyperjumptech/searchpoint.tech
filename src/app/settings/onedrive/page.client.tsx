@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { OneDriveIcon } from "@/components/icons/source-icons";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -27,16 +28,20 @@ import {
   AlertCircle,
   Shield,
   Search,
+  ExternalLink,
+  Download,
 } from "lucide-react";
 
 export interface OneDriveSettingsClientProps {
   email?: string;
   initialAutoGrantEnabled: boolean;
+  hasActiveConnection?: boolean;
 }
 
 export function OneDriveSettingsClient({
   email,
   initialAutoGrantEnabled,
+  hasActiveConnection = false,
 }: OneDriveSettingsClientProps) {
   const [isEnabled, setIsEnabled] = useState(initialAutoGrantEnabled);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -203,13 +208,23 @@ export function OneDriveSettingsClient({
     }
 
     // Strict validation: check against active query result or any colleague retrieved in this session
-    const isRegistered =
-      colleagues.some((c) => c.email.toLowerCase() === cleanEmail) ||
-      allColleaguesRef.current.has(cleanEmail);
+    const targetColleague =
+      colleagues.find((c) => c.email.toLowerCase() === cleanEmail) ||
+      allColleaguesRef.current.get(cleanEmail);
 
-    if (!isRegistered) {
+    if (!targetColleague) {
       setValidationError(
         `"${cleanEmail}" is not a registered SearchPoint user. Only registered company colleagues can be invited.`,
+      );
+      return;
+    }
+
+    if (
+      targetColleague.auto_grant_enabled ||
+      targetColleague.status === "active"
+    ) {
+      setValidationError(
+        `"${cleanEmail}" already has search access enabled and does not need an invitation.`,
       );
       return;
     }
@@ -316,100 +331,140 @@ export function OneDriveSettingsClient({
 
       {/* Main toggle card */}
       <div className="space-y-6">
-        <div
-          className={`flex items-center justify-between gap-4 rounded-xl border p-5 transition-colors ${
-            isEnabled
-              ? "border-blue-500/30 bg-blue-500/5 shadow-xs"
-              : "border-border bg-card"
-          }`}>
-          <div className="min-w-0 pr-2">
-            <div className="flex items-center gap-1.5">
-              <h2 className="text-base font-semibold text-foreground">
-                Let colleagues find your files
-              </h2>
-              <ColleaguesInfoTooltip />
+        {!hasActiveConnection ? (
+          <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-800 dark:text-amber-300">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            <div className="min-w-0 flex-1">
+              <p className="font-medium">OneDrive not connected</p>
+              <p className="mt-0.5 text-xs text-amber-700 dark:text-amber-400">
+                You have not connected a OneDrive account yet. Please connect
+                your OneDrive account in the SearchPoint desktop app to enable
+                automatic search access for colleagues.
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1.5 border-amber-500/40 bg-background/80 text-xs text-foreground hover:bg-background">
+                  <a href="searchpoint://">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    <span>Open in SearchPoint Desktop App</span>
+                  </a>
+                </Button>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 gap-1.5 text-xs text-amber-800 hover:bg-amber-500/20 dark:text-amber-300">
+                  <Link href="/#download">
+                    <Download className="h-3.5 w-3.5" />
+                    <span>Download App</span>
+                  </Link>
+                </Button>
+              </div>
             </div>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              Only files they can already open. Your sharing settings do not
-              change.
-            </p>
           </div>
-          <Switch
-            checked={isEnabled}
-            onCheckedChange={handleToggle}
-            disabled={isUpdating}
-            aria-label="Let colleagues find your files"
-          />
-        </div>
-
-        {/* Status preview hint */}
-        <div className="flex items-center gap-2.5 px-1 text-sm text-muted-foreground">
-          {isEnabled ? (
-            <Check className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-          ) : (
-            <Search className="h-4 w-4 shrink-0 text-muted-foreground/70" />
-          )}
-          <span>
-            Colleagues see the file name, folder, and a short preview.
-          </span>
-        </div>
-
-        {/* Invite colleagues card */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-border bg-card p-5">
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <h3 className="text-base font-semibold text-foreground">
-                Invite colleagues to let others find their files
-              </h3>
-              <ColleaguesInfoTooltip />
+        ) : (
+          <>
+            <div
+              className={`flex items-center justify-between gap-4 rounded-xl border p-5 transition-colors ${
+                isEnabled
+                  ? "border-blue-500/30 bg-blue-500/5 shadow-xs"
+                  : "border-border bg-card"
+              }`}>
+              <div className="min-w-0 pr-2">
+                <div className="flex items-center gap-1.5">
+                  <h2 className="text-base font-semibold text-foreground">
+                    Let colleagues find your files
+                  </h2>
+                  <ColleaguesInfoTooltip />
+                </div>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  Only files they can already open. Your sharing settings do not
+                  change.
+                </p>
+              </div>
+              <Switch
+                checked={isEnabled}
+                onCheckedChange={handleToggle}
+                disabled={isUpdating}
+                aria-label="Let colleagues find your files"
+              />
             </div>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              Invite teammates to enable OneDrive search so company files can be
-              found easily.
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="default"
-            onClick={() => setIsInviteOpen(true)}
-            className="shrink-0 gap-2 self-start sm:self-auto">
-            <UserPlus className="h-4 w-4" />
-            <span>Invite colleagues</span>
-          </Button>
-        </div>
 
-        {/* Privacy and Security guarantees */}
-        <div className="rounded-xl border border-border/60 bg-muted/20 p-5">
-          <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
-            <Shield className="h-4 w-4 text-primary" />
-            <span>Privacy &amp; Security Guarantees</span>
-          </div>
-          <ul className="space-y-2.5 text-xs text-muted-foreground">
-            <li className="flex items-start gap-2">
-              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+            {/* Status preview hint */}
+            <div className="flex items-center gap-2.5 px-1 text-sm text-muted-foreground">
+              {isEnabled ? (
+                <Check className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+              ) : (
+                <Search className="h-4 w-4 shrink-0 text-muted-foreground/70" />
+              )}
               <span>
-                <strong>Zero permission elevation:</strong> Only files
-                colleagues already have direct or link permissions to access in
-                OneDrive can ever appear in search results.
+                Colleagues see the file name, folder, and a short preview.
               </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-              <span>
-                <strong>Sharing unchanged:</strong> SearchPoint does not change
-                or create OneDrive sharing links on your behalf.
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-              <span>
-                <strong>Snippets only:</strong> Colleagues only see search
-                result snippets; full content remains secured in your
-                company&apos;s Microsoft tenant.
-              </span>
-            </li>
-          </ul>
-        </div>
+            </div>
+
+            {/* Invite colleagues card */}
+            {isEnabled && (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-border bg-card p-5">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="text-base font-semibold text-foreground">
+                      Invite colleagues to let others find their files
+                    </h3>
+                    <ColleaguesInfoTooltip />
+                  </div>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                    Invite teammates to enable OneDrive search so company files
+                    can be found easily.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="default"
+                  onClick={() => setIsInviteOpen(true)}
+                  className="shrink-0 gap-2 self-start sm:self-auto">
+                  <UserPlus className="h-4 w-4" />
+                  <span>Invite colleagues</span>
+                </Button>
+              </div>
+            )}
+
+            {/* Privacy and Security guarantees */}
+            <div className="rounded-xl border border-border/60 bg-muted/20 p-5">
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+                <Shield className="h-4 w-4 text-primary" />
+                <span>Privacy &amp; Security Guarantees</span>
+              </div>
+              <ul className="space-y-2.5 text-xs text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                  <span>
+                    <strong>Zero permission elevation:</strong> Only files
+                    colleagues already have direct or link permissions to access
+                    in OneDrive can ever appear in search results.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                  <span>
+                    <strong>Sharing unchanged:</strong> SearchPoint does not
+                    change or create OneDrive sharing links on your behalf.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                  <span>
+                    <strong>Snippets only:</strong> Colleagues only see search
+                    result snippets; full content remains secured in your
+                    company&apos;s Microsoft tenant.
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Invite Modal */}
@@ -519,7 +574,8 @@ export function OneDriveSettingsClient({
                       </div>
                     ) : (
                       filteredDropdownColleagues.map((c) => {
-                        const isAlreadyActive = c.auto_grant_enabled;
+                        const isAlreadyActive =
+                          c.auto_grant_enabled || c.status === "active";
                         const isRecentlyInvited =
                           c.status === "invited" && c.last_invited_at;
 
@@ -527,8 +583,17 @@ export function OneDriveSettingsClient({
                           <button
                             key={c.email}
                             type="button"
-                            onClick={() => addRecipient(c.email)}
-                            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition-colors hover:bg-accent hover:text-accent-foreground">
+                            disabled={isAlreadyActive}
+                            onClick={() => {
+                              if (!isAlreadyActive) {
+                                addRecipient(c.email);
+                              }
+                            }}
+                            className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition-colors ${
+                              isAlreadyActive
+                                ? "cursor-not-allowed opacity-60"
+                                : "cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                            }`}>
                             <span className="font-medium">{c.email}</span>
                             <div className="flex items-center gap-2">
                               {isAlreadyActive ? (

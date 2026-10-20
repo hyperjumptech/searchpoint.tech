@@ -26,6 +26,24 @@ export async function getPreferences(): Promise<UserPreferences> {
   }
 }
 
+export interface Connection {
+  id: number;
+  status: "active" | "needs_reauthorization" | "disconnected";
+}
+
+export async function getConnections(): Promise<Connection[]> {
+  try {
+    const res = await fetcher("/v1/connections");
+    if (!res.ok) {
+      return [];
+    }
+    const data = await res.json();
+    return data.value || [];
+  } catch {
+    return [];
+  }
+}
+
 export async function updatePreferences(
   prefs: Partial<UserPreferences>,
 ): Promise<{ success: boolean; error?: string }> {

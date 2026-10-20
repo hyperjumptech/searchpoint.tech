@@ -109,4 +109,100 @@ describe("fetcher", () => {
     await expect(call).rejects.toThrow("fetcher path is not on the allowlist");
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it("allows exact /v1/connections path", async () => {
+    // Act
+    await fetcher("/v1/connections");
+
+    // Assert
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url] = fetchMock.mock.calls[0];
+    expect((url as URL).toString()).toBe(`${BACKEND_BASE_URL}/v1/connections`);
+  });
+
+  it("returns response on 401 and 404 statuses", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response("Unauthorized", { status: 401 }),
+    );
+    const res401 = await fetcher("/v1/auth/me");
+    expect(res401.status).toBe(401);
+
+    fetchMock.mockResolvedValueOnce(new Response("Not Found", { status: 404 }));
+    const res404 = await fetcher("/v1/preferences");
+    expect(res404.status).toBe(404);
+  });
+
+  it("returns response on 4xx when returnErrorResponse is true", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: { message: "rate limited" } }), {
+        status: 400,
+        statusText: "Bad Request",
+      }),
+    );
+
+    const res = await fetcher("/v1/onedrive/invite", {
+      method: "POST",
+      returnErrorResponse: true,
+    });
+    expect(res.status).toBe(400);
+    const data = await res.json();
+    expect(data.error.message).toBe("rate limited");
+  });
+
+  it("throws FetchError on 4xx by default with structured error.message payload", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: { message: "rate limited" } }), {
+        status: 400,
+        statusText: "Bad Request",
+      }),
+    );
+
+    await expect(
+      fetcher("/v1/onedrive/invite", { method: "POST" }),
+    ).rejects.toThrow("rate limited");
+  });
+
+  it("throws FetchError extracting string error or top-level message", async () => {
+    // String error property
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "string error message" }), {
+        status: 403,
+        statusText: "Forbidden",
+      }),
+    );
+    await expect(fetcher("/v1/preferences")).rejects.toThrow(
+      "string error message",
+    );
+
+    // Top-level message property
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ message: "top level error" }), {
+        status: 400,
+        statusText: "Bad Request",
+      }),
+    );
+    await expect(fetcher("/v1/preferences")).rejects.toThrow("top level error");
+  });
+
+  it("falls back to statusText or Request failed on non-JSON error response", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response("Plain text error", {
+        status: 502,
+        statusText: "Bad Gateway",
+      }),
+    );
+
+    await expect(fetcher("/v1/preferences")).rejects.toThrow("Bad Gateway");
+  });
+
+  it("throws formatted error message on 5xx status with error payload", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: { message: "database failed" } }), {
+        status: 500,
+        statusText: "Internal Server Error",
+      }),
+    );
+
+    await expect(fetcher("/v1/preferences")).rejects.toThrow("database failed");
+  });
 });

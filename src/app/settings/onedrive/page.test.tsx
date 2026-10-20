@@ -41,6 +41,7 @@ describe("OneDriveSettingsClient", () => {
       createElement(OneDriveSettingsClient, {
         email: "me@company.com",
         initialAutoGrantEnabled: false,
+        hasActiveConnection: true,
       }),
     );
 
@@ -50,17 +51,68 @@ describe("OneDriveSettingsClient", () => {
       name: "Let colleagues find your files",
     });
     expect(toggle.getAttribute("aria-checked")).toBe("false");
-    expect(screen.getAllByTestId("colleagues-info-icon")).toHaveLength(2);
+    expect(screen.getAllByTestId("colleagues-info-icon")).toHaveLength(1);
+    expect(
+      screen.queryByText("Invite colleagues to let others find their files"),
+    ).toBeNull();
   });
 
-  it("toggles preference on and off with server action call", async () => {
-    const user = userEvent.setup();
+  it("defaults hasActiveConnection to false when prop is omitted", () => {
     render(
       createElement(OneDriveSettingsClient, {
         email: "me@company.com",
         initialAutoGrantEnabled: false,
       }),
     );
+
+    expect(screen.getByText("OneDrive not connected")).toBeDefined();
+    expect(
+      screen.queryByRole("switch", {
+        name: "Let colleagues find your files",
+      }),
+    ).toBeNull();
+  });
+
+  it("displays only unconnected notice and hides other cards when hasActiveConnection is false", () => {
+    render(
+      createElement(OneDriveSettingsClient, {
+        email: "me@company.com",
+        initialAutoGrantEnabled: false,
+        hasActiveConnection: false,
+      }),
+    );
+
+    expect(screen.getByText("OneDrive not connected")).toBeDefined();
+    expect(
+      screen.queryByRole("switch", {
+        name: "Let colleagues find your files",
+      }),
+    ).toBeNull();
+    expect(screen.queryByText("Let colleagues find your files")).toBeNull();
+    expect(screen.queryByText("Privacy & Security Guarantees")).toBeNull();
+    expect(
+      screen
+        .getByRole("link", { name: /open in searchpoint desktop app/i })
+        .getAttribute("href"),
+    ).toBe("searchpoint://");
+    expect(
+      screen.getByRole("link", { name: /download app/i }).getAttribute("href"),
+    ).toBe("/#download");
+  });
+
+  it("toggles preference on and off with server action call and reveals invite card", async () => {
+    const user = userEvent.setup();
+    render(
+      createElement(OneDriveSettingsClient, {
+        email: "me@company.com",
+        initialAutoGrantEnabled: false,
+        hasActiveConnection: true,
+      }),
+    );
+
+    expect(
+      screen.queryByText("Invite colleagues to let others find their files"),
+    ).toBeNull();
 
     const toggle = screen.getByRole("switch", {
       name: "Let colleagues find your files",
@@ -74,6 +126,9 @@ describe("OneDriveSettingsClient", () => {
       });
       expect(toggle.getAttribute("aria-checked")).toBe("true");
     });
+    expect(
+      screen.getByText("Invite colleagues to let others find their files"),
+    ).toBeDefined();
 
     // Toggle back off
     await user.click(toggle);
@@ -83,6 +138,9 @@ describe("OneDriveSettingsClient", () => {
       });
       expect(toggle.getAttribute("aria-checked")).toBe("false");
     });
+    expect(
+      screen.queryByText("Invite colleagues to let others find their files"),
+    ).toBeNull();
   });
 
   it("opens invite dialog and displays registered colleagues", async () => {
@@ -91,6 +149,7 @@ describe("OneDriveSettingsClient", () => {
       createElement(OneDriveSettingsClient, {
         email: "me@company.com",
         initialAutoGrantEnabled: true,
+        hasActiveConnection: true,
       }),
     );
 
@@ -115,6 +174,7 @@ describe("OneDriveSettingsClient", () => {
       createElement(OneDriveSettingsClient, {
         email: "me@company.com",
         initialAutoGrantEnabled: true,
+        hasActiveConnection: true,
       }),
     );
 
@@ -163,6 +223,7 @@ describe("OneDriveSettingsClient", () => {
       createElement(OneDriveSettingsClient, {
         email: "me@company.com",
         initialAutoGrantEnabled: true,
+        hasActiveConnection: true,
       }),
     );
 
@@ -206,6 +267,7 @@ describe("OneDriveSettingsClient", () => {
       createElement(OneDriveSettingsClient, {
         email: "me@company.com",
         initialAutoGrantEnabled: true,
+        hasActiveConnection: true,
       }),
     );
 
@@ -224,5 +286,155 @@ describe("OneDriveSettingsClient", () => {
     // Fast forward or wait 600ms to ensure the debounced search does not trigger duplicate fetch
     await new Promise((resolve) => setTimeout(resolve, 600));
     expect(actions.fetchColleagues).toHaveBeenCalledTimes(1);
+  });
+
+  it("prevents selecting colleagues who already have access enabled and rejects typing their email", async () => {
+    const user = userEvent.setup();
+    render(
+      createElement(OneDriveSettingsClient, {
+        email: "me@company.com",
+        initialAutoGrantEnabled: true,
+        hasActiveConnection: true,
+      }),
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: /invite colleagues/i }),
+    );
+
+    const input = screen.getByPlaceholderText(
+      "Enter registered colleague's email...",
+    );
+
+    // Focus input to open dropdown
+    await user.click(input);
+
+    await waitFor(() => {
+      expect(screen.getByText("bob@company.com")).toBeDefined();
+    });
+
+    // The option for bob should have Access On badge and be disabled
+    expect(screen.getByText("Access On")).toBeDefined();
+    const bobBtn = screen.getByText("bob@company.com").closest("button");
+    expect(bobBtn?.hasAttribute("disabled")).toBe(true);
+
+    // Clicking disabled button should not add recipient
+    if (bobBtn) await user.click(bobBtn);
+    expect(screen.queryByLabelText("Remove bob@company.com")).toBeNull();
+
+    // Typing bob's email manually and pressing enter should show validation error
+    await user.type(input, "bob@company.com{enter}");
+    expect(
+      screen.getByText(
+        /"bob@company\.com" already has search access enabled and does not need an invitation\./i,
+      ),
+    ).toBeDefined();
+    expect(screen.queryByLabelText("Remove bob@company.com")).toBeNull();
+  });
+
+  it("displays server error message when inviting recently invited colleague", async () => {
+    const user = userEvent.setup();
+    vi.mocked(actions.fetchColleagues).mockResolvedValueOnce([
+      {
+        email: "charlie@company.com",
+        auto_grant_enabled: false,
+        status: "invited",
+        last_invited_at: new Date().toISOString(),
+      },
+    ]);
+    vi.mocked(actions.inviteColleagues).mockResolvedValueOnce({
+      success: false,
+      error:
+        "invitation already sent to charlie@company.com, please wait 24 hours to resend",
+    });
+
+    render(
+      createElement(OneDriveSettingsClient, {
+        email: "me@company.com",
+        initialAutoGrantEnabled: true,
+        hasActiveConnection: true,
+      }),
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: /invite colleagues/i }),
+    );
+
+    const input = screen.getByPlaceholderText(
+      "Enter registered colleague's email...",
+    );
+    await user.click(input);
+
+    await waitFor(() => {
+      expect(screen.getByText("charlie@company.com")).toBeDefined();
+    });
+
+    // Option should have Invited recently badge and be clickable
+    expect(screen.getByText("Invited recently")).toBeDefined();
+    await user.click(screen.getByText("charlie@company.com"));
+
+    // Tag added
+    expect(screen.getByLabelText("Remove charlie@company.com")).toBeDefined();
+
+    // Click Send
+    const sendBtn = screen.getByRole("button", { name: /send invite/i });
+    await user.click(sendBtn);
+
+    // Displays the exact error message from server
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          "invitation already sent to charlie@company.com, please wait 24 hours to resend",
+        ),
+      ).toBeDefined();
+    });
+  });
+
+  it("resolves recipient from allColleaguesRef cache when typed email is not in current active query results", async () => {
+    const user = userEvent.setup();
+    render(
+      createElement(OneDriveSettingsClient, {
+        email: "me@company.com",
+        initialAutoGrantEnabled: true,
+        hasActiveConnection: true,
+      }),
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: /invite colleagues/i }),
+    );
+
+    // Initial fetch returns [alice@company.com, bob@company.com]
+    await waitFor(() => {
+      expect(actions.fetchColleagues).toHaveBeenCalledTimes(1);
+    });
+
+    const input = screen.getByPlaceholderText(
+      "Enter registered colleague's email...",
+    );
+
+    // Type a search query that returns only david
+    vi.mocked(actions.fetchColleagues).mockResolvedValueOnce([
+      {
+        email: "david@company.com",
+        auto_grant_enabled: false,
+        status: "not_invited",
+      },
+    ]);
+
+    await user.type(input, "dav");
+    await waitFor(() => {
+      expect(screen.getByText("david@company.com")).toBeDefined();
+    });
+
+    // Alice is no longer in active query results (only david is)
+    expect(screen.queryByText("alice@company.com")).toBeNull();
+
+    // Clear and manually type alice@company.com (present only in allColleaguesRef cache)
+    await user.clear(input);
+    await user.type(input, "alice@company.com{enter}");
+
+    // Should resolve safely from allColleaguesRef without throwing
+    expect(screen.getByLabelText("Remove alice@company.com")).toBeDefined();
   });
 });

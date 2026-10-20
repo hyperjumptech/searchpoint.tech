@@ -7,7 +7,31 @@ const ALLOWED_PATH_PREFIXES = [
   "/v1/files/",
   "/v1/preferences",
   "/v1/onedrive/",
+  "/v1/connections",
 ];
+
+export class FetchError extends Error {
+  status: number;
+  response: Response;
+  errorBody?: unknown;
+
+  constructor(
+    message: string,
+    status: number,
+    response: Response,
+    errorBody?: unknown,
+  ) {
+    super(message);
+    this.name = "FetchError";
+    this.status = status;
+    this.response = response;
+    this.errorBody = errorBody;
+  }
+}
+
+export interface FetcherOptions extends RequestInit {
+  returnErrorResponse?: boolean;
+}
 
 function resolveBackendUrl(path: string) {
   if (!path.startsWith("/") || path.startsWith("//")) {
@@ -39,7 +63,7 @@ function resolveBackendUrl(path: string) {
 
 export async function fetcher(
   path: string,
-  init?: RequestInit,
+  init?: FetcherOptions,
 ): Promise<Response> {
   const url = resolveBackendUrl(path);
   const cookieStore = await cookies();
@@ -55,11 +79,24 @@ export async function fetcher(
   });
 
   if (!response.ok) {
-    if (response.status === 401 || response.status === 404) {
+    if (
+      init?.returnErrorResponse ||
+      response.status === 401 ||
+      response.status === 404
+    ) {
       return response;
     }
 
-    throw new Error(response.statusText);
+    const errorBody = await response.json().catch(() => null);
+    const errorMessage =
+      (typeof errorBody?.error === "string"
+        ? errorBody.error
+        : errorBody?.error?.message) ||
+      errorBody?.message ||
+      response.statusText ||
+      "Request failed";
+
+    throw new FetchError(errorMessage, response.status, response, errorBody);
   }
 
   return response;

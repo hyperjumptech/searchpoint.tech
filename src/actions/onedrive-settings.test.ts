@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   fetchColleagues,
+  getConnections,
   getPreferences,
   inviteColleagues,
   updatePreferences,
@@ -10,6 +11,34 @@ import * as fetcherModule from "@/lib/fetcher";
 describe("onedrive-settings actions", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  describe("getConnections", () => {
+    it("returns connections when response is ok", async () => {
+      vi.spyOn(fetcherModule, "fetcher").mockResolvedValue(
+        new Response(JSON.stringify({ value: [{ id: 1, status: "active" }] }), {
+          status: 200,
+        }),
+      );
+
+      const result = await getConnections();
+      expect(result).toEqual([{ id: 1, status: "active" }]);
+    });
+
+    it("falls back to empty array on error or non-200", async () => {
+      vi.spyOn(fetcherModule, "fetcher").mockResolvedValue(
+        new Response("Not Found", { status: 404 }),
+      );
+
+      const result = await getConnections();
+      expect(result).toEqual([]);
+
+      vi.spyOn(fetcherModule, "fetcher").mockRejectedValue(
+        new Error("Network failed"),
+      );
+      const networkResult = await getConnections();
+      expect(networkResult).toEqual([]);
+    });
   });
 
   describe("getPreferences", () => {
@@ -26,7 +55,7 @@ describe("onedrive-settings actions", () => {
 
     it("falls back to default auto_grant_enabled false on non-200 or network error", async () => {
       vi.spyOn(fetcherModule, "fetcher").mockResolvedValue(
-        new Response("Internal Server Error", { status: 500 }),
+        new Response("Not Found", { status: 404 }),
       );
 
       const result = await getPreferences();
