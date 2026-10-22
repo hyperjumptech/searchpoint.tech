@@ -1,10 +1,16 @@
 # -----------------------------------------------------------------------------
-# This Dockerfile.bun is specifically configured for projects using Bun
-# For npm/pnpm or yarn, refer to the Dockerfile instead
+# Multi-stage build:
+#   - Bun is used only for dependency installation and building.
+#   - The production runtime uses Node.js 24 LTS (pinned to the security release
+#     from 21 October 2026: 24.22.1) to inherit the upstream security fixes.
+#   - Next.js runs from its standalone output via `node server.js`.
 # -----------------------------------------------------------------------------
 
-# Use Bun's official image
-FROM oven/bun:1-alpine AS base
+ARG BUN_VERSION=1.3.14
+ARG NODE_VERSION=24.22.1
+
+# Use Bun's official image for install/build tooling
+FROM oven/bun:${BUN_VERSION}-alpine AS base
 
 WORKDIR /app
 
@@ -24,8 +30,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN bun run build
 
-# Production image, copy all the files and run next
-FROM base AS runner
+# Production image: run the standalone server on Node.js 24 LTS
+FROM node:${NODE_VERSION}-alpine AS runner
 WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -48,4 +54,4 @@ USER nextjs
 
 EXPOSE 3000
 
-CMD ["bun", "./server.js"]
+CMD ["node", "./server.js"]

@@ -191,9 +191,10 @@ All routes except `/login` require authentication:
 
 ```
 ┌──────────────────────────────────────────────┐
-│         Docker Container (Bun-based)         │
+│    Docker Container (Bun build / Node run)   │
 ├──────────────────────────────────────────────┤
-│  Base: oven/bun:1                            │
+│  Build base: oven/bun:1.3.14-alpine          │
+│  Runtime base: node:24.22.1-alpine           │
 ├──────────────────────────────────────────────┤
 │  Stage 1: deps                               │
 │  - Install dependencies                      │
@@ -209,7 +210,7 @@ All routes except `/login` require authentication:
 │  - Copy build artifacts                      │
 │  - Run as non-root user (nextjs:1001)        │
 │  - Expose port 3000                          │
-│  - Start with: bun ./server.js               │
+│  - Start with: node ./server.js              │
 └──────────────────────────────────────────────┘
 ```
 

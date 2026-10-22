@@ -1,0 +1,39 @@
+# Keep the build context small and reproducible.
+# Dependencies are installed inside the image (see the `deps` stage), so the
+# host copy must never be sent to the daemon.
+node_modules
+.next
+out
+build
+coverage
+
+# VCS / editor / OS noise
+.git
+.gitignore
+.gitmodules
+.DS_Store
+*.pem
+*.tsbuildinfo
+next-env.d.ts
+
+# Local env files are not needed at build time (no NEXT_PUBLIC_* vars are baked).
+# Secrets must never end up in the build context.
+.env
+.env.*
+!.env.example
+
+# Tests and reports are not part of the production build
+e2e
+test-results
+playwright-report
+blob-report
+playwright/.cache
+playwright/.auth
+screenshots
+
+# Agent / tooling artifacts
+.worktrees
+.superpowers
+.agents
+docs
+documentation
