@@ -59,7 +59,7 @@ const SHARED_CONTENT: TenantContent = {
     headlineLead: "Unified search for your files and",
     headlineAccent: "Microsoft 365.",
     subheadline:
-      "Search local folders, OneDrive and SharePoint from one desktop app. Your source documents stay where they are.",
+      "SearchPoint connects every file source in your company, understands the document context, and turns questions into answers and actions.",
   },
   download: {
     badge: "Get Started Today",
@@ -88,7 +88,7 @@ const TENANT_CONTENT: Record<Company, Partial<TenantContent>> = {
       headlineLead: "Unified search for your files and",
       headlineAccent: "Microsoft 365.",
       subheadline:
-        "Search local folders, OneDrive and SharePoint from one desktop app. Your source documents stay where they are.",
+        "SearchPoint connects every file source in your company, understands the document context, and turns questions into answers and actions.",
     },
     download: {
       badge: "Available Now",

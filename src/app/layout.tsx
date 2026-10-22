@@ -76,6 +76,7 @@ export default async function RootLayout({
           <UserStoreInitializer user={me} />
           <CompanyFavicon company={tenant} />
           {pathname === "/login" ||
+          pathname === "/landing" ||
           pathname.startsWith("/docs/") ||
           pathname.startsWith("/changelog") ||
           pathname.startsWith("/oauth/") ? null : (

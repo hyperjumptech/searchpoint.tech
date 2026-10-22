@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { detectOSFromUA, hasGoogleChromeBrand } from "@/lib/detect-os";
 import { env } from "@/lib/env";
 import { getTenantConfig, resolveTenantId } from "@/lib/tenant";
-import LandingPageClient from "@/components/landing-page";
+import LandingPageClient from "@/components/landing/landing-page-client";
 
 export default async function LandingPage() {
   const headersList = await headers();
