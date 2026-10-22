@@ -40,7 +40,7 @@ export default function FaqSection() {
 
     if (
       typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches
     ) {
       setVisibleItems(new Set(faqItems.map((_, i) => i)));
       return;

@@ -57,9 +57,10 @@ export function HeroOrbits({ className }: { className?: string }) {
     const svg = svgRef.current;
     if (!svg) return;
 
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const reducedMotion =
+      typeof window !== "undefined" && typeof window.matchMedia === "function"
+        ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        : false;
 
     const lengths: number[] = [];
     const initialFractions: number[] = [];

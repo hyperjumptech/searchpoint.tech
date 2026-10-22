@@ -74,9 +74,12 @@ export function LandingLanguageProvider({
 export function useLandingLanguage(): LandingLanguageContextValue {
   const context = useContext(LandingLanguageContext);
   if (!context) {
-    throw new Error(
-      "useLandingLanguage must be used within a <LandingLanguageProvider>",
-    );
+    return {
+      lang: "en",
+      setLang: () => {},
+      t: (key: TranslationKey | (string & {}), fallback?: string) =>
+        getLandingTranslation("en", key, fallback),
+    };
   }
   return context;
 }

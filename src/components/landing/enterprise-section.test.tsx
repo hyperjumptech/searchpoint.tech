@@ -2,6 +2,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import EnterpriseSection from "@/components/landing/enterprise-section";
+import { LandingLanguageProvider } from "@/components/landing/landing-language-provider";
 
 describe("EnterpriseSection", () => {
   afterEach(() => {
@@ -18,7 +19,7 @@ describe("EnterpriseSection", () => {
     ).toBeDefined();
   });
 
-  it("renders all 4 accordion items with their titles and descriptions", () => {
+  it("renders all 4 accordion items with their titles and descriptions in English", () => {
     render(<EnterpriseSection />);
 
     // 1. Flexible deployment
@@ -50,6 +51,48 @@ describe("EnterpriseSection", () => {
     expect(
       screen.getByText(
         "SOC 2 compliance and dedicated data residency on enterprise plans, with access controls you define.",
+      ),
+    ).toBeDefined();
+  });
+
+  it("renders Indonesian translations when language is set to id", () => {
+    render(
+      <LandingLanguageProvider defaultLang="id">
+        <EnterpriseSection />
+      </LandingLanguageProvider>,
+    );
+
+    expect(screen.getByText("Dibangun untuk enterprise.")).toBeDefined();
+    expect(screen.getByText(/Dari penerapan hingga kepatuhan,/i)).toBeDefined();
+    expect(
+      screen.getByText(/setiap lapisan memenuhi standar audit Anda\./i),
+    ).toBeDefined();
+
+    expect(screen.getByText("Penerapan fleksibel")).toBeDefined();
+    expect(
+      screen.getByText(
+        "Berjalan di cloud Anda atau sepenuhnya on-premise. Data Anda tidak pernah meninggalkan lingkungan Anda.",
+      ),
+    ).toBeDefined();
+
+    expect(screen.getByText("Sadar hak akses")).toBeDefined();
+    expect(
+      screen.getByText(
+        "Agen mewarisi peran yang sudah dimiliki pengguna. Setiap jawaban tetap berada dalam batas apa yang boleh dilihat orang tersebut.",
+      ),
+    ).toBeDefined();
+
+    expect(screen.getByText("Perlindungan data")).toBeDefined();
+    expect(
+      screen.getByText(
+        "Data Anda tidak pernah melatih model publik. Terenkripsi saat transit dan saat tersimpan, model apa pun yang Anda pilih.",
+      ),
+    ).toBeDefined();
+
+    expect(screen.getByText("Kepatuhan & standar")).toBeDefined();
+    expect(
+      screen.getByText(
+        "Kepatuhan SOC 2 dan residensi data khusus pada paket enterprise, dengan kontrol akses yang Anda tentukan.",
       ),
     ).toBeDefined();
   });

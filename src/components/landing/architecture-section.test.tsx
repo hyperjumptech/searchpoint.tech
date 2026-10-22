@@ -96,4 +96,17 @@ describe("ArchitectureSection", () => {
     ).toBeGreaterThan(0);
     expect(screen.getAllByText(/Your team/i).length).toBeGreaterThan(0);
   });
+
+  it("has responsive light and dark background color classes on section", () => {
+    const { container } = render(
+      <LandingLanguageProvider defaultLang="en">
+        <ArchitectureSection />
+      </LandingLanguageProvider>,
+    );
+
+    const section = container.querySelector("#architecture");
+    expect(section).toBeDefined();
+    expect(section?.className).toContain("bg-[#f8fafc]");
+    expect(section?.className).toContain("dark:bg-[#0d0d0d]");
+  });
 });

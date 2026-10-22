@@ -16,8 +16,10 @@ export const LANDING_TRANSLATIONS = {
     // Hero
     "hero.badge": "The Desktop Knowledge Layer for Enterprise & AI",
     "hero.title": "The AI Knowledge Layer for Multi source Enterprise Data",
+    "hero.title_lead": "The AI Knowledge Layer",
+    "hero.title_accent": "for Multi source Enterprise Data",
     "hero.sub":
-      "Search local storage, OneDrive, Outlook, and SharePoint instantly, feed your favorite LLMs permission-aware company knowledge, and never leak sensitive files.",
+      "SearchPoint connects every file source in your company, understands the document context, and turns questions into answers and actions.",
     "hero.cta_download": "Get App",
     "hero.cta_explore": "Explore Desktop Demo ↓",
 
@@ -147,6 +149,39 @@ export const LANDING_TRANSLATIONS = {
     "dl.linux": "Linux (.deb / .rpm)",
     "dl.coming": "Coming Soon",
 
+    // Enterprise
+    "enterprise.title": "Built for the enterprise.",
+    "enterprise.sub1": "From deployment to compliance,",
+    "enterprise.sub2": "every layer meets your audit bar.",
+    "enterprise.s1_title": "Flexible deployment",
+    "enterprise.s1_body":
+      "Runs in your cloud or fully on-prem. Your records never leave your environment.",
+    "enterprise.s2_title": "Permission-aware",
+    "enterprise.s2_body":
+      "Agents inherit the roles people already have. Every answer stays inside what that person may see.",
+    "enterprise.s3_title": "Data protection",
+    "enterprise.s3_body":
+      "Your data never trains public models. Encrypted in transit and at rest, any model you choose.",
+    "enterprise.s4_title": "Compliance & standards",
+    "enterprise.s4_body":
+      "SOC 2 compliance and dedicated data residency on enterprise plans, with access controls you define.",
+    "enterprise.v1_deploy_to": "Deploy SearchPoint to",
+    "enterprise.v1_cloud": "Your cloud",
+    "enterprise.v1_vpc": "Inside your VPC",
+    "enterprise.v1_onprem": "On-prem",
+    "enterprise.v1_datacenter": "Inside your data center",
+    "enterprise.v1_records": "Records outside your environment",
+    "enterprise.v2_prompt": "“What was Q3 gross margin?”",
+    "enterprise.v2_finance": "Head of Finance",
+    "enterprise.v2_sales": "Sales staff",
+    "enterprise.v3_transit": "In transit · at rest",
+    "enterprise.v3_encrypted": "Encrypted",
+    "enterprise.v3_train": "Sent to train public models",
+    "enterprise.v4_seal": "SOC 2 · DATA RESIDENCY · ENTERPRISE PLANS · ",
+    "enterprise.v4_soc2": "SOC 2",
+    "enterprise.v4_residency": "Data residency",
+    "enterprise.v4_plans": "On enterprise plans",
+
     // FAQ
     "faq.tag": "Frequently Asked Questions",
     "faq.title": "Client FAQ & Product Architecture.",
@@ -170,15 +205,17 @@ export const LANDING_TRANSLATIONS = {
     "nav.language": "Bahasa",
 
     // Hero
-    "hero.badge": "Lapisan Pengetahuan Desktop untuk Korporasi & AI",
-    "hero.title": "The AI Knowledge Layer for Multi source Enterprise Data",
+    "hero.badge": "Desktop Knowledge Layer untuk Korporasi & AI",
+    "hero.title": "AI Knowledge Layer untuk Data Enterprise Multi-sumber",
+    "hero.title_lead": "AI Knowledge Layer",
+    "hero.title_accent": "untuk Data Enterprise Multi-sumber",
     "hero.sub":
-      "Cari penyimpanan lokal, OneDrive, Outlook, dan SharePoint seketika, beri LLM Anda pengetahuan perusahaan yang patuh izin, dan tanpa kebocoran berkas sensitif.",
+      "SearchPoint menghubungkan setiap sumber berkas di perusahaan Anda, memahami konteks dokumen, dan mengubah pertanyaan menjadi jawaban serta tindakan.",
     "hero.cta_download": "Dapatkan Aplikasi",
     "hero.cta_explore": "Lihat Demo Desktop Interaktif ↓",
 
     // Demo Section Header
-    "demo.sub": "Lapisan Pengetahuan Desktop",
+    "demo.sub": "Desktop Knowledge Layer",
 
     // Connectors
     "connectors.tag": "Konektor Enterprise",
@@ -265,7 +302,7 @@ export const LANDING_TRANSLATIONS = {
 
     // Architecture
     "arch.tag": "Cetak Biru Arsitektur",
-    "arch.title": "Di Dalam Lapisan Pengetahuan.",
+    "arch.title": "Di Dalam Knowledge Layer.",
     "arch.desc":
       "Bukan sekadar alat tambahan — SearchPoint hadir langsung di dalam organisasi Anda, terhubung dengan cara bisnis Anda beroperasi.",
     "step1.title": "01. Ingesti Delta",
@@ -302,6 +339,39 @@ export const LANDING_TRANSLATIONS = {
     "dl.win_sub": "Windows 11 / 10 x64",
     "dl.linux": "Linux (.deb / .rpm)",
     "dl.coming": "Segera Hadir",
+
+    // Enterprise
+    "enterprise.title": "Dibangun untuk enterprise.",
+    "enterprise.sub1": "Dari penerapan hingga kepatuhan,",
+    "enterprise.sub2": "setiap lapisan memenuhi standar audit Anda.",
+    "enterprise.s1_title": "Penerapan fleksibel",
+    "enterprise.s1_body":
+      "Berjalan di cloud Anda atau sepenuhnya on-premise. Data Anda tidak pernah meninggalkan lingkungan Anda.",
+    "enterprise.s2_title": "Sadar hak akses",
+    "enterprise.s2_body":
+      "Agen mewarisi peran yang sudah dimiliki pengguna. Setiap jawaban tetap berada dalam batas apa yang boleh dilihat orang tersebut.",
+    "enterprise.s3_title": "Perlindungan data",
+    "enterprise.s3_body":
+      "Data Anda tidak pernah melatih model publik. Terenkripsi saat transit dan saat tersimpan, model apa pun yang Anda pilih.",
+    "enterprise.s4_title": "Kepatuhan & standar",
+    "enterprise.s4_body":
+      "Kepatuhan SOC 2 dan residensi data khusus pada paket enterprise, dengan kontrol akses yang Anda tentukan.",
+    "enterprise.v1_deploy_to": "Terapkan SearchPoint ke",
+    "enterprise.v1_cloud": "Cloud Anda",
+    "enterprise.v1_vpc": "Di dalam VPC Anda",
+    "enterprise.v1_onprem": "On-premise",
+    "enterprise.v1_datacenter": "Di dalam pusat data Anda",
+    "enterprise.v1_records": "Data di luar lingkungan Anda",
+    "enterprise.v2_prompt": "“Berapa margin kotor Q3?”",
+    "enterprise.v2_finance": "Kepala Keuangan",
+    "enterprise.v2_sales": "Staf Penjualan",
+    "enterprise.v3_transit": "Saat transit · saat tersimpan",
+    "enterprise.v3_encrypted": "Terenkripsi",
+    "enterprise.v3_train": "Dikirim untuk melatih model publik",
+    "enterprise.v4_seal": "SOC 2 · RESIDENSI DATA · PAKET ENTERPRISE · ",
+    "enterprise.v4_soc2": "SOC 2",
+    "enterprise.v4_residency": "Residensi data",
+    "enterprise.v4_plans": "Pada paket enterprise",
 
     // FAQ
     "faq.tag": "Tanya Jawab Klien",

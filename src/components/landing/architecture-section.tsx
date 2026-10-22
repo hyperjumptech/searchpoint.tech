@@ -89,10 +89,10 @@ function OrgChartNode({
 }) {
   return (
     <div
-      className={`relative flex w-full max-w-[132px] items-center gap-2 rounded-full border bg-[#161616] py-1.5 pr-3 pl-1.5 transition-all duration-300 ${
+      className={`relative flex w-full max-w-[132px] items-center gap-2 rounded-full border bg-white shadow-sm dark:bg-[#161616] dark:shadow-none py-1.5 pr-3 pl-1.5 transition-all duration-300 ${
         isActive
-          ? "border-emerald-400/70 shadow-[0_0_0_3px_rgba(52,211,153,0.10)]"
-          : "border-white/[0.08]"
+          ? "border-emerald-500/70 shadow-[0_0_0_3px_rgba(16,185,129,0.15)] dark:border-emerald-400/70 dark:shadow-[0_0_0_3px_rgba(52,211,153,0.10)]"
+          : "border-slate-200/80 dark:border-white/[0.08]"
       }`}>
       {isActive && (
         <motion.span
@@ -104,7 +104,7 @@ function OrgChartNode({
       )}
       <span
         aria-hidden="true"
-        className="inline-block shrink-0 rounded-full ring-1 ring-white/10"
+        className="inline-block shrink-0 rounded-full ring-1 ring-black/5 dark:ring-white/10"
         style={{
           width: 24,
           height: 24,
@@ -112,11 +112,11 @@ function OrgChartNode({
         }}
       />
       <span className="flex min-w-0 flex-col leading-tight">
-        <span className="truncate text-[11.5px] font-medium text-white">
+        <span className="truncate text-[11.5px] font-medium text-slate-800 dark:text-white">
           {node.name}
         </span>
-        <span className="mt-px flex items-center gap-1 text-[9.5px] font-light text-white/40">
-          <span className="size-1 shrink-0 rounded-full bg-emerald-400/80" />
+        <span className="mt-px flex items-center gap-1 text-[9.5px] font-light text-slate-400 dark:text-white/40">
+          <span className="size-1 shrink-0 rounded-full bg-emerald-500/80 dark:bg-emerald-400/80" />
           <span className="truncate">{node.sub}</span>
         </span>
       </span>
@@ -166,7 +166,7 @@ export default function ArchitectureSection() {
   return (
     <section
       id="architecture"
-      className="relative scroll-mt-[80px] w-full px-4 sm:px-6 py-20 md:py-28 overflow-hidden bg-[#0d0d0d]">
+      className="relative scroll-mt-[80px] w-full px-4 sm:px-6 py-20 md:py-28 overflow-hidden bg-[#f8fafc] dark:bg-[#0d0d0d] transition-colors duration-200">
       {/* Scroll anchors */}
       <div id="how-it-works" className="absolute -top-20" />
       <div id="knowledge-layer" className="absolute -top-20" />
@@ -174,7 +174,7 @@ export default function ArchitectureSection() {
       {/* Background Radial Glow */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-[120px] left-1/2 -z-10 size-[900px] -translate-x-1/2 md:size-[1400px]">
+        className="pointer-events-none absolute -top-[120px] left-1/2 -z-10 size-[900px] -translate-x-1/2 md:size-[1400px] hidden dark:block">
         <svg
           viewBox="0 0 1502 1502"
           fill="none"
@@ -199,10 +199,10 @@ export default function ArchitectureSection() {
       <div className="mx-auto max-w-[1340px]">
         {/* Section Header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-10 lg:mb-14">
-          <h2 className="max-w-[584px] font-display text-3xl sm:text-4xl md:text-5xl lg:text-[46px] leading-[1.15] font-light text-balance text-white">
+          <h2 className="max-w-[584px] font-display text-3xl sm:text-4xl md:text-5xl lg:text-[46px] leading-[1.15] font-light text-balance text-slate-900 dark:text-white">
             {t("arch.title")}
           </h2>
-          <p className="max-w-[420px] text-sm md:text-base leading-relaxed font-light text-white/55 md:text-right">
+          <p className="max-w-[420px] text-sm md:text-base leading-relaxed font-light text-slate-600 dark:text-white/55 md:text-right">
             {t("arch.desc")}
           </p>
         </div>
@@ -213,8 +213,8 @@ export default function ArchitectureSection() {
               CARD 1: DATA PLATFORM
               ========================================================================= */}
           <div className="flex flex-col">
-            <div className="relative flex min-h-[340px] flex-1 flex-col justify-center overflow-hidden rounded-[14px] border border-white/12 bg-[#121212] p-5 sm:p-[28px]">
-              <span className="absolute top-[18px] left-[22px] z-10 text-[11px] leading-none font-medium tracking-[0.14em] text-white/40 uppercase">
+            <div className="relative flex min-h-[340px] flex-1 flex-col justify-center overflow-hidden rounded-[14px] border border-slate-200/80 bg-white p-5 sm:p-[28px] shadow-sm dark:border-white/12 dark:bg-[#121212] dark:shadow-none">
+              <span className="absolute top-[18px] left-[22px] z-10 text-[11px] leading-none font-medium tracking-[0.14em] text-slate-400 dark:text-white/40 uppercase">
                 Data Platform
               </span>
 
@@ -225,7 +225,7 @@ export default function ArchitectureSection() {
                     {/* Vertical Bus Line */}
                     <div
                       aria-hidden="true"
-                      className="absolute top-[14px] right-0 bottom-[14px] w-px"
+                      className="arch-bus-line absolute top-[14px] right-0 bottom-[14px] w-px"
                       style={{
                         background:
                           "repeating-linear-gradient(180deg, rgba(255,255,255,0.3) 0 4px, transparent 4px 9px)",
@@ -234,7 +234,7 @@ export default function ArchitectureSection() {
                     <div className="flex flex-col gap-[7px]">
                       {/* OneDrive */}
                       <div className="flex items-center">
-                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-white/12 bg-[#111112] px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-white/80 shadow-sm">
+                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-slate-200/80 bg-slate-50/80 px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-slate-700 shadow-sm dark:border-white/12 dark:bg-[#111112] dark:text-white/80">
                           <svg
                             viewBox="0 0 24 16"
                             fill="none"
@@ -263,7 +263,7 @@ export default function ArchitectureSection() {
 
                       {/* SharePoint */}
                       <div className="flex items-center">
-                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-white/12 bg-[#111112] px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-white/80 shadow-sm">
+                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-slate-200/80 bg-slate-50/80 px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-slate-700 shadow-sm dark:border-white/12 dark:bg-[#111112] dark:text-white/80">
                           <svg
                             viewBox="0 0 24 24"
                             fill="none"
@@ -299,7 +299,7 @@ export default function ArchitectureSection() {
 
                       {/* SearchPoint */}
                       <div className="flex items-center">
-                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-white/12 bg-[#111112] px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-white/80 shadow-sm">
+                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-slate-200/80 bg-slate-50/80 px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-slate-700 shadow-sm dark:border-white/12 dark:bg-[#111112] dark:text-white/80">
                           <svg
                             viewBox="0 0 24 24"
                             fill="none"
@@ -334,7 +334,7 @@ export default function ArchitectureSection() {
 
                       {/* Local Storage */}
                       <div className="flex items-center">
-                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-white/12 bg-[#111112] px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-white/80 shadow-sm">
+                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-slate-200/80 bg-slate-50/80 px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-slate-700 shadow-sm dark:border-white/12 dark:bg-[#111112] dark:text-white/80">
                           <svg
                             viewBox="0 0 24 24"
                             fill="none"
@@ -376,7 +376,7 @@ export default function ArchitectureSection() {
 
                       {/* Google Drive */}
                       <div className="flex items-center">
-                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-white/12 bg-[#111112] px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-white/80 shadow-sm">
+                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-slate-200/80 bg-slate-50/80 px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-slate-700 shadow-sm dark:border-white/12 dark:bg-[#111112] dark:text-white/80">
                           <svg
                             viewBox="0 0 24 24"
                             fill="none"
@@ -413,7 +413,7 @@ export default function ArchitectureSection() {
 
                       {/* Outlook */}
                       <div className="flex items-center">
-                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-white/12 bg-[#111112] px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-white/80 shadow-sm">
+                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-slate-200/80 bg-slate-50/80 px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-slate-700 shadow-sm dark:border-white/12 dark:bg-[#111112] dark:text-white/80">
                           <svg
                             viewBox="0 0 24 24"
                             fill="none"
@@ -464,8 +464,8 @@ export default function ArchitectureSection() {
 
                       {/* 10+Sources */}
                       <div className="flex items-center">
-                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-white/12 bg-[#111112] px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-white/80 shadow-sm">
-                          <Plus className="size-[13px] text-white/50" />
+                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-slate-200/80 bg-slate-50/80 px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-slate-700 shadow-sm dark:border-white/12 dark:bg-[#111112] dark:text-white/80">
+                          <Plus className="size-[13px] text-slate-400 dark:text-white/50" />
                           10+Sources
                         </span>
                         <div
@@ -492,7 +492,7 @@ export default function ArchitectureSection() {
                     />
                     <span
                       aria-hidden="true"
-                      className="shrink-0 border-y-[3px] border-l-[5px] border-y-transparent border-l-white/40"
+                      className="arch-arrow-right shrink-0 border-y-[3px] border-l-[5px] border-y-transparent border-l-slate-400 dark:border-l-white/40"
                     />
                   </div>
                 </div>
@@ -515,7 +515,7 @@ export default function ArchitectureSection() {
               />
               <span
                 aria-hidden="true"
-                className="absolute right-0 border-y-[3px] border-l-[5px] border-y-transparent border-l-white/40"
+                className="arch-arrow-right absolute right-0 border-y-[3px] border-l-[5px] border-y-transparent border-l-slate-400 dark:border-l-white/40"
               />
             </div>
           </div>
@@ -525,7 +525,7 @@ export default function ArchitectureSection() {
             <span className="flex flex-col items-center">
               <div
                 aria-hidden="true"
-                className="w-px"
+                className="arch-dash-v w-px"
                 style={{
                   height: 36,
                   background:
@@ -534,7 +534,7 @@ export default function ArchitectureSection() {
               />
               <span
                 aria-hidden="true"
-                className="border-x-[3px] border-t-[5px] border-x-transparent border-t-white/40"
+                className="arch-arrow-down border-x-[3px] border-t-[5px] border-x-transparent border-t-slate-400 dark:border-t-white/40"
               />
             </span>
           </div>
@@ -543,7 +543,7 @@ export default function ArchitectureSection() {
               CARD 2: CORE ENGINE (Vibrant Orange Radial Flame Card)
               ========================================================================= */}
           <div className="flex flex-col">
-            <div className="relative flex min-h-[340px] flex-1 flex-col justify-center overflow-hidden rounded-[14px] border border-white/12 bg-[#121212] p-5 sm:p-[28px]">
+            <div className="arch-flame-card relative flex min-h-[340px] flex-1 flex-col justify-center overflow-hidden rounded-[14px] border border-orange-500/20 bg-[#121212] p-5 sm:p-[28px] dark:border-white/12">
               {/* Vibrant Flame Background with Grain Texture */}
               <div
                 aria-hidden="true"
@@ -665,7 +665,7 @@ export default function ArchitectureSection() {
               />
               <span
                 aria-hidden="true"
-                className="absolute right-0 border-y-[3px] border-l-[5px] border-y-transparent border-l-white/40"
+                className="arch-arrow-right absolute right-0 border-y-[3px] border-l-[5px] border-y-transparent border-l-slate-400 dark:border-l-white/40"
               />
             </div>
           </div>
@@ -675,7 +675,7 @@ export default function ArchitectureSection() {
             <span className="flex flex-col items-center">
               <div
                 aria-hidden="true"
-                className="w-px"
+                className="arch-dash-v w-px"
                 style={{
                   height: 36,
                   background:
@@ -684,7 +684,7 @@ export default function ArchitectureSection() {
               />
               <span
                 aria-hidden="true"
-                className="border-x-[3px] border-t-[5px] border-x-transparent border-t-white/40"
+                className="arch-arrow-down border-x-[3px] border-t-[5px] border-x-transparent border-t-slate-400 dark:border-t-white/40"
               />
             </span>
           </div>
@@ -693,8 +693,8 @@ export default function ArchitectureSection() {
               CARD 3: YOUR AI WORKFORCE (Animated Org Hierarchy)
               ========================================================================= */}
           <div className="flex flex-col">
-            <div className="relative flex min-h-[340px] flex-1 flex-col justify-center overflow-hidden rounded-[14px] border border-white/12 bg-[#121212] p-5 sm:p-[28px]">
-              <span className="absolute top-[18px] left-[22px] z-10 text-[11px] leading-none font-medium tracking-[0.14em] text-white/40 uppercase">
+            <div className="relative flex min-h-[340px] flex-1 flex-col justify-center overflow-hidden rounded-[14px] border border-slate-200/80 bg-white p-5 sm:p-[28px] shadow-sm dark:border-white/12 dark:bg-[#121212] dark:shadow-none">
+              <span className="absolute top-[18px] left-[22px] z-10 text-[11px] leading-none font-medium tracking-[0.14em] text-slate-400 dark:text-white/40 uppercase">
                 Your AI Workforce
               </span>
 
@@ -713,14 +713,14 @@ export default function ArchitectureSection() {
                       {/* Tree Branch Line to Tier 2 */}
                       <div
                         aria-hidden="true"
-                        className="mx-auto h-5 w-px bg-white/[0.08]"
+                        className="mx-auto h-5 w-px bg-slate-200 dark:bg-white/[0.08]"
                       />
 
                       {/* Tier 2: Sales, Ops, Finance */}
                       <div className="relative">
                         <div
                           aria-hidden="true"
-                          className="absolute inset-x-[16.666%] top-0 h-px bg-white/[0.08]"
+                          className="absolute inset-x-[16.666%] top-0 h-px bg-slate-200 dark:bg-white/[0.08]"
                         />
                         <div className="grid grid-cols-3 justify-items-center gap-x-1.5">
                           {MID_NODES.map((node) => (
@@ -729,7 +729,7 @@ export default function ArchitectureSection() {
                               className="flex w-full flex-col items-center">
                               <div
                                 aria-hidden="true"
-                                className="h-5 w-px bg-white/[0.08]"
+                                className="h-5 w-px bg-slate-200 dark:bg-white/[0.08]"
                               />
                               <OrgChartNode
                                 node={node}
@@ -743,14 +743,14 @@ export default function ArchitectureSection() {
                       {/* Tree Branch Line to Tier 3 (under Ops) */}
                       <div
                         aria-hidden="true"
-                        className="mx-auto h-5 w-px bg-white/[0.08]"
+                        className="mx-auto h-5 w-px bg-slate-200 dark:bg-white/[0.08]"
                       />
 
                       {/* Tier 3: Support, Inventory */}
                       <div className="relative mx-auto w-[72%]">
                         <div
                           aria-hidden="true"
-                          className="absolute inset-x-[25%] top-0 h-px bg-white/[0.08]"
+                          className="absolute inset-x-[25%] top-0 h-px bg-slate-200 dark:bg-white/[0.08]"
                         />
                         <div className="grid grid-cols-2 justify-items-center gap-x-1.5">
                           {BOT_NODES.map((node) => (
@@ -759,7 +759,7 @@ export default function ArchitectureSection() {
                               className="flex w-full flex-col items-center">
                               <div
                                 aria-hidden="true"
-                                className="h-5 w-px bg-white/[0.08]"
+                                className="h-5 w-px bg-slate-200 dark:bg-white/[0.08]"
                               />
                               <OrgChartNode
                                 node={node}
@@ -779,8 +779,8 @@ export default function ArchitectureSection() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -5 }}
                             transition={{ duration: 0.3, ease: "easeOut" }}
-                            className="text-[12px] leading-none font-light whitespace-nowrap text-white/50 lg:text-[10.5px]">
-                            <span className="text-white/80">
+                            className="text-[12px] leading-none font-light whitespace-nowrap text-slate-500 dark:text-white/50 lg:text-[10.5px]">
+                            <span className="text-slate-800 dark:text-white/80">
                               {currentWorkforceNode}
                             </span>{" "}
                             — {NARRATIVES[currentWorkforceNode]}
@@ -800,28 +800,28 @@ export default function ArchitectureSection() {
             ========================================================================= */}
         <div className="mt-[18px] hidden lg:grid lg:grid-cols-[1fr_40px_1.06fr_40px_1fr]">
           <div className="col-span-3">
-            <div className="flex flex-col items-center gap-[10px] opacity-50">
-              <div className="h-[10px] w-full border-x border-b border-white/15" />
-              <span className="text-[11px] leading-none font-medium tracking-[0.14em] text-white/40 uppercase">
+            <div className="flex flex-col items-center gap-[10px] opacity-70 dark:opacity-50">
+              <div className="h-[10px] w-full border-x border-b border-slate-300 dark:border-white/15" />
+              <span className="text-[11px] leading-none font-medium tracking-[0.14em] text-slate-500 dark:text-white/40 uppercase">
                 Secure & compliant · Deploys in your cloud or on-prem
               </span>
             </div>
           </div>
           <div />
-          <div className="flex flex-col items-center gap-[10px] opacity-50">
-            <div className="h-[10px] w-full border-x border-b border-white/15" />
-            <span className="text-[11px] leading-none font-medium tracking-[0.14em] text-white/40 uppercase">
+          <div className="flex flex-col items-center gap-[10px] opacity-70 dark:opacity-50">
+            <div className="h-[10px] w-full border-x border-b border-slate-300 dark:border-white/15" />
+            <span className="text-[11px] leading-none font-medium tracking-[0.14em] text-slate-500 dark:text-white/40 uppercase">
               Your team
             </span>
           </div>
         </div>
 
         {/* Mobile bottom labels */}
-        <div className="mt-6 flex flex-col items-center gap-2 lg:hidden text-center opacity-60">
-          <span className="text-[10px] font-medium tracking-[0.14em] text-white/40 uppercase">
+        <div className="mt-6 flex flex-col items-center gap-2 lg:hidden text-center opacity-70 dark:opacity-60">
+          <span className="text-[10px] font-medium tracking-[0.14em] text-slate-500 dark:text-white/40 uppercase">
             Secure & compliant · Deploys in your cloud or on-prem
           </span>
-          <span className="text-[10px] font-medium tracking-[0.14em] text-white/40 uppercase">
+          <span className="text-[10px] font-medium tracking-[0.14em] text-slate-500 dark:text-white/40 uppercase">
             Your team
           </span>
         </div>

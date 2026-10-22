@@ -127,9 +127,10 @@ export function CloudCanvas({
     if (!canvas) return;
 
     // Detect reduced motion
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const reducedMotion =
+      typeof window !== "undefined" && typeof window.matchMedia === "function"
+        ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        : false;
 
     // Obtain WebGL2 context
     const gl = canvas.getContext("webgl2", {

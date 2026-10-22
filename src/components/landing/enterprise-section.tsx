@@ -4,6 +4,7 @@ import * as React from "react";
 import { motion } from "framer-motion";
 import { Cloud, Server, Lock, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLandingLanguage } from "./landing-language-provider";
 
 // Background Seal spinning geometric rosette
 function EnterpriseSealBackground() {
@@ -54,29 +55,40 @@ function EnterpriseSealBackground() {
   );
 }
 
-// 1. Flexible deployment visual preview
-const DEPLOY_OPTIONS = [
-  { Icon: Cloud, label: "Your cloud", sub: "Inside your VPC" },
-  { Icon: Server, label: "On-prem", sub: "Inside your data center" },
-];
-
 function FlexibleDeploymentVisual({ open }: { open: boolean }) {
+  const { t } = useLandingLanguage();
   const [activeIdx, setActiveIdx] = React.useState(0);
+
+  const deployOptions = React.useMemo(
+    () => [
+      {
+        Icon: Cloud,
+        label: t("enterprise.v1_cloud"),
+        sub: t("enterprise.v1_vpc"),
+      },
+      {
+        Icon: Server,
+        label: t("enterprise.v1_onprem"),
+        sub: t("enterprise.v1_datacenter"),
+      },
+    ],
+    [t],
+  );
 
   React.useEffect(() => {
     if (!open) return;
     const timer = window.setInterval(() => {
-      setActiveIdx((prev) => (prev + 1) % DEPLOY_OPTIONS.length);
+      setActiveIdx((prev) => (prev + 1) % deployOptions.length);
     }, 1800);
     return () => window.clearInterval(timer);
-  }, [open]);
+  }, [open, deployOptions.length]);
 
   return (
     <div className="flex flex-col gap-2 py-1">
       <p className="text-[11px] leading-[1.4] font-light text-white/40">
-        Deploy Nalar to
+        {t("enterprise.v1_deploy_to")}
       </p>
-      {DEPLOY_OPTIONS.map(({ Icon, label, sub }, idx) => {
+      {deployOptions.map(({ Icon, label, sub }, idx) => {
         const isSelected = activeIdx === idx;
         return (
           <div
@@ -124,7 +136,7 @@ function FlexibleDeploymentVisual({ open }: { open: boolean }) {
         );
       })}
       <div className="mt-1 flex items-center justify-between border-t border-white/10 pt-3 text-[11px] leading-[1.4] font-light">
-        <span className="text-white/55">Records outside your environment</span>
+        <span className="text-white/55">{t("enterprise.v1_records")}</span>
         <span className="font-display text-[20px] leading-[1.35] text-white tabular-nums">
           0
         </span>
@@ -134,18 +146,23 @@ function FlexibleDeploymentVisual({ open }: { open: boolean }) {
 }
 
 // 2. Permission-aware visual preview
-const PERMISSION_USERS = [
-  { initials: "VT", role: "Head of Finance", allowed: true },
-  { initials: "RP", role: "Sales staff", allowed: false },
-];
-
 function PermissionAwareVisual({ open }: { open: boolean }) {
+  const { t } = useLandingLanguage();
+
+  const permissionUsers = React.useMemo(
+    () => [
+      { initials: "VT", role: t("enterprise.v2_finance"), allowed: true },
+      { initials: "RP", role: t("enterprise.v2_sales"), allowed: false },
+    ],
+    [t],
+  );
+
   return (
     <div className="flex flex-col gap-3 py-1">
       <p className="text-[11px] leading-[1.4] font-light text-white/45">
-        “What was Q3 gross margin?”
+        {t("enterprise.v2_prompt")}
       </p>
-      {PERMISSION_USERS.map((user, idx) => (
+      {permissionUsers.map((user, idx) => (
         <div
           key={user.initials}
           className="flex items-center gap-3 border-t border-white/10 pt-3">
@@ -182,6 +199,7 @@ const INVOICE_LINES = ["PT Sinar Jaya", "Invoice 0417", "Rp 184.000.000"];
 const CIPHER_CHARS = "ABCDEF0123456789#$%&*+=/<>";
 
 function DataProtectionVisual({ open }: { open: boolean }) {
+  const { t } = useLandingLanguage();
   const [displayLines, setDisplayLines] = React.useState(INVOICE_LINES);
 
   React.useEffect(() => {
@@ -225,12 +243,13 @@ function DataProtectionVisual({ open }: { open: boolean }) {
       </div>
       <div className="flex items-center justify-between border-t border-white/10 pt-3 text-[11px] leading-[1.4] font-light">
         <span className="flex items-center gap-1.5 text-white/55">
-          <Lock className="size-3" strokeWidth={1.5} /> In transit · at rest
+          <Lock className="size-3" strokeWidth={1.5} />{" "}
+          {t("enterprise.v3_transit")}
         </span>
-        <span className="text-white">Encrypted</span>
+        <span className="text-white">{t("enterprise.v3_encrypted")}</span>
       </div>
       <div className="flex items-center justify-between text-[11px] leading-[1.4] font-light">
-        <span className="text-white/55">Sent to train public models</span>
+        <span className="text-white/55">{t("enterprise.v3_train")}</span>
         <span className="font-display text-[20px] leading-[1.35] text-white tabular-nums">
           0
         </span>
@@ -241,6 +260,8 @@ function DataProtectionVisual({ open }: { open: boolean }) {
 
 // 4. Compliance & standards visual preview (with spinning circular seal)
 function ComplianceVisual({ open }: { open: boolean }) {
+  const { t } = useLandingLanguage();
+
   return (
     <div className="flex items-center gap-5 py-1">
       <svg viewBox="0 0 120 120" className="size-28 shrink-0" fill="none">
@@ -262,9 +283,7 @@ function ComplianceVisual({ open }: { open: boolean }) {
             fill="rgba(255,255,255,0.55)"
             fontSize="7.6"
             letterSpacing="0.16em">
-            <textPath href="#nx-seal-ring">
-              SOC 2 · DATA RESIDENCY · ENTERPRISE PLANS ·{" "}
-            </textPath>
+            <textPath href="#nx-seal-ring">{t("enterprise.v4_seal")}</textPath>
           </text>
         </g>
         <path
@@ -275,39 +294,43 @@ function ComplianceVisual({ open }: { open: boolean }) {
         <path d="M55 59 l4 4 l7 -8" stroke="white" strokeWidth="1.1" />
       </svg>
       <div className="flex flex-col gap-2 text-[11px] leading-[1.4] font-light">
-        <span className="text-white">SOC 2</span>
-        <span className="text-white">Data residency</span>
-        <span className="text-white/45">On enterprise plans</span>
+        <span className="text-white">{t("enterprise.v4_soc2")}</span>
+        <span className="text-white">{t("enterprise.v4_residency")}</span>
+        <span className="text-white/45">{t("enterprise.v4_plans")}</span>
       </div>
     </div>
   );
 }
 
-const SECTIONS = [
-  {
-    title: "Flexible deployment",
-    body: "Runs in your cloud or fully on-prem. Your records never leave your environment.",
-    Visual: FlexibleDeploymentVisual,
-  },
-  {
-    title: "Permission-aware",
-    body: "Agents inherit the roles people already have. Every answer stays inside what that person may see.",
-    Visual: PermissionAwareVisual,
-  },
-  {
-    title: "Data protection",
-    body: "Your data never trains public models. Encrypted in transit and at rest, any model you choose.",
-    Visual: DataProtectionVisual,
-  },
-  {
-    title: "Compliance & standards",
-    body: "SOC 2 compliance and dedicated data residency on enterprise plans, with access controls you define.",
-    Visual: ComplianceVisual,
-  },
-];
-
 export default function EnterpriseSection() {
+  const { t } = useLandingLanguage();
   const [openIdx, setOpenIdx] = React.useState<number | null>(null);
+
+  const sections = React.useMemo(
+    () => [
+      {
+        title: t("enterprise.s1_title"),
+        body: t("enterprise.s1_body"),
+        Visual: FlexibleDeploymentVisual,
+      },
+      {
+        title: t("enterprise.s2_title"),
+        body: t("enterprise.s2_body"),
+        Visual: PermissionAwareVisual,
+      },
+      {
+        title: t("enterprise.s3_title"),
+        body: t("enterprise.s3_body"),
+        Visual: DataProtectionVisual,
+      },
+      {
+        title: t("enterprise.s4_title"),
+        body: t("enterprise.s4_body"),
+        Visual: ComplianceVisual,
+      },
+    ],
+    [t],
+  );
 
   return (
     <section className="w-full px-6 pb-[120px] md:pb-[160px]" id="enterprise">
@@ -317,18 +340,18 @@ export default function EnterpriseSection() {
 
         {/* Section title & subtitle */}
         <h2 className="max-w-[760px] font-display text-[32px] leading-[1.25] font-light text-balance text-white/40 md:text-[42px] md:leading-[1.25]">
-          <span className="text-white">Built for the enterprise.</span>
+          <span className="text-white">{t("enterprise.title")}</span>
           <br />
-          From deployment to compliance,
+          {t("enterprise.sub1")}
           <br />
-          every layer meets your audit bar.
+          {t("enterprise.sub2")}
         </h2>
 
         {/* Accordion List */}
         <ul
           className="mt-16 border-b border-white/10 md:mt-24"
           onMouseLeave={() => setOpenIdx(null)}>
-          {SECTIONS.map(({ title, body, Visual }, idx) => {
+          {sections.map(({ title, body, Visual }, idx) => {
             const isOpen = openIdx === idx;
             const isDimmed = openIdx !== null && !isOpen;
 

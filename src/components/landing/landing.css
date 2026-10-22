@@ -1761,8 +1761,15 @@
 }
 
 .sp-landing .agent-hero {
+  background: #121217;
   border-top-left-radius: 24px;
   border-top-right-radius: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sp-landing[data-theme="light"] .agent-hero {
+  background: #121217;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 .sp-landing .agent-noise {
@@ -1779,8 +1786,8 @@
   width: max(24px, calc((100vw - 1152px) / 2));
   background-image: linear-gradient(
     to right,
-    var(--background, #0a0a0c) 0%,
-    var(--background, #0a0a0c) 35%,
+    var(--bg-main, var(--background, #0a0a0c)) 0%,
+    var(--bg-main, var(--background, #0a0a0c)) 35%,
     rgba(0, 0, 0, 0) 100%
   );
 }
@@ -1789,8 +1796,8 @@
   width: max(24px, calc((100vw - 1152px) / 2));
   background-image: linear-gradient(
     to left,
-    var(--background, #0a0a0c) 0%,
-    var(--background, #0a0a0c) 35%,
+    var(--bg-main, var(--background, #0a0a0c)) 0%,
+    var(--bg-main, var(--background, #0a0a0c)) 35%,
     rgba(0, 0, 0, 0) 100%
   );
 }
@@ -1806,6 +1813,9 @@
 }
 .sp-landing[data-theme="light"] .agent-hero .text-white\/35 {
   color: rgba(255, 255, 255, 0.45) !important;
+}
+.sp-landing[data-theme="light"] .agent-hero .ring-white\/20 {
+  --tw-ring-color: rgba(255, 255, 255, 0.2) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1836,6 +1846,49 @@
   .nx-hiwd-dash {
     animation: none;
   }
+}
+
+/* Architecture Section Light Theme Adaptations */
+.sp-landing[data-theme="light"] #architecture {
+  background-color: var(--bg-main) !important;
+}
+
+.sp-landing[data-theme="light"] #architecture .nx-hiwd-dash {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(15, 23, 42, 0.22) 0 4px,
+    transparent 4px 9px
+  ) !important;
+}
+
+.sp-landing[data-theme="light"] #architecture .arch-bus-line,
+.sp-landing[data-theme="light"] #architecture .arch-dash-v {
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.22) 0 4px,
+    transparent 4px 9px
+  ) !important;
+}
+
+.sp-landing[data-theme="light"] #architecture .arch-arrow-right {
+  border-left-color: rgba(15, 23, 42, 0.35) !important;
+}
+
+.sp-landing[data-theme="light"] #architecture .arch-arrow-down {
+  border-top-color: rgba(15, 23, 42, 0.35) !important;
+}
+
+/* Maintain high-contrast text on the flame card in light mode */
+.sp-landing[data-theme="light"] #architecture .arch-flame-card .text-white,
+.sp-landing[data-theme="light"] #architecture .arch-flame-card .text-white\/90 {
+  color: #ffffff !important;
+}
+.sp-landing[data-theme="light"] #architecture .arch-flame-card .text-white\/45,
+.sp-landing[data-theme="light"] #architecture .arch-flame-card .text-white\/55 {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+.sp-landing[data-theme="light"] #architecture .arch-flame-card .text-white\/85 {
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
 .sp-landing .arch-head-aside {

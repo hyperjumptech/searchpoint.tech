@@ -21,7 +21,7 @@ export interface HeroSectionProps {
 }
 
 export default function HeroSection({ onDownload, content }: HeroSectionProps) {
-  const { t } = useLandingLanguage();
+  const { t, lang } = useLandingLanguage();
 
   return (
     <div className="relative isolate w-full hero-gradient-mesh">
@@ -36,9 +36,9 @@ export default function HeroSection({ onDownload, content }: HeroSectionProps) {
           {/* Headline H1 with Display Font & Tenant Primary Dot */}
           <div className="mx-auto max-w-4xl text-center">
             <h1 className="sp-hero-title font-display font-normal text-foreground tracking-tight text-center">
-              The AI Knowledge Layer{" "}
+              {t("hero.title_lead")}{" "}
               <span className="inline-block">
-                for Multi source Enterprise Data
+                {t("hero.title_accent")}
                 <span className="text-primary font-bold"></span>
               </span>
             </h1>
@@ -47,7 +47,9 @@ export default function HeroSection({ onDownload, content }: HeroSectionProps) {
           {/* Subheadline */}
           <div>
             <p className="mt-5 max-w-[580px] text-[16px] md:text-[17px] leading-[1.6] font-light text-muted-foreground mx-auto">
-              {content?.subheadline || t("hero.sub")}
+              {lang === "id"
+                ? t("hero.sub")
+                : content?.subheadline || t("hero.sub")}
             </p>
           </div>
 
@@ -97,7 +99,7 @@ export default function HeroSection({ onDownload, content }: HeroSectionProps) {
               {/* Secondary Outline Link */}
               <a
                 href="#desktop-search"
-                className="inline-flex h-[38px] items-center justify-center rounded-full border border-border/80 px-6 text-[13px] leading-[1.25] font-semibold text-foreground transition-all hover:border-foreground/40 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer">
+                className="relative z-10 inline-flex h-[38px] items-center justify-center rounded-full border border-border/80 bg-background px-6 text-[13px] leading-[1.25] font-semibold text-foreground transition-all hover:border-foreground/40 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer">
                 {t("hero.cta_explore")}
               </a>
             </div>

@@ -29,7 +29,7 @@ export default function ConnectorsSection() {
     // Check prefers-reduced-motion
     if (
       typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches
     ) {
       return;
     }
