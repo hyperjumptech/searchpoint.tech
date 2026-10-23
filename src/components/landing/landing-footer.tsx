@@ -18,12 +18,19 @@ export default function LandingFooter({
   content,
 }: LandingFooterProps) {
   const { t } = useLandingLanguage();
+  const [currentYear, setCurrentYear] = React.useState<number | null>(null);
+
+  React.useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   const companyName = company
     ? COMPANY_LOGOS[company]?.alt || company
     : "Hyperjump";
   const brandName = content?.legalName || companyName;
-  const copyrightText = `© ${new Date().getFullYear()} ${brandName}`;
+  const copyrightText = currentYear
+    ? `© ${currentYear} ${brandName}`
+    : brandName;
 
   const navLinks = [
     { href: "#desktop-search", label: t("nav.search") },

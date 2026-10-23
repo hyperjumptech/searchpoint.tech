@@ -27,6 +27,8 @@ interface NodePosition {
   };
 }
 
+const roundCoordinate = (value: number) => Math.round(value * 10000) / 10000;
+
 export default function ConnectorAtlas({
   activeFilter,
   activeKey,
@@ -94,13 +96,13 @@ export default function ConnectorAtlas({
       const uy = dy / dist;
 
       positions[node.key] = {
-        x,
-        y,
+        x: roundCoordinate(x),
+        y: roundCoordinate(y),
         line: {
-          x1: cx + ux * coreRadius,
-          y1: cy + uy * coreRadius,
-          x2: x - ux * orbRadius,
-          y2: y - uy * orbRadius,
+          x1: roundCoordinate(cx + ux * coreRadius),
+          y1: roundCoordinate(cy + uy * coreRadius),
+          x2: roundCoordinate(x - ux * orbRadius),
+          y2: roundCoordinate(y - uy * orbRadius),
         },
       };
     });

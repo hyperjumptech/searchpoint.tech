@@ -12,9 +12,9 @@ function EnterpriseSealBackground() {
     <svg
       aria-hidden="true"
       viewBox="0 0 200 200"
-      className="pointer-events-none absolute -top-16 -right-16 -z-10 size-[420px] opacity-[0.16]"
+      className="pointer-events-none absolute -top-16 -right-16 -z-10 size-[420px] text-black opacity-[0.16] dark:text-white"
       fill="none"
-      stroke="white"
+      stroke="currentColor"
       strokeWidth="0.4">
       <g
         style={{
@@ -333,14 +333,16 @@ export default function EnterpriseSection() {
   );
 
   return (
-    <section className="w-full px-6 pb-[120px] md:pb-[160px]" id="enterprise">
-      <div className="mx-auto w-full max-w-[1340px] relative isolate overflow-hidden rounded-[24px] bg-[rgb(17,14,7)] px-6 py-16 [filter:invert(1)_hue-rotate(180deg)] md:px-20 md:py-24">
+    <section className="w-full px-6 pb-16 md:pb-20" id="enterprise">
+      <div className="mx-auto w-full max-w-[1340px] relative isolate overflow-hidden rounded-[24px] bg-[#f4f1e9] px-6 py-16 dark:bg-[rgb(17,14,7)] md:px-20 md:py-24">
         {/* Background spinning seal geometry */}
         <EnterpriseSealBackground />
 
         {/* Section title & subtitle */}
-        <h2 className="max-w-[760px] font-display text-[32px] leading-[1.25] font-light text-balance text-white/40 md:text-[42px] md:leading-[1.25]">
-          <span className="text-white">{t("enterprise.title")}</span>
+        <h2 className="max-w-[760px] font-display text-[32px] leading-[1.25] font-light text-balance text-black/60 dark:text-white/80 md:text-[42px] md:leading-[1.25]">
+          <span className="text-black dark:text-white">
+            {t("enterprise.title")}
+          </span>
           <br />
           {t("enterprise.sub1")}
           <br />
@@ -349,14 +351,16 @@ export default function EnterpriseSection() {
 
         {/* Accordion List */}
         <ul
-          className="mt-16 border-b border-white/10 md:mt-24"
+          className="mt-16 border-b border-black/10 dark:border-white/10 md:mt-24"
           onMouseLeave={() => setOpenIdx(null)}>
           {sections.map(({ title, body, Visual }, idx) => {
             const isOpen = openIdx === idx;
             const isDimmed = openIdx !== null && !isOpen;
 
             return (
-              <li key={title} className="border-t border-white/10">
+              <li
+                key={title}
+                className="border-t border-black/10 dark:border-white/10">
                 <button
                   type="button"
                   aria-expanded={isOpen}
@@ -370,7 +374,9 @@ export default function EnterpriseSection() {
                   <h3
                     className={cn(
                       "text-[20px] leading-[1.35] font-light transition-colors duration-300 md:text-2xl",
-                      isDimmed ? "text-white/35" : "text-white",
+                      isDimmed
+                        ? "text-black/35 dark:text-white/35"
+                        : "text-black dark:text-white",
                     )}>
                     <span
                       aria-hidden="true"
@@ -420,7 +426,9 @@ export default function EnterpriseSection() {
                     <p
                       className={cn(
                         "order-1 text-[13px] leading-[1.5] font-light transition-colors duration-300 md:order-2 md:w-[320px]",
-                        isOpen ? "text-white/80" : "text-white/50",
+                        isOpen
+                          ? "text-black/80 dark:text-white/80"
+                          : "text-black/50 dark:text-white/50",
                       )}>
                       {body}
                     </p>

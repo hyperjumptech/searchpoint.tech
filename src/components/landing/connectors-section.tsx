@@ -59,7 +59,7 @@ export default function ConnectorsSection() {
   return (
     <section
       id="connectors"
-      className="sp-connectors connector-glow relative overflow-hidden border-t border-border/40 py-24 md:py-32">
+      className="sp-connectors connector-glow relative overflow-hidden border-t border-border/40 py-12 md:py-32">
       <LandingContainer className="text-center">
         <h2 className="sp-section-title font-display font-light text-foreground text-3xl md:text-5xl lg:text-6xl tracking-tight leading-[1.1] mt-3">
           {t("connectors.title")}

@@ -130,14 +130,14 @@ export default function LandingHeader({ company }: LandingHeaderProps) {
         />
 
         <nav
-          className="relative flex items-center justify-between h-[68px] px-3 sm:px-4"
+          className="relative mx-[2px] flex items-center justify-between h-[68px] px-[2.5px] sm:mx-0 sm:px-4"
           aria-label="Main Navigation">
           {/* Brand Logo */}
           <Link
             href="/landing"
             onClick={closeMenu}
             aria-label="SearchPoint Home"
-            className="shrink-0 flex items-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full px-2 py-1">
+            className="shrink-0 flex items-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full px-2 py-1 mr-2">
             <CompanyLogo
               company={company}
               className="h-6 md:h-7 w-auto object-contain transition-transform group-hover:scale-105"
@@ -241,7 +241,7 @@ export default function LandingHeader({ company }: LandingHeaderProps) {
           ref={menuRef}
           aria-hidden={!mobileMenuOpen}
           className={cn(
-            "xl:hidden absolute inset-x-4 top-full mt-2 rounded-3xl p-3 no-scrollbar shadow-2xl border border-border/80 transition-all duration-300",
+            "xl:hidden absolute inset-x-4 top-full mt-2 rounded-3xl p-2 no-scrollbar shadow-2xl border border-border/80 transition-all duration-300",
             "bg-background/95 dark:bg-card/95 backdrop-blur-2xl",
             mobileMenuOpen
               ? "is-open opacity-100 visible pointer-events-auto translate-y-0"
@@ -254,7 +254,7 @@ export default function LandingHeader({ company }: LandingHeaderProps) {
                 key={link.href}
                 href={link.href}
                 onClick={closeMenu}
-                className="mobile-menu-item flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted/60 transition-colors">
+                className="mobile-menu-item flex items-center justify-between rounded-2xl px-3 py-2.5 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted/60 transition-colors">
                 <span>{link.label}</span>
                 <ArrowUpRight className="h-3.5 w-3.5 opacity-40" />
               </a>
@@ -262,17 +262,17 @@ export default function LandingHeader({ company }: LandingHeaderProps) {
           </div>
 
           {/* Action Row */}
-          <div className="mt-2 flex flex-col gap-1.5 border-t border-border/60 pt-2.5">
+          <div className="mt-1.5 flex flex-col gap-1 border-t border-border/60 pt-2">
             <a
               href="#download"
               onClick={closeMenu}
-              className="mobile-menu-item flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-foreground/90 hover:bg-muted/60 transition-colors">
+              className="mobile-menu-item flex items-center justify-between rounded-2xl px-3 py-2.5 text-sm font-medium text-foreground/90 hover:bg-muted/60 transition-colors">
               <span>{t("nav.get_app")}</span>
               <ArrowUpRight className="h-3.5 w-3.5 opacity-60" />
             </a>
 
             {/* Language Selector Row */}
-            <div className="mobile-menu-item flex items-center justify-between rounded-2xl px-4 py-2.5 bg-muted/30">
+            <div className="mobile-menu-item flex items-center justify-between rounded-2xl px-3 py-2 bg-muted/30">
               <span className="text-sm font-medium text-foreground/80">
                 {t("nav.language")}
               </span>
@@ -284,7 +284,7 @@ export default function LandingHeader({ company }: LandingHeaderProps) {
                   type="button"
                   onClick={() => setLang("en")}
                   className={cn(
-                    "px-3 py-1 rounded-full transition-all duration-200 cursor-pointer",
+                    "px-2.5 py-0.5 rounded-full transition-all duration-200 cursor-pointer",
                     lang === "en"
                       ? "bg-primary text-primary-foreground font-bold shadow-xs"
                       : "text-muted-foreground hover:text-foreground",
@@ -295,7 +295,7 @@ export default function LandingHeader({ company }: LandingHeaderProps) {
                   type="button"
                   onClick={() => setLang("id")}
                   className={cn(
-                    "px-3 py-1 rounded-full transition-all duration-200 cursor-pointer",
+                    "px-2.5 py-0.5 rounded-full transition-all duration-200 cursor-pointer",
                     lang === "id"
                       ? "bg-primary text-primary-foreground font-bold shadow-xs"
                       : "text-muted-foreground hover:text-foreground",

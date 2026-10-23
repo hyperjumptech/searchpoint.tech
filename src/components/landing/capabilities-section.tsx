@@ -59,7 +59,7 @@ export default function CapabilitiesSection() {
   return (
     <section
       id="features"
-      className="w-full max-w-full scroll-mt-[80px] py-24 md:py-32">
+      className="w-full max-w-full scroll-mt-[80px] py-8 md:py-16">
       <LandingContainer>
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
@@ -92,7 +92,27 @@ export default function CapabilitiesSection() {
       </LandingContainer>
 
       {/* Agent-style capability carousel */}
-      <div className="relative mt-[54px] w-full max-w-full">
+      <div className="relative mt-6 w-full max-w-full md:mt-[54px]">
+        {/* Mobile controls sit above the cards */}
+        <div className="mb-4 flex justify-end gap-2.5 px-6 md:hidden">
+          <button
+            type="button"
+            aria-label="Previous card"
+            onClick={scrollPrev}
+            disabled={!canScrollPrev}
+            className="flex size-9 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-colors active:text-foreground cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="Next card"
+            onClick={scrollNext}
+            disabled={!canScrollNext}
+            className="flex size-9 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-colors active:text-foreground cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+
         <div
           aria-hidden="true"
           className="agent-fade-left pointer-events-none absolute inset-y-0 left-0 z-10 hidden md:block"
@@ -227,26 +247,6 @@ export default function CapabilitiesSection() {
               </article>
             );
           })}
-        </div>
-
-        {/* Mobile controls */}
-        <div className="mt-4 flex justify-end gap-2.5 px-6 md:hidden">
-          <button
-            type="button"
-            aria-label="Previous card"
-            onClick={scrollPrev}
-            disabled={!canScrollPrev}
-            className="flex size-9 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-colors active:text-foreground cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            aria-label="Next card"
-            onClick={scrollNext}
-            disabled={!canScrollNext}
-            className="flex size-9 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-colors active:text-foreground cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </button>
         </div>
       </div>
     </section>

@@ -38,6 +38,7 @@ export function LoginClient({
   isDev = false,
   company: initialCompany,
 }: LoginClientProps) {
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
   const [company, setCompany] = useState<Company>(() => {
     if (initialCompany) return initialCompany;
     if (typeof window !== "undefined") {
@@ -47,6 +48,10 @@ export function LoginClient({
     }
     return "hyperjump";
   });
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   // A server-provided company is authoritative: the deployment is pinned to one
   // tenant via TENANT, which the client cannot see. Only sniff the hostname when
@@ -364,7 +369,7 @@ export function LoginClient({
           </div>
         </article>
         <footer className="text-xs text-muted-foreground">
-          Copyright © {new Date().getFullYear()}{" "}
+          {currentYear ? `Copyright © ${currentYear} ` : "Copyright "}
           {getTenantConfig(company).content.legalName}. All Rights Reserved.
         </footer>
       </section>

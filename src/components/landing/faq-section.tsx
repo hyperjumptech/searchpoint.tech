@@ -75,7 +75,7 @@ export default function FaqSection() {
   return (
     <section
       id="faq"
-      className="scroll-mt-24 border-t border-border/40 py-24 md:py-32">
+      className="scroll-mt-24 border-t border-border/40 py-16 md:py-20">
       <LandingContainer>
         {/* Section Header */}
         <div className="mb-12">

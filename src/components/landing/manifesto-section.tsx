@@ -5,6 +5,25 @@ import { useLandingLanguage } from "@/components/landing/landing-language-provid
 
 export default function ManifestoSection() {
   const { t, lang } = useLandingLanguage();
+  const [cardsSettled, setCardsSettled] = React.useState(false);
+
+  React.useEffect(() => {
+    const section = document.getElementById("manifesto");
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setCardsSettled(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 },
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section id="manifesto" className="w-full px-4 sm:px-6 py-16 md:py-24">
@@ -27,7 +46,9 @@ export default function ManifestoSection() {
           {/* Ambient Floating Cards */}
           <div
             aria-hidden="true"
-            className="manifesto-ambient pointer-events-none absolute inset-0">
+            className={`manifesto-ambient pointer-events-none absolute inset-0 ${
+              cardsSettled ? "is-settled" : ""
+            }`}>
             {/* Floating Card 1 */}
             <div className="mp-card mp-card-1">
               <div className="mp-card-inner">
@@ -79,7 +100,7 @@ export default function ManifestoSection() {
 
           {/* Center Manifesto Typography */}
           <div className="mp-copy">
-            <h2 className="section-title font-display font-light text-balance mp-title text-2xl md:text-4xl lg:text-5xl leading-[1.25]">
+            <h2 className="section-title font-display font-light text-balance mp-title text-xl md:text-3xl lg:text-4xl leading-[1.25]">
               {lang === "id" ? (
                 <>
                   Pencarian enterprise gagal karena menyalin berkas ke silo

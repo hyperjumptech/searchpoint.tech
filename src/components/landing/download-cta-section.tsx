@@ -154,17 +154,23 @@ export default function DownloadCtaSection({
             type="button"
             onClick={() => onDownloadPlatform("darwin-aarch64")}
             aria-label={`${t("dl.mac")} - ${t("dl.mac_sub")}`}
-            className={`dl-btn inline-flex items-center gap-3 rounded-full font-semibold text-sm transition-all duration-200 shadow-lg cursor-pointer ${
+            className={`dl-btn inline-flex items-center gap-3 rounded-full border-0 font-semibold text-sm transition-all duration-200 shadow-lg cursor-pointer ${
               isMac
-                ? "bg-foreground text-background hover:opacity-90 ring-2 ring-primary ring-offset-2 ring-offset-background"
-                : "border border-border/80 bg-card text-foreground hover:bg-muted"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "bg-card/80 text-primary hover:bg-primary/10 hover:shadow-xl dark:bg-white/10 dark:text-primary-foreground dark:hover:bg-white/15"
             }`}>
             <AppleIcon className="h-4 w-4 shrink-0" />
             <div className="text-left">
-              <span className="block text-[13px] leading-tight font-semibold">
+              <span
+                className={`block text-[13px] leading-tight font-semibold ${
+                  isMac ? "text-primary-foreground" : "text-primary"
+                }`}>
                 {t("dl.mac")}
               </span>
-              <span className="block text-[10px] text-muted-foreground font-normal">
+              <span
+                className={`block text-[10px] font-normal ${
+                  isMac ? "text-primary-foreground/70" : "text-muted-foreground"
+                }`}>
                 {t("dl.mac_sub")}
               </span>
             </div>
@@ -175,17 +181,27 @@ export default function DownloadCtaSection({
             type="button"
             onClick={() => onDownloadPlatform("windows-x86_64")}
             aria-label={`${t("dl.win")} - ${t("dl.win_sub")}`}
-            className={`dl-btn inline-flex items-center gap-3 rounded-full font-semibold text-sm transition-all duration-200 shadow-lg cursor-pointer ${
+            className={`dl-btn inline-flex items-center gap-3 rounded-full border-0 font-semibold text-sm transition-all duration-200 shadow-lg cursor-pointer ${
               isWindows
-                ? "bg-foreground text-background hover:opacity-90 ring-2 ring-primary ring-offset-2 ring-offset-background"
-                : "border border-border/80 bg-card text-foreground hover:bg-muted"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "bg-card/80 text-primary hover:bg-primary/10 hover:shadow-xl"
             }`}>
             <WindowsIcon className="h-4 w-4 shrink-0" />
             <div className="text-left">
-              <span className="block text-[13px] leading-tight font-semibold">
+              <span
+                className={`block text-[13px] leading-tight font-semibold ${
+                  isWindows
+                    ? "text-primary-foreground"
+                    : "text-primary dark:text-primary-foreground"
+                }`}>
                 {t("dl.win")}
               </span>
-              <span className="block text-[10px] text-muted-foreground font-normal">
+              <span
+                className={`block text-[10px] font-normal ${
+                  isWindows
+                    ? "text-primary-foreground/70"
+                    : "text-primary/70 dark:text-primary-foreground/70"
+                }`}>
                 {t("dl.win_sub")}
               </span>
             </div>
@@ -194,7 +210,7 @@ export default function DownloadCtaSection({
           {/* Linux (Coming Soon) */}
           <div
             aria-disabled="true"
-            className="dl-btn inline-flex items-center gap-2 rounded-full border border-border/40 bg-muted/20 text-muted-foreground/60 text-xs font-mono select-none cursor-not-allowed">
+            className="dl-btn inline-flex items-center gap-2 rounded-full border border-border/40 bg-muted/20 text-muted-foreground/60 text-xs font-mono select-none cursor-pointer transition-colors hover:bg-muted/40 hover:text-muted-foreground/80">
             <span>{t("dl.linux")}</span>
             <span className="px-2 py-0.5 rounded-full bg-muted text-[9px] uppercase tracking-wider text-muted-foreground">
               {t("dl.coming")}

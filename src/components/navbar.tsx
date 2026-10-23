@@ -237,14 +237,14 @@ export default function Navbar({
 
           {/* Mobile & Tablet Dropdown Menu (Landing page only) */}
           {isLandingPage && mobileMenuOpen && (
-            <div className="lg:hidden px-4 sm:px-6 py-4 border-t border-border/40 bg-background/95 backdrop-blur-xl flex flex-col gap-3 text-sm font-medium text-muted-foreground animate-in slide-in-from-top-2 duration-200">
+            <div className="lg:hidden w-full px-3 sm:px-6 py-3 border-t border-border/40 bg-background/95 backdrop-blur-xl flex flex-col gap-3 text-sm font-medium text-muted-foreground animate-in slide-in-from-top-2 duration-200">
               {NAV_ITEMS.map((item) =>
                 item.isExternal ? (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="px-2 py-1.5 hover:text-foreground flex items-center justify-between">
+                    className="w-full px-2 py-1 hover:text-foreground flex items-center justify-between">
                     <span>{item.label}</span>
                     <ExternalLink className="h-3.5 w-3.5" />
                   </Link>
@@ -253,7 +253,7 @@ export default function Navbar({
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="px-2 py-1.5 hover:text-foreground">
+                    className="w-full px-2 py-1 hover:text-foreground">
                     {item.label}
                   </a>
                 ),
@@ -262,7 +262,7 @@ export default function Navbar({
                 <Link
                   href="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-2 py-1.5 text-primary font-semibold hover:underline">
+                  className="w-full px-2 py-1 text-primary font-semibold hover:underline">
                   Sign In
                 </Link>
               )}

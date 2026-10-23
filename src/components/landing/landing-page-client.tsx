@@ -82,11 +82,11 @@ function LandingPageContent({
         {/* 5. Core Capabilities Carousel */}
         <CapabilitiesSection />
 
-        {/* 6. Five-Step Architecture Pipeline */}
-        <ArchitectureSection />
-
-        {/* 7. Architecture Manifesto Permission Perimeter */}
+        {/* 6. Architecture Manifesto Permission Perimeter */}
         <ManifestoSection />
+
+        {/* 7. Five-Step Architecture Pipeline */}
+        <ArchitectureSection />
 
         {/* 8. Built for the Enterprise Accordion & Security Audits */}
         <EnterpriseSection />

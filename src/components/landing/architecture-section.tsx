@@ -297,41 +297,6 @@ export default function ArchitectureSection() {
                         />
                       </div>
 
-                      {/* SearchPoint */}
-                      <div className="flex items-center">
-                        <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-slate-200/80 bg-slate-50/80 px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-slate-700 shadow-sm dark:border-white/12 dark:bg-[#111112] dark:text-white/80">
-                          <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="size-[13px]">
-                            <circle
-                              cx="11"
-                              cy="11"
-                              r="7"
-                              stroke="#38BDF8"
-                              strokeWidth="2.2"
-                            />
-                            <path
-                              d="M20 20L16 16"
-                              stroke="#38BDF8"
-                              strokeWidth="2.2"
-                              strokeLinecap="round"
-                            />
-                            <circle cx="11" cy="11" r="2.8" fill="#38BDF8" />
-                          </svg>
-                          SearchPoint
-                        </span>
-                        <div
-                          aria-hidden="true"
-                          className="nx-hiwd-dash h-px min-w-[10px] flex-1"
-                          style={{
-                            background:
-                              "repeating-linear-gradient(90deg, rgba(255,255,255,0.3) 0 4px, transparent 4px 9px)",
-                          }}
-                        />
-                      </div>
-
                       {/* Local Storage */}
                       <div className="flex items-center">
                         <span className="flex h-[26px] items-center gap-[6px] rounded-[10px] border border-slate-200/80 bg-slate-50/80 px-[9px] text-[10.5px] leading-none font-light whitespace-nowrap text-slate-700 shadow-sm dark:border-white/12 dark:bg-[#111112] dark:text-white/80">

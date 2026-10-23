@@ -31,7 +31,7 @@ export default function HeroSection({ onDownload, content }: HeroSectionProps) {
       {/* 2. Hero Section Container */}
       <section
         id="hero"
-        className="sp-hero relative overflow-hidden pt-[130px] pb-[100px] md:pt-[170px] md:pb-[140px]">
+        className="sp-hero relative overflow-hidden pt-[130px] pb-[48px] md:pt-[170px] md:pb-[72px]">
         <LandingContainer className="hero-container relative flex flex-col items-center text-center">
           {/* Headline H1 with Display Font & Tenant Primary Dot */}
           <div className="mx-auto max-w-4xl text-center">

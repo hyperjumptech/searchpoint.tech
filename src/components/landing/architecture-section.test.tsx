@@ -47,7 +47,7 @@ describe("ArchitectureSection", () => {
     );
 
     expect(screen.getByText("Core Engine")).toBeDefined();
-    expect(screen.getAllByText("SearchPoint").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText("SearchPoint").length).toBe(1);
     expect(screen.getByText("Delta Ingestion")).toBeDefined();
     expect(screen.getByText("Real-time Graph & filesystem sync")).toBeDefined();
     expect(screen.getByText("Native Sandbox")).toBeDefined();
