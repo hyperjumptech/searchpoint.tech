@@ -80,13 +80,37 @@ try {
 
   // The landing page becomes the root route: stash the real home page, then
   // put the landing page source at src/app/page.tsx for this build only.
+  // Font paths are relative to the source file, so they are re-prefixed for
+  // the promoted location (src/app/landing/fonts → src/app/fonts is wrong the
+  // other way: from src/app/page.tsx it must be ./landing/fonts/).
   stashPath("src/app/landing/page.tsx");
   fs.writeFileSync(
     path.join(root, "src", "app", "page.tsx"),
-    fs.readFileSync(
-      path.join(stashDir, "src", "app", "landing", "page.tsx"),
-      "utf8",
-    ),
+    fs
+      .readFileSync(
+        path.join(stashDir, "src", "app", "landing", "page.tsx"),
+        "utf8",
+      )
+      .replaceAll("./fonts/", "./landing/fonts/"),
+  );
+
+  // The landing logo links to the /landing route, which does not exist in the
+  // export (landing is served as "/"). Point it at "/" for this build only.
+  const landingHeader = "src/components/landing/landing-header.tsx";
+  stashPath(landingHeader);
+  const landingHeaderAbs = path.join(root, landingHeader);
+  const landingHeaderSrc = fs.readFileSync(
+    path.join(stashDir, landingHeader),
+    "utf8",
+  );
+  if (!landingHeaderSrc.includes('href="/landing"')) {
+    throw new Error(
+      `build-static: expected href="/landing" in ${landingHeader}`,
+    );
+  }
+  fs.writeFileSync(
+    landingHeaderAbs,
+    landingHeaderSrc.replaceAll('href="/landing"', 'href="/"'),
   );
 
   // Stale generated route types from `next dev` list the stashed routes and
