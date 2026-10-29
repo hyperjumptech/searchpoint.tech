@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * Static export build for GitHub Pages.
+ * Static export build for GitHub Pages — landing page only.
  *
  * `output: "export"` cannot include server-only code (API routes, middleware,
- * OAuth/settings/login pages, server actions, ISR segment configs). Those
- * paths are stashed out of the tree, the changelog segment configs are patched
- * to static-safe literals, `next build` runs with STATIC_EXPORT=1, then
+ * OAuth/settings/login pages, server actions) and the GitHub Actions runner
+ * cannot clone the private Azure mcp-contract submodule. Those paths are
+ * stashed out of the tree, `next build` runs with STATIC_EXPORT=1, then
  * everything is restored in a finally block — even on build failure.
  *
  * Normal `bun run build` (standalone/Docker) is unaffected.
@@ -20,6 +20,11 @@ const stashDir = path.join(root, ".next-export-stash");
 
 // Server-only routes/pages: Node runtime, headers()/cookies(), middleware.
 const STASH_PATHS = [
+  // Landing-only export: home, docs and changelog need request headers,
+  // the private mcp submodule (docs) or the GitHub changelog API.
+  "src/app/page.tsx",
+  "src/app/docs",
+  "src/app/changelog",
   "src/app/api",
   "src/app/oauth",
   "src/app/admin",
@@ -29,33 +34,21 @@ const STASH_PATHS = [
   "src/app/videos",
   "src/app/settings",
   "src/app/login", // imports a "use server" action → export build rejects it
-  "src/app/favicon.ico", // reads request headers; workflow copies a default icon
+  "src/app/favicon.ico", // reads request headers; script copies a default icon
   "src/middleware.ts",
   "src/proxy.ts",
+  // Private Azure submodule (src/contracts/mcp) is not cloned in CI;
+  // these libs (and their tests) only serve server-only routes.
+  "src/lib/mcp-contract.ts",
+  "src/lib/mcp-contract.test.ts",
+  "src/lib/mcp-protocol.ts",
+  "src/lib/mcp-protocol.test.ts",
+  "src/lib/mcp-tools.ts",
+  "src/lib/mcp-tools.test.ts",
+  "src/lib/mcp-tools.bubble.test.ts",
   // Next 16 typechecks test files; these import stashed server-only modules.
   "src/middleware.test.ts",
   "src/lib/mcp-allowlist.integration.test.ts",
-];
-
-// Segment configs that require a Node server (ISR revalidate, dynamicParams).
-// Replacements must match exactly — fail loudly if the source drifts.
-const REWRITES = [
-  {
-    file: "src/app/changelog/page.tsx",
-    replacements: [
-      ["export const revalidate = 60;", "export const revalidate = false;"],
-    ],
-  },
-  {
-    file: "src/app/changelog/[slug]/page.tsx",
-    replacements: [
-      ["export const revalidate = 60;", "export const revalidate = false;"],
-      [
-        "export const dynamicParams = true;",
-        "export const dynamicParams = false;",
-      ],
-    ],
-  },
 ];
 
 /** @type {{ abs: string; dest: string }[]} */
@@ -73,7 +66,7 @@ function stashPath(rel) {
 function restore() {
   for (const { abs, dest } of stashed.reverse()) {
     if (fs.existsSync(abs)) {
-      fs.rmSync(abs, { recursive: true, force: true }); // patched copy
+      fs.rmSync(abs, { recursive: true, force: true });
     }
     fs.mkdirSync(path.dirname(abs), { recursive: true });
     fs.renameSync(dest, abs);
@@ -82,28 +75,13 @@ function restore() {
   stashed.length = 0;
 }
 
-function patchRewrites() {
-  for (const { file, replacements } of REWRITES) {
-    const abs = path.join(root, file);
-    if (!fs.existsSync(abs)) continue;
-    const original = fs.readFileSync(abs, "utf8");
-    let patched = original;
-    for (const [from, to] of replacements) {
-      if (!patched.includes(from)) {
-        throw new Error(
-          `build-static: expected pattern not found in ${file}: ${JSON.stringify(from)}`,
-        );
-      }
-      patched = patched.replace(from, to);
-    }
-    stashPath(file);
-    fs.writeFileSync(abs, patched);
-  }
-}
-
 try {
   for (const rel of STASH_PATHS) stashPath(rel);
-  patchRewrites();
+
+  // Stale generated route types from `next dev` list the stashed routes and
+  // break typecheck (tsconfig includes .next/dev/types). CI has a fresh tree;
+  // local runs need the wipe.
+  fs.rmSync(path.join(root, ".next", "dev"), { recursive: true, force: true });
 
   execSync("bunx next build --turbopack", {
     cwd: root,
@@ -114,6 +92,26 @@ try {
   // GitHub Pages runs Jekyll by default, which drops `_next/` (underscore
   // prefix). .nojekyll disables that.
   fs.writeFileSync(path.join(root, "out", ".nojekyll"), "");
+
+  // Root URL → landing (there is no / page in the landing-only export).
+  fs.writeFileSync(
+    path.join(root, "out", "index.html"),
+    [
+      "<!DOCTYPE html>",
+      '<html lang="en">',
+      "<head>",
+      '<meta charset="utf-8" />',
+      '<meta http-equiv="refresh" content="0; url=./landing/" />',
+      '<link rel="canonical" href="./landing/" />',
+      "<title>SearchPoint</title>",
+      "</head>",
+      "<body>",
+      '<p><a href="./landing/">Continue to landing page</a></p>',
+      "</body>",
+      "</html>",
+      "",
+    ].join("\n"),
+  );
 
   // Default-tenant favicon: the server route (per-tenant, header-based) is not
   // part of the static export.

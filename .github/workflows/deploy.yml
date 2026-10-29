@@ -21,8 +21,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Init docs submodule
-        run: git submodule update --init src/contracts/mcp
+      # No submodule init: the private mcp-contract repo is not needed for the
+      # landing-only static build (see scripts/build-static.mjs).
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -33,9 +33,11 @@ jobs:
 
       - name: Build static export
         env:
-          NEXT_BASE_PATH: ${{ vars.NEXT_BASE_PATH != '' && vars.NEXT_BASE_PATH || format('/{0}', github.event.repository.name) }}
+          # Serves at the domain root via CNAME below, so basePath stays empty.
+          # Project-page fallback (no CNAME): set repo variable NEXT_BASE_PATH
+          # to /<repo-name>.
+          NEXT_BASE_PATH: ${{ vars.NEXT_BASE_PATH }}
           TENANT: ${{ vars.TENANT }}
-          CHANGELOG_GITHUB_TOKEN: ${{ secrets.CHANGELOG_GITHUB_TOKEN }}
         run: bun run build:static
 
       - name: Create CNAME file
