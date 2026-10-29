@@ -78,6 +78,17 @@ function restore() {
 try {
   for (const rel of STASH_PATHS) stashPath(rel);
 
+  // The landing page becomes the root route: stash the real home page, then
+  // put the landing page source at src/app/page.tsx for this build only.
+  stashPath("src/app/landing/page.tsx");
+  fs.writeFileSync(
+    path.join(root, "src", "app", "page.tsx"),
+    fs.readFileSync(
+      path.join(stashDir, "src", "app", "landing", "page.tsx"),
+      "utf8",
+    ),
+  );
+
   // Stale generated route types from `next dev` list the stashed routes and
   // break typecheck (tsconfig includes .next/dev/types). CI has a fresh tree;
   // local runs need the wipe.
@@ -92,26 +103,6 @@ try {
   // GitHub Pages runs Jekyll by default, which drops `_next/` (underscore
   // prefix). .nojekyll disables that.
   fs.writeFileSync(path.join(root, "out", ".nojekyll"), "");
-
-  // Root URL → landing (there is no / page in the landing-only export).
-  fs.writeFileSync(
-    path.join(root, "out", "index.html"),
-    [
-      "<!DOCTYPE html>",
-      '<html lang="en">',
-      "<head>",
-      '<meta charset="utf-8" />',
-      '<meta http-equiv="refresh" content="0; url=./landing/" />',
-      '<link rel="canonical" href="./landing/" />',
-      "<title>SearchPoint</title>",
-      "</head>",
-      "<body>",
-      '<p><a href="./landing/">Continue to landing page</a></p>',
-      "</body>",
-      "</html>",
-      "",
-    ].join("\n"),
-  );
 
   // Default-tenant favicon: the server route (per-tenant, header-based) is not
   // part of the static export.

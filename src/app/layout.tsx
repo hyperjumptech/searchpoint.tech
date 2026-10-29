@@ -82,7 +82,10 @@ export default async function RootLayout({
           disableTransitionOnChange>
           <UserStoreInitializer user={me} />
           <CompanyFavicon company={tenant} />
-          {pathname === "/login" ||
+          {/* Static export serves only the landing page (as "/"); it renders
+              its own header. */}
+          {isStaticExport ||
+          pathname === "/login" ||
           pathname === "/landing" ||
           pathname.startsWith("/docs/") ||
           pathname.startsWith("/changelog") ||
