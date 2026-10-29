@@ -60,7 +60,14 @@ function LandingPageContent({
   }, []);
 
   const handleGoToLogin = React.useCallback(() => {
-    router.push("/login");
+    // Real app URL when NEXT_PUBLIC_LOGIN_URL is set (static deploy);
+    // otherwise the local /login route.
+    const url = process.env.NEXT_PUBLIC_LOGIN_URL || "/login";
+    if (/^https?:\/\//.test(url)) {
+      window.location.href = url;
+    } else {
+      router.push(url);
+    }
   }, [router]);
 
   // Determine current active theme safely for SSR

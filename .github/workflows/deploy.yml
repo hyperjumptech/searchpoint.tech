@@ -38,6 +38,8 @@ jobs:
           # to /<repo-name>.
           NEXT_BASE_PATH: ${{ vars.NEXT_BASE_PATH }}
           TENANT: ${{ vars.TENANT }}
+          # Landing Sign In / CTA target (the real app deployment).
+          NEXT_PUBLIC_LOGIN_URL: ${{ vars.NEXT_PUBLIC_LOGIN_URL || 'https://searchpoint.sinarmas.hyperjump.tech/login' }}
         run: bun run build:static
 
       - name: Create CNAME file

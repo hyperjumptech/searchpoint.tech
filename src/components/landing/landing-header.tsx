@@ -15,6 +15,10 @@ interface LandingHeaderProps {
   company?: Company;
 }
 
+// Sign In target: the real app deployment (set NEXT_PUBLIC_LOGIN_URL in
+// .env / CI). Unset — e.g. local dev — falls back to the local /login route.
+const loginUrl = process.env.NEXT_PUBLIC_LOGIN_URL || "/login";
+
 export default function LandingHeader({ company }: LandingHeaderProps) {
   const { lang, setLang, t } = useLandingLanguage();
   const [isScrolled, setIsScrolled] = React.useState(false);
@@ -205,7 +209,7 @@ export default function LandingHeader({ company }: LandingHeaderProps) {
             <Button
               asChild
               className="gradient-brand-btn rounded-full text-[13px] font-semibold h-[35px] px-4 cursor-pointer">
-              <Link href="/login">{t("nav.sign_in")}</Link>
+              <Link href={loginUrl}>{t("nav.sign_in")}</Link>
             </Button>
           </div>
 
@@ -214,7 +218,7 @@ export default function LandingHeader({ company }: LandingHeaderProps) {
             <Button
               asChild
               className="gradient-brand-btn rounded-full text-[13px] font-semibold h-[35px] px-3.5 cursor-pointer">
-              <Link href="/login">{t("nav.sign_in")}</Link>
+              <Link href={loginUrl}>{t("nav.sign_in")}</Link>
             </Button>
 
             <ThemeToggle className="w-[35px] h-[35px] rounded-full" />
