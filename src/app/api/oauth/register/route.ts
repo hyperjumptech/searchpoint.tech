@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 /** Dynamic client registration is intentionally disabled in static-client mode. */
-export function POST() {
+export function POST(_request?: Request) {
   return NextResponse.json(
     {
       error: "unauthorized_client",

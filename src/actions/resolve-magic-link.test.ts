@@ -10,20 +10,23 @@ vi.mock("next/headers", () => ({
 
 describe("resolveMagicLinkUrl", () => {
   const originalEnv = process.env.NODE_ENV;
+  const setNodeEnv = (value: string | undefined) => {
+    (process.env as { NODE_ENV?: string }).NODE_ENV = value;
+  };
 
   beforeEach(() => {
     mockCookieSet.mockClear();
-    process.env.NODE_ENV = "development";
+    setNodeEnv("development");
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    process.env.NODE_ENV = originalEnv;
+    setNodeEnv(originalEnv);
   });
 
   it("is disabled in production environment", async () => {
     // Setup
-    process.env.NODE_ENV = "production";
+    setNodeEnv("production");
 
     // Act
     const result = await resolveMagicLinkUrl(

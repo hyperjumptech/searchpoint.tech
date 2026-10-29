@@ -24,7 +24,10 @@ const {
   mockGetByToken: vi.fn(async (): Promise<string[]> => []),
   mockDeleteClient: vi.fn(async () => {}),
   mockResolveClient: vi.fn(),
-  mockPolicy: vi.fn(async () => null),
+  mockPolicy: vi.fn(
+    async (): Promise<{ id: string; name: string; enabled: boolean } | null> =>
+      null,
+  ),
   mockAssociate: vi.fn(async () => {}),
 }));
 

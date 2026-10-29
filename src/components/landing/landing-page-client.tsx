@@ -23,6 +23,7 @@ import LandingFooter from "@/components/landing/landing-footer";
 
 import type { TenantContent } from "@/lib/tenant";
 import type { Company } from "@/lib/company";
+import { detectOSFromUA } from "@/lib/detect-os";
 
 interface LandingPageClientProps {
   detectedOS: string;
@@ -33,8 +34,8 @@ interface LandingPageClientProps {
 }
 
 function LandingPageContent({
-  detectedOS,
-  isMobile,
+  detectedOS: initialOS,
+  isMobile: initialIsMobile,
   content,
   company,
 }: LandingPageClientProps) {
@@ -42,6 +43,17 @@ function LandingPageContent({
   const { resolvedTheme, theme } = useTheme();
   const { lang } = useLandingLanguage();
   const [mounted, setMounted] = React.useState(false);
+
+  // Server values first (hydration match), then refine from the real browser —
+  // static export prerenders without a user-agent.
+  const [detectedOS, setDetectedOS] = React.useState(initialOS);
+  const [isMobile, setIsMobile] = React.useState(initialIsMobile);
+
+  React.useEffect(() => {
+    const ua = navigator.userAgent;
+    setDetectedOS(detectOSFromUA(ua));
+    setIsMobile(/iPhone|iPad|iPod|Android/i.test(ua));
+  }, []);
 
   React.useEffect(() => {
     setMounted(true);

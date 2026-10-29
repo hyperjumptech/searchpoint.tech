@@ -10,10 +10,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { companyFromHostname, type Company } from "@/lib/company";
-import { osToUpdaterFormat } from "@/lib/detect-os";
+import { basePath } from "@/lib/base-path";
+import { detectOSFromUA, osToUpdaterFormat } from "@/lib/detect-os";
 import Image from "next/image";
 import { Clock, Download, Search, ShieldCheck, Lock } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import packageInfo from "../../package.json";
 
 function getPlatformLabel(os: string) {
@@ -45,9 +46,9 @@ function getInstallSteps(os: string) {
 }
 
 export default function HomePageClient({
-  detectedOS,
-  isMobile,
-  isGoogleChrome,
+  detectedOS: initialOS,
+  isMobile: initialIsMobile,
+  isGoogleChrome: initialIsGoogleChrome,
   company: initialCompany,
 }: {
   detectedOS: string;
@@ -55,6 +56,26 @@ export default function HomePageClient({
   isGoogleChrome: boolean;
   company?: Company;
 }) {
+  // Server values first (hydration match), then refine from the real browser —
+  // static export prerenders without a user-agent.
+  const [detectedOS, setDetectedOS] = useState(initialOS);
+  const [isMobile, setIsMobile] = useState(initialIsMobile);
+  const [isGoogleChrome, setIsGoogleChrome] = useState(initialIsGoogleChrome);
+
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    setDetectedOS(detectOSFromUA(ua));
+    setIsMobile(/iPhone|iPad|iPod|Android/i.test(ua));
+    const brands = (
+      navigator as Navigator & {
+        userAgentData?: { brands?: { brand: string }[] };
+      }
+    ).userAgentData?.brands;
+    if (brands) {
+      setIsGoogleChrome(brands.some((b) => b.brand === "Google Chrome"));
+    }
+  }, []);
+
   const [downloaded, setDownloaded] = useState(false);
   const [fading, setFading] = useState(false);
   const [error, setError] = useState("");
@@ -230,7 +251,7 @@ export default function HomePageClient({
                                 preload="metadata"
                                 className="absolute inset-0 h-full w-full bg-background object-contain">
                                 <source
-                                  src="/videos/mac-installer.mp4"
+                                  src={`${basePath}/videos/mac-installer.mp4`}
                                   type="video/mp4"
                                 />
                                 <track kind="captions" />

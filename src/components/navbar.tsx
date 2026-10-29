@@ -74,7 +74,12 @@ export default function Navbar({
     }
   }, [initialCompany]);
 
-  if (pathname === "/login" || pathname?.startsWith("/docs/")) {
+  if (
+    pathname === "/login" ||
+    pathname?.startsWith("/docs/") ||
+    pathname?.startsWith("/changelog") ||
+    pathname?.startsWith("/oauth/")
+  ) {
     return null;
   }
 

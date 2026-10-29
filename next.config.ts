@@ -19,17 +19,30 @@ const securityHeaders = [
   },
 ];
 
+const isStaticExport = process.env.STATIC_EXPORT === "1";
+const basePath = process.env.NEXT_BASE_PATH || "";
+
 const nextConfig: NextConfig = {
-  /* config options here */
-  output: "standalone",
-  async headers() {
-    return [
-      {
-        source: "/(.*)",
-        headers: securityHeaders,
-      },
-    ];
+  output: isStaticExport ? "export" : "standalone",
+  env: {
+    NEXT_PUBLIC_BASE_PATH: basePath,
   },
+  ...(isStaticExport
+    ? {
+        basePath,
+        trailingSlash: true,
+        images: { unoptimized: true },
+      }
+    : {
+        async headers() {
+          return [
+            {
+              source: "/(.*)",
+              headers: securityHeaders,
+            },
+          ];
+        },
+      }),
 };
 
 export default nextConfig;

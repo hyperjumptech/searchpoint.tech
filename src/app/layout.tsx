@@ -15,13 +15,22 @@ import { env } from "@/lib/env";
 import { getTenantConfig, resolveTenantId } from "@/lib/tenant";
 import { ThemeProvider } from "@/components/theme-provider";
 
-export async function generateMetadata(): Promise<Metadata> {
+// Static export (GitHub Pages) has no request: no headers(), no session.
+// Tenant falls back to TENANT env / default, user is anonymous.
+const isStaticExport = process.env.STATIC_EXPORT === "1";
+
+async function requestHost(): Promise<string> {
   const headersList = await headers();
-  const host =
+  return (
     headersList.get("x-hostname") ||
     headersList.get("x-forwarded-host") ||
     headersList.get("host") ||
-    "";
+    ""
+  );
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const host = isStaticExport ? "" : await requestHost();
   const tenant = getTenantConfig(
     resolveTenantId(env.TENANT, host),
     env.APP_NAME,
@@ -51,14 +60,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const me = await getMe();
-  const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || "";
-  const host =
-    headersList.get("x-hostname") ||
-    headersList.get("x-forwarded-host") ||
-    headersList.get("host") ||
-    "";
+  const me = isStaticExport ? null : await getMe();
+  // In static export the Navbar hides itself client-side via usePathname().
+  const pathname = isStaticExport
+    ? ""
+    : (await headers()).get("x-pathname") || "";
+  const host = isStaticExport ? "" : await requestHost();
   const tenant = resolveTenantId(env.TENANT, host);
 
   return (

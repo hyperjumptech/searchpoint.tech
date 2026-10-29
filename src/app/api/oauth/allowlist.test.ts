@@ -95,7 +95,6 @@ describe("static OAuth client enforcement", () => {
         refresh_token: "refresh-token",
         client_id: "client-1",
         client_secret: "secret123",
-        client_secret: "secret123",
       }),
     });
 

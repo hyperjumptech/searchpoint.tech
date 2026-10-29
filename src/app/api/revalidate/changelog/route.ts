@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    revalidateTag("changelog");
+    revalidateTag("changelog", "max");
     revalidatePath("/changelog");
     revalidatePath("/changelog/[slug]", "page");
 
