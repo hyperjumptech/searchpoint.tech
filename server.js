@@ -26,12 +26,10 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
   let pathname = decodeURIComponent(url.pathname);
 
-  // Default to index.html
   if (pathname === "/" || pathname === "/landing") {
     pathname = "/index.html";
   }
 
-  // Handle RSC prefetch gracefully if requested
   if (url.searchParams.has("_rsc")) {
     if (url.pathname.includes("landing") && fs.existsSync(path.join(PUBLIC_DIR, "landing.rsc"))) {
       pathname = "/landing.rsc";
@@ -41,8 +39,6 @@ const server = http.createServer((req, res) => {
   }
 
   const filePath = path.join(PUBLIC_DIR, pathname);
-
-  // Security check: ensure path is within directory
   if (!filePath.startsWith(PUBLIC_DIR)) {
     res.writeHead(403);
     res.end("Forbidden");
@@ -51,7 +47,6 @@ const server = http.createServer((req, res) => {
 
   fs.stat(filePath, (err, stats) => {
     if (err || !stats.isFile()) {
-      // Fallback to index.html for SPA-style routing if needed
       const indexPath = path.join(PUBLIC_DIR, "index.html");
       if (fs.existsSync(indexPath)) {
         res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
@@ -68,14 +63,15 @@ const server = http.createServer((req, res) => {
 
     res.writeHead(200, {
       "Content-Type": contentType,
-      "Cache-Control": "public, max-age=3600"
+      "Cache-Control": "public, max-age=3600",
+      "Content-Length": stats.size
     });
     fs.createReadStream(filePath).pipe(res);
   });
 });
 
 server.listen(PORT, () => {
-  console.log(`\x1b[32m✔ Sinarmas Landing Page static server running at:\x1b[0m`);
+  console.log(`\x1b[32m✔ SearchPoint (${path.basename(PUBLIC_DIR)}) static server running at:\x1b[0m`);
   console.log(`  \x1b[36mhttp://localhost:${PORT}/\x1b[0m\n`);
   console.log(`Press Ctrl+C to stop.`);
 });
