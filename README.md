@@ -18,7 +18,8 @@ landing-sinarmas/
 │       ├── chunks/      # React & Turbopack JS chunks and CSS styles
 │       └── media/       # WOFF2 font assets (Manrope, IBM Plex Serif, Inter)
 ├── icons/               # Sinarmas official brand logos & SVG integrations
-│   ├── logo.svg         # Sinarmas vector brand logo
+│   ├── logo.svg         # Sinarmas vector brand logo (light mode)
+│   ├── sinarmas-white.svg # Sinarmas vector brand logo (dark mode)
 │   └── brands/          # Enterprise connector icons (OneDrive, SharePoint, Teams, etc.)
 ├── favicons/            # Sinarmas favicons (.ico, .png)
 ├── images/              # Walkthrough and tutorial screenshots
@@ -31,7 +32,7 @@ landing-sinarmas/
 
 - **Tenant Attribute**: `<html lang="en" data-tenant="sinarmas">`
 - **Brand Colors**: Sinarmas red accent (`--primary: oklch(0.603 0.235 26.909)`)
-- **Logo**: Sinarmas brand logo (`/icons/logo.svg`)
+- **Logo**: Sinarmas brand logo (`/icons/logo.svg` for light mode, `/icons/sinarmas-white.svg` for dark mode)
 - **Favicons**: Sinarmas customized icons (`/favicons/sinarmas.ico`, `/favicons/sinarmas.png`)
 - **Page Title**: `SearchPoint — Sinarmas`
 - **Hero & Copy**: Tenant-specific messaging ("Secure enterprise search for Sinarmas")
