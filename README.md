@@ -34,8 +34,9 @@ landing-sinarmas/
 - **Brand Colors**: Sinarmas red accent (`--primary: oklch(0.603 0.235 26.909)`)
 - **Logo**: Sinarmas brand logo (`/icons/logo.svg` for light mode, `/icons/sinarmas-white.svg` for dark mode)
 - **Favicons**: Sinarmas customized icons (`/favicons/sinarmas.ico`, `/favicons/sinarmas.png`)
-- **Page Title**: `SearchPoint — Sinarmas`
+- **Page Title**: `SearchPoint — Sinarmas: AI Knowledge Layer for Enterprise`
 - **Hero & Copy**: Tenant-specific messaging ("Secure enterprise search for Sinarmas")
+- **OpenGraph & Twitter Card**: Previews configured with light mode `preview.png` (1200x630, 1.91:1), optimized titles, descriptions, and canonical URL (`https://searchpoint.tech/`)
 
 ---
 
